@@ -1,123 +1,15 @@
-import os, re, sys, xbmc, xbmcgui, subprocess
-import guitables
-import skintables
+import re, xbmc, xbmcgui
+from lib import guitables
+from lib import skintables
+from lib import tts
 
-DEBUG = True
-
-def ERROR(txt):
-	if isinstance (txt,str): txt = txt.decode("utf-8")
-	LOG('ERROR: ' + txt)
-	short = str(sys.exc_info()[1])
-	import traceback
-	traceback.print_exc()
-	return short
-	
-def LOG(message):
-	message = 'service.xbmc.tts: ' + message
-	xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGNOTICE)
-
-class TTSBackendBase:
-	provider = None
-	def say(self,text): raise Exception('Not Implemented')
-
-	def close(self): pass
-
-	def pause(self,ms=500): xbmc.sleep(ms)
-	@staticmethod
-	def available(): return False
-	
-class LoggOnlyTTSBackend(TTSBackendBase):
-	provider = 'log'
-	def say(self,text):
-		print 'TTS: ' + repr(text)
-		
-	@staticmethod
-	def available():
-		return True
-		
-class FestivalTTSBackend(TTSBackendBase):
-	provider = 'festival'
-	def __init__(self):
-		self.startFesticalProcess()
-		
-	def startFesticalProcess(self):
-		#LOG('Starting Festival...')
-		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
-		pass
-		
-	def say(self,text):
-		if not text: return
-		##self.festivalProcess.send_signal(signal.SIGINT)
-		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
-		self.festivalProcess = subprocess.Popen(['festival','--pipe'],shell=True,stdin=subprocess.PIPE)
-		self.festivalProcess.communicate('(SayText "{0}")\n'.format(text))
-		#if self.festivalProcess.poll() != None: self.startFesticalProcess()
-		
-	def close(self):
-		#if self.festivalProcess.poll() != None: return
-		#self.festivalProcess.terminate()
-		pass
-	
-	@staticmethod
-	def available():
-		try:
-			subprocess.call(['festival', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
-		except (OSError, IOError):
-			return False
-		return True
-
-class Pico2WaveTTSBackend(TTSBackendBase):
-	provider = 'pico2wav'
-	def __init__(self):
-		import xbmcaddon
-		import os
-		profile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
-		if not os.path.exists(profile): os.makedirs(profile)
-		self.outFile = os.path.join(profile,'speech.wav')
-		LOG('pico2wave output file: ' + self.outFile)
-		
-	def say(self,text):
-		if not text: return
-		subprocess.call(['pico2wave', '-w', '{0}'.format(self.outFile), '{0}'.format(text)])
-		#xbmc.playSFX(self.outFile) #Doesn't work - caches wav
-		subprocess.call(['aplay','{0}'.format(self.outFile)])
-		
-	@staticmethod
-	def available():
-		try:
-			subprocess.call(['pico2wave', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
-		except (OSError, IOError):
-			return False
-		return True
-		
-class WindowsInternalTTSBackend(TTSBackendBase):
-	provider = 'windowstts'
-	def __init__(self):
-		import xbmcaddon
-		import os
-		profile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
-		if not os.path.exists(profile): os.makedirs(profile)
-		self.vbsFile = os.path.join(profile,'witts.vbs')
-		LOG('Windows Internal VBS file: ' + self.vbsFile)
-		self.vbs =		'set speech = Wscript.CreateObject("SAPI.spVoice")\n'
-		self.vbs +=	'speech.speak "{0}"\n'
-		
-	def say(self,text):
-		if not text: return
-		with open(self.vbsFile,'w') as f: f.write(self.vbs.format(text))
-		subprocess.call(['Wscript.exe',self.vbsFile])
-		
-	@staticmethod
-	def available():
-		return sys.platform.lower().startswith('win')
-		
-BACKENDS = [WindowsInternalTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,LoggOnlyTTSBackend]
+from lib import util
 
 class TTSService:
 	def __init__(self):
 		self.stop = False
 		self.wait = 400
-		self.enabled = True
+		self.enabled = util.getSetting('enable',False)
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
 		self.tts = None
@@ -130,14 +22,10 @@ class TTSService:
 		self.win = None
 		
 	def initTTS(self):
-		for b in BACKENDS:
-			if b.available():
-				self.tts = b()
-				LOG('TTS: %s' % b.provider)
-				return
+		self.tts = tts.getBackend()
 
 	def start(self):
-		LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.wait))
+		util.LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.wait))
 		if not self.enabled: return
 		try:
 			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
@@ -145,7 +33,7 @@ class TTSService:
 				self.checkForText()
 		finally:
 			self.tts.close()
-			LOG('STOPPED')
+			util.LOG('STOPPED')
 		
 	def checkForText(self):
 		winID = xbmcgui.getCurrentWindowId()
@@ -172,7 +60,7 @@ class TTSService:
 		self.tts.pause()
 		
 	def newControl(self,controlID):
-		if DEBUG: LOG('Control: %s' % controlID)
+		if util.DEBUG: util.LOG('Control: %s' % controlID)
 		self.controlID = controlID
 		if self.skinTable and self.winID in self.skinTable:
 			if self.controlID in self.skinTable[self.winID]:

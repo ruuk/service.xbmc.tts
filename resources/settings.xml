@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <category label="Main">
+    <setting id="enable" type="bool" label="Enable" default="false"/>
+    <setting id="default_tts" type="enum" label="Default TTS Engine" values="Windows Internal|Pico2Wave|Festival|FLite|Log" default="0" />
+  </category>
+</settings>
