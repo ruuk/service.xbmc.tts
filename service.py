@@ -1,8 +1,9 @@
-import re, sys, xbmc, xbmcgui, subprocess
+import os, re, sys, xbmc, xbmcgui, subprocess
 import guitables
 import skintables
 
-DEBUG = False
+DEBUG = True
+
 def ERROR(txt):
 	if isinstance (txt,str): txt = txt.decode("utf-8")
 	LOG('ERROR: ' + txt)
@@ -15,22 +16,27 @@ def LOG(message):
 	message = 'service.xbmc.tts: ' + message
 	xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGNOTICE)
 
-class WindowWrapper(xbmcgui.Window):
-	def onAction(self,action):
-		LOG('BC: {0} AID: {1}'.format(action.getButtonCode(),action.getId()))
-		xbmcgui.Window.onAction(self,action)
-
 class TTSBackendBase:
 	provider = None
 	def say(self,text): raise Exception('Not Implemented')
 
 	def close(self): pass
 
+	def pause(self,ms=500): xbmc.sleep(ms)
+	@staticmethod
+	def available(): return False
+	
 class LoggOnlyTTSBackend(TTSBackendBase):
+	provider = 'log'
 	def say(self,text):
 		print 'TTS: ' + repr(text)
 		
+	@staticmethod
+	def available():
+		return True
+		
 class FestivalTTSBackend(TTSBackendBase):
+	provider = 'festival'
 	def __init__(self):
 		self.startFesticalProcess()
 		
@@ -51,8 +57,17 @@ class FestivalTTSBackend(TTSBackendBase):
 		#if self.festivalProcess.poll() != None: return
 		#self.festivalProcess.terminate()
 		pass
+	
+	@staticmethod
+	def available():
+		try:
+			subprocess.call(['festival', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
+		except (OSError, IOError):
+			return False
+		return True
 
 class Pico2WaveTTSBackend(TTSBackendBase):
+	provider = 'pico2wav'
 	def __init__(self):
 		import xbmcaddon
 		import os
@@ -67,22 +82,37 @@ class Pico2WaveTTSBackend(TTSBackendBase):
 		#xbmc.playSFX(self.outFile) #Doesn't work - caches wav
 		subprocess.call(['aplay','{0}'.format(self.outFile)])
 		
+	@staticmethod
+	def available():
+		try:
+			subprocess.call(['pico2wave', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
+		except (OSError, IOError):
+			return False
+		return True
+		
 class WindowsInternalTTSBackend(TTSBackendBase):
+	provider = 'windowstts'
 	def __init__(self):
 		import xbmcaddon
 		import os
 		profile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
 		if not os.path.exists(profile): os.makedirs(profile)
 		self.vbsFile = os.path.join(profile,'witts.vbs')
-		LOG('Windows Internal VBS file: ' + self.outFile)
-		self.vbs =		'speech = Wscript.CreateObject("SAPI.spVoice")'
-		self.vbs +=	'speech.speak "{0}"'
+		LOG('Windows Internal VBS file: ' + self.vbsFile)
+		self.vbs =		'set speech = Wscript.CreateObject("SAPI.spVoice")\n'
+		self.vbs +=	'speech.speak "{0}"\n'
 		
 	def say(self,text):
 		if not text: return
 		with open(self.vbsFile,'w') as f: f.write(self.vbs.format(text))
-		subprocess.call([self.vbsFile])
+		subprocess.call(['Wscript.exe',self.vbsFile])
 		
+	@staticmethod
+	def available():
+		return sys.platform.lower().startswith('win')
+		
+BACKENDS = [WindowsInternalTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,LoggOnlyTTSBackend]
+
 class TTSService:
 	def __init__(self):
 		self.stop = False
@@ -90,7 +120,8 @@ class TTSService:
 		self.enabled = True
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
-		self.tts = WindowsInternalTTSBackend()
+		self.tts = None
+		self.initTTS()
 		
 	def initState(self):
 		self.winID = None
@@ -98,6 +129,13 @@ class TTSService:
 		self.text = None
 		self.win = None
 		
+	def initTTS(self):
+		for b in BACKENDS:
+			if b.available():
+				self.tts = b()
+				LOG('TTS: %s' % b.provider)
+				return
+
 	def start(self):
 		LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.wait))
 		if not self.enabled: return
@@ -128,12 +166,13 @@ class TTSService:
 	def newWindow(self,winID):
 		self.winID = winID
 		del self.win
-		self.win = WindowWrapper(winID)
-		name = xbmc.getInfoLabel('System.CurrentWindow') or guitables.winNames.get(winID) or 'unknown'
-		self.tts.say('Window: ' + name)
+		self.win = xbmcgui.Window(winID)
+		name = guitables.winNames.get(winID) or xbmc.getInfoLabel('System.CurrentWindow') or 'unknown'
+		self.tts.say('Window: {0}'.format(name))
+		self.tts.pause()
 		
 	def newControl(self,controlID):
-		LOG('Control: %s' % controlID)
+		if DEBUG: LOG('Control: %s' % controlID)
 		self.controlID = controlID
 		if self.skinTable and self.winID in self.skinTable:
 			if self.controlID in self.skinTable[self.winID]:
@@ -141,6 +180,7 @@ class TTSService:
 					self.sayText('{0}: {1}'.format(self.skinTable[self.winID][self.controlID]['prefix'],self.skinTable[self.winID][self.controlID]['name']))
 				else:
 					self.sayText(self.skinTable[self.winID][self.controlID]['name'])
+				self.tts.pause()
 		
 	def newText(self,text):
 		self.text = text
@@ -149,8 +189,6 @@ class TTSService:
 		if label2:
 			if seasEp:
 				text = '{0}: {1}: {2} '.format(label2, text,self.formatSeasonEp(seasEp))
-#			else:
-#				text = '{0}: {1} '.format(text, label2)
 		self.sayText(text)
 		
 	def getControlText(self,controlID):
