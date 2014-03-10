@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
-import os, time, sys, xbmc, subprocess
+import os, sys, xbmc, subprocess
 import util
 
 class TTSBackendBase:
 	provider = None
 	def say(self,text): raise Exception('Not Implemented')
 
+	def voices(self): return []
+	
+	def setVoice(self,voice): pass
+
+	def currentVoice(self): return util.getSetting('voice.{0}'.format(self.provider),'')
+		
 	def close(self): pass
 
 	def pause(self,ms=500): xbmc.sleep(ms)
+	
 	@staticmethod
 	def available(): return False
 	
@@ -26,6 +33,12 @@ class FestivalTTSBackend(TTSBackendBase):
 	def __init__(self):
 		self.startFesticalProcess()
 		
+	def voices(self):
+		p = subprocess.Popen(['festival','-i'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+		d = p.communicate('(voice.list)')
+		l = map(str.strip,d[0].rsplit('> (',1)[-1].rsplit(')',1)[0].split('\n'))
+		return l
+		
 	def startFesticalProcess(self):
 		#LOG('Starting Festival...')
 		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
@@ -35,8 +48,10 @@ class FestivalTTSBackend(TTSBackendBase):
 		if not text: return
 		##self.festivalProcess.send_signal(signal.SIGINT)
 		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
+		voice = self.currentVoice()
+		if voice: voice = '(voice_{0})\n'.format(voice)
 		self.festivalProcess = subprocess.Popen(['festival','--pipe'],shell=True,stdin=subprocess.PIPE)
-		self.festivalProcess.communicate('(SayText "{0}")\n'.format(text))
+		self.festivalProcess.communicate('{0}(SayText "{1}")\n'.format(voice,text))
 		#if self.festivalProcess.poll() != None: self.startFesticalProcess()
 		
 	def close(self):
@@ -78,53 +93,18 @@ class Pico2WaveTTSBackend(TTSBackendBase):
 		
 class FLiteTTSBackend(TTSBackendBase):
 	provider = 'flite'
-	def __init__(self):
-		import xbmcaddon
-		import os
-		profile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
-		if not os.path.exists(profile): os.makedirs(profile)
-		self.outFileBase = profile
-		self.wave = None
-		self.useFileMethod = False
-		if util.isATV2():
-			self.useFileMethod = True
-			try:
-				import wave
-				self.wave = wave
-			except:
-				self.useFileMethod = False
-		
-	def getWavDuration(self,path):
-		if not self.wave: return 0
-		w = self.wave.open(path,'r')
-		frames = w.getnframes()
-		rate = w.getframerate()
-		w.close()
-		return int((frames / float(rate)) * 1000)
-			
 	def say(self,text):
 		if not text: return
-		#flite -voice slt -t "this is a test"
-		if self.useFileMethod:
-			outFile = os.path.join(self.outFileBase,str(time.time()) + '.wav')
-			subprocess.call(['flite', '-t', '{0}'.format(text), '{0}'.format(outFile)])
-			xbmc.playSFX(outFile)
-			xbmc.sleep(self.getWavDuration(outFile))
-			os.remove(outFile)
-		else:
-			subprocess.call(['flite', '-t', '{0}'.format(text)])
-			
-	def close(self):
-		if not self.useFileMethod: return
-		#make sure we didn't leave any wavs behind
-		for f in os.listdir(self.outFileBase):
-			if f.endswith('.wav'): os.remove(os.path.join(self.outFileBase,f))
+		voice = self.currentVoice() or 'kal16'
+		subprocess.call(['flite', '-voice', voice, '-t', text])
+		
+	def voices(self):
+		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
 		
 	@staticmethod
 	def available():
 		try:
 			subprocess.call(['flite', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
-			if util.isATV2(): import wave #analysis:ignore
 		except (OSError, IOError):
 			return False
 		return True
@@ -156,12 +136,40 @@ class WindowsInternalTTSBackend(TTSBackendBase):
 		
 backends = [WindowsInternalTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FLiteTTSBackend,LogOnlyTTSBackend]
 
+def selectVoice():
+	import xbmcgui
+	b = getBackend()()
+	voices = b.voices()
+	if not voices:
+		xbmcgui.Dialog().ok('Not Available','No voices to select.')
+		return
+	idx = xbmcgui.Dialog().select('Choose Voice',voices)
+	if idx < 0: return
+	voice = voices[idx]
+	util.LOG('Voice for {0} set to: {1}'.format(b.provider,voice))
+	util.setSetting('voice.{0}'.format(b.provider),voice)
+	util.setSetting('voice',voice)
+	
+def settingsBackend():
+	userBackendIndex = util.getSetting('default_tts',-1)
+	if userBackendIndex < 0: return None
+	return backends[userBackendIndex]
+		
 def getBackend():
 	userBackendIndex = util.getSetting('default_tts',0)
 	b = backends[userBackendIndex]
-	if b.available(): return b()
+	if b.available():
+		util.LOG('TTS: %s' % b.provider)
+		return b
 	
 	for b in backends:
 		if b.available():
 			util.LOG('TTS: %s' % b.provider)
 			return b
+			
+def getBackendByName(name):
+	for b in backends:
+		if b.provider == name and b.available():
+			util.LOG('TTS: %s' % b.provider)
+			return b
+	return None

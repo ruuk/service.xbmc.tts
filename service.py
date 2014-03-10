@@ -1,4 +1,4 @@
-import re, xbmc, xbmcgui
+import sys, re, xbmc, xbmcgui
 from lib import guitables
 from lib import skintables
 from lib import tts
@@ -22,8 +22,8 @@ class TTSService:
 		self.win = None
 		
 	def initTTS(self):
-		self.tts = tts.getBackend()
-
+		self.setBackend(tts.getBackend()())
+		
 	def start(self):
 		util.LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.wait))
 		if not self.enabled: return
@@ -34,6 +34,16 @@ class TTSService:
 		finally:
 			self.tts.close()
 			util.LOG('STOPPED')
+		
+	def setBackend(self,backend):
+		self.tts = backend
+		util.setSetting('voice',self.tts.currentVoice())
+		
+	def checkBackend(self):
+		settingsBackend = tts.settingsBackend()
+		if not settingsBackend: return
+		if settingsBackend.provider == self.tts.provider: return
+		self.setBackend(settingsBackend())
 		
 	def checkForText(self):
 		winID = xbmcgui.getCurrentWindowId()
@@ -49,6 +59,7 @@ class TTSService:
 		if text != self.text or newc: self.newText(text)
 	
 	def sayText(self,text):
+		self.checkBackend()
 		self.tts.say(text)
 		
 	def newWindow(self,winID):
@@ -110,4 +121,7 @@ class TTSService:
 		return text
 	
 if __name__ == '__main__':
-	TTSService().start()
+	if len(sys.argv) > 1 and sys.argv[1] == 'voice_dialog':
+		tts.selectVoice()
+	else:
+		TTSService().start()
