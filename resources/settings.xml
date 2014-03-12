@@ -2,7 +2,7 @@
 <settings>
   <category label="Main">
     <setting id="enable" type="bool" label="Enable" default="false"/>
-    <setting id="default_tts" type="enum" label="Default TTS Engine" values="Windows Internal|Pico2Wave|Festival|FLite|Log" default="0" />
+    <setting id="default_tts" type="enum" label="Default TTS Engine" values="SAPI|Pico2Wave|Festival|FLite|Log" default="0" />
     <setting id="voice" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog)"/>
   </category>
 </settings>

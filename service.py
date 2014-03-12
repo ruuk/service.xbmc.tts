@@ -46,49 +46,50 @@ class TTSService:
 		self.setBackend(settingsBackend())
 		
 	def checkForText(self):
+		newW = self.checkWindow()
+		newC = self.checkControl(newW)
+		text = self.getControlText(self.controlID)
+		if text != self.text or newC: self.newText(text,newC)
+	
+	def sayText(self,text,interrupt=False):
+		self.checkBackend()
+		self.tts.say(text,interrupt)
+		
+	def checkWindow(self):
 		winID = xbmcgui.getCurrentWindowId()
 		dialogID = xbmcgui.getCurrentWindowDialogId()
 		if dialogID != 9999: winID = dialogID
-		if winID != self.winID: self.newWindow(winID)
-		controlID = self.win.getFocusId()
-		newc = False
-		if controlID != self.controlID:
-			newc = True
-			self.newControl(controlID)
-		text = self.getControlText(self.controlID)
-		if text != self.text or newc: self.newText(text)
-	
-	def sayText(self,text):
-		self.checkBackend()
-		self.tts.say(text)
-		
-	def newWindow(self,winID):
+		if winID == self.winID: return False
 		self.winID = winID
 		del self.win
 		self.win = xbmcgui.Window(winID)
 		name = guitables.winNames.get(winID) or xbmc.getInfoLabel('System.CurrentWindow') or 'unknown'
 		self.tts.say('Window: {0}'.format(name))
 		self.tts.pause()
+		return True
 		
-	def newControl(self,controlID):
+	def checkControl(self,newW):
+		controlID = self.win.getFocusId()
+		if controlID == self.controlID: return False
 		if util.DEBUG: util.LOG('Control: %s' % controlID)
 		self.controlID = controlID
 		if self.skinTable and self.winID in self.skinTable:
 			if self.controlID in self.skinTable[self.winID]:
 				if 'prefix' in self.skinTable[self.winID][self.controlID]:
-					self.sayText('{0}: {1}'.format(self.skinTable[self.winID][self.controlID]['prefix'],self.skinTable[self.winID][self.controlID]['name']))
+					self.sayText('{0}: {1}'.format(self.skinTable[self.winID][self.controlID]['prefix'],self.skinTable[self.winID][self.controlID]['name']),interrupt=not newW)
 				else:
-					self.sayText(self.skinTable[self.winID][self.controlID]['name'])
+					self.sayText(self.skinTable[self.winID][self.controlID]['name'],interrupt=not newW)
 				self.tts.pause()
+		return True
 		
-	def newText(self,text):
+	def newText(self,text,newC):
 		self.text = text
 		label2 = xbmc.getInfoLabel('Container({0}).ListItem.Label2'.format(self.controlID))
 		seasEp = xbmc.getInfoLabel('Container({0}).ListItem.Property(SeasonEpisode)'.format(self.controlID)) or ''
 		if label2:
 			if seasEp:
 				text = '{0}: {1}: {2} '.format(label2, text,self.formatSeasonEp(seasEp))
-		self.sayText(text)
+		self.sayText(text,interrupt=not newC)
 		
 	def getControlText(self,controlID):
 		if not controlID: return ''
