@@ -4,7 +4,7 @@ import util
 
 class TTSBackendBase:
 	provider = None
-	def say(self,text): raise Exception('Not Implemented')
+	def say(self,text,interrupt=False): raise Exception('Not Implemented')
 
 	def voices(self): return []
 	
@@ -44,7 +44,7 @@ class FestivalTTSBackend(TTSBackendBase):
 		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
 		pass
 		
-	def say(self,text):
+	def say(self,text,interrupt=False):
 		if not text: return
 		##self.festivalProcess.send_signal(signal.SIGINT)
 		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
@@ -77,7 +77,7 @@ class Pico2WaveTTSBackend(TTSBackendBase):
 		self.outFile = os.path.join(profile,'speech.wav')
 		util.LOG('pico2wave output file: ' + self.outFile)
 		
-	def say(self,text):
+	def say(self,text,interrupt=False):
 		if not text: return
 		subprocess.call(['pico2wave', '-w', '{0}'.format(self.outFile), '{0}'.format(text)])
 		#xbmc.playSFX(self.outFile) #Doesn't work - caches wav
@@ -92,8 +92,8 @@ class Pico2WaveTTSBackend(TTSBackendBase):
 		return True
 		
 class FLiteTTSBackend(TTSBackendBase):
-	provider = 'flite'
-	def say(self,text):
+	provider = 'Flite'
+	def say(self,text,interrupt=False):
 		if not text: return
 		voice = self.currentVoice() or 'kal16'
 		subprocess.call(['flite', '-voice', voice, '-t', text])
@@ -109,32 +109,23 @@ class FLiteTTSBackend(TTSBackendBase):
 			return False
 		return True
 		
-class WindowsInternalTTSBackend(TTSBackendBase):
-	provider = 'windowstts'
+class SAPITTSBackend(TTSBackendBase):
+	provider = 'SAPI'
 	def __init__(self):
-		import xbmcaddon
-		import os
-		profile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
-		if not os.path.exists(profile): os.makedirs(profile)
-		self.vbsFile = os.path.join(profile,'witts.vbs')
-		util.LOG('Windows Internal VBS file: ' + self.vbsFile)
-		self.vbs =		'set speech = Wscript.CreateObject("SAPI.spVoice")\n'
-		self.vbs +=	'speech.speak "{0}"\n'
-		#-- Look into using this directly
-		#import win32com.client
-		#voice = win32com.client.Dispatch("SAPI.SpVoice")
-		#voice.Speak(phrase)
+		import comtypes.client
+		self.voice = comtypes.client.CreateObject("SAPI.SpVoice")
 		
-	def say(self,text):
-		if not text: return
-		with open(self.vbsFile,'w') as f: f.write(self.vbs.format(text))
-		subprocess.call(['Wscript.exe',self.vbsFile])
+	def say(self,text,interrupt=False):
+		if interrupt:
+			self.voice.Speak(text,3)
+		else:
+			self.voice.Speak(text,2)
 		
 	@staticmethod
 	def available():
 		return sys.platform.lower().startswith('win')
 		
-backends = [WindowsInternalTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FLiteTTSBackend,LogOnlyTTSBackend]
+backends = [SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FLiteTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice():
 	import xbmcgui
