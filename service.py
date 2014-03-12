@@ -8,7 +8,6 @@ from lib import util
 class TTSService:
 	def __init__(self):
 		self.stop = False
-		self.wait = 400
 		self.enabled = util.getSetting('enable',False)
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
@@ -25,11 +24,11 @@ class TTSService:
 		self.setBackend(tts.getBackend()())
 		
 	def start(self):
-		util.LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.wait))
+		util.LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.tts.interval))
 		if not self.enabled: return
 		try:
 			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
-				xbmc.sleep(self.wait)
+				xbmc.sleep(self.tts.interval)
 				self.checkForText()
 		finally:
 			self.tts.close()

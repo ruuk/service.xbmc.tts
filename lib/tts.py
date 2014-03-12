@@ -4,6 +4,7 @@ import util
 
 class TTSBackendBase:
 	provider = None
+	interval = 400
 	def say(self,text,interrupt=False): raise Exception('Not Implemented')
 
 	def voices(self): return []
@@ -111,6 +112,7 @@ class FLiteTTSBackend(TTSBackendBase):
 		
 class SAPITTSBackend(TTSBackendBase):
 	provider = 'SAPI'
+	interval = 100
 	def __init__(self):
 		import comtypes.client
 		self.voice = comtypes.client.CreateObject("SAPI.SpVoice")
@@ -119,7 +121,7 @@ class SAPITTSBackend(TTSBackendBase):
 		if interrupt:
 			self.voice.Speak(text,3)
 		else:
-			self.voice.Speak(text,2)
+			self.voice.Speak(text,1)
 		
 	@staticmethod
 	def available():
