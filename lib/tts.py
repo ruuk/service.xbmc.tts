@@ -19,11 +19,51 @@ class TTSBackendBase:
 	
 	@staticmethod
 	def available(): return False
+
+class ThreadedTTSBackend(TTSBackendBase):
+	def threadedInit(self):
+		import threading
+		import Queue
+		self.active = True
+		self.queue = Queue.Queue()
+		self.thread = threading.Thread(target=self._handleQueue,name='TTSThread')
+		self.thread.start()
+		
+	def _handleQueue(self):
+		util.LOG('Threaded TTS Started: {0}'.format(self.provider))
+		while self.active:
+			text = self.queue.get()
+			self.threadedSay(text)
+		util.LOG('Threaded TTS Finished: {0}'.format(self.provider))
+			
+	def _emptyQueue(self):
+		try:
+			while True:
+				self.queue.get_nowait()
+				self.queue.task_done()
+		except:
+			return
+			
+	def say(self,text,interrupt=False):
+		if interrupt:
+			self._emptyQueue()
+			self.threadedInterrupt()
+		self.queue.put_nowait(text)
+		
+	def threadedSay(self,text): raise Exception('Not Implemented')
 	
+	def threadedInterrupt(self): raise Exception('Not Implemented')
+
+	def threadedClose(self):
+		self.active = False
+		
+	def close(self):
+		self.threadedClose()
+		
 class LogOnlyTTSBackend(TTSBackendBase):
 	provider = 'log'
-	def say(self,text):
-		print 'TTS: ' + repr(text)
+	def say(self,text,interrupt=False):
+		util.LOG('say(Interrupt={1}): {0}'.format(repr(text),interrupt))
 		
 	@staticmethod
 	def available():
@@ -117,17 +157,56 @@ class Pico2WaveTTSBackend(TTSBackendBase):
 #			return False
 #		return True
 		
-class FliteTTSBackend(TTSBackendBase):
-	provider = 'Flite'
+#class FliteTTSBackend(TTSBackendBase):
+#	provider = 'Flite'
+#
+#	def say(self,text,interrupt=False):
+#		if not text: return
+#		voice = self.currentVoice() or 'kal16'
+#		subprocess.call(['flite', '-voice', voice, '-t', text])
+#		
+#	def voices(self):
+#		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
+#		
+#	@staticmethod
+#	def available():
+#		try:
+#			subprocess.call(['flite', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
+#		except (OSError, IOError):
+#			return False
+#		return True
 
-	def say(self,text,interrupt=False):
+class FliteTTSBackend(ThreadedTTSBackend):
+	provider = 'Flite'
+	interval = 100
+	
+	def __init__(self):
+		self.process = None
+		self.threadedInit()
+		
+	def threadedSay(self,text):
 		if not text: return
 		voice = self.currentVoice() or 'kal16'
-		subprocess.call(['flite', '-voice', voice, '-t', text])
+		self.process = subprocess.Popen(['flite', '-voice', voice, '-t', text])
+		self.process.wait()
 		
+	def threadedInterrupt(self):
+		self.stopProcess()
+		
+	def stopProcess(self):
+		if self.process:
+			try:
+				self.process.terminate()
+			except:
+				pass
+			
 	def voices(self):
 		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
 		
+	def close(self):
+		self.stopProcess()
+		self.threadedClose()
+
 	@staticmethod
 	def available():
 		try:
@@ -153,7 +232,8 @@ class SAPITTSBackend(TTSBackendBase):
 	def available():
 		return sys.platform.lower().startswith('win')
 		
-backends = [SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,LogOnlyTTSBackend]
+backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [SAPITTSBackend,FliteTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice():
 	import xbmcgui
@@ -181,7 +261,7 @@ def getBackend():
 		util.LOG('TTS: %s' % b.provider)
 		return b
 	
-	for b in backends:
+	for b in backendsByPriority:
 		if b.available():
 			util.LOG('TTS: %s' % b.provider)
 			return b
