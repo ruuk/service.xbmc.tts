@@ -32,7 +32,7 @@ class LogOnlyTTSBackend(TTSBackendBase):
 class FestivalTTSBackend(TTSBackendBase):
 	provider = 'festival'
 	def __init__(self):
-		self.startFesticalProcess()
+		self.startFestivalProcess()
 		
 	def voices(self):
 		p = subprocess.Popen(['festival','-i'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -40,7 +40,7 @@ class FestivalTTSBackend(TTSBackendBase):
 		l = map(str.strip,d[0].rsplit('> (',1)[-1].rsplit(')',1)[0].split('\n'))
 		return l
 		
-	def startFesticalProcess(self):
+	def startFestivalProcess(self):
 		#LOG('Starting Festival...')
 		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
 		pass
@@ -53,7 +53,7 @@ class FestivalTTSBackend(TTSBackendBase):
 		if voice: voice = '(voice_{0})\n'.format(voice)
 		self.festivalProcess = subprocess.Popen(['festival','--pipe'],shell=True,stdin=subprocess.PIPE)
 		self.festivalProcess.communicate('{0}(SayText "{1}")\n'.format(voice,text))
-		#if self.festivalProcess.poll() != None: self.startFesticalProcess()
+		#if self.festivalProcess.poll() != None: self.startFestivalProcess()
 		
 	def close(self):
 		#if self.festivalProcess.poll() != None: return
@@ -91,9 +91,35 @@ class Pico2WaveTTSBackend(TTSBackendBase):
 		except (OSError, IOError):
 			return False
 		return True
+
+#class FliteTTSBackend(TTSBackendBase):
+#	provider = 'Flite'
+#	def __init__(self):
+#		import ctypes
+#		self.flite = ctypes.CDLL('libflite.so.1',mode=ctypes.RTLD_GLOBAL)
+#		flite_usenglish = ctypes.CDLL('libflite_usenglish.so.1',mode=ctypes.RTLD_GLOBAL) #analysis:ignore
+#		flite_cmulex = ctypes.CDLL('libflite_cmulex.so.1',mode=ctypes.RTLD_GLOBAL) #analysis:ignore
+#		flite_cmu_us_slt = ctypes.CDLL('libflite_cmu_us_slt.so.1')
+#		self.flite.flite_init()
+#		self.voice = flite_cmu_us_slt.register_cmu_us_slt()
+#
+#	def say(self,text,interrupt=False):
+#		if not text: return
+#		self.flite.flite_text_to_speech(text,self.voice,'play')
+#		
+#		
+#	@staticmethod
+#	def available():
+#		try:
+#			import ctypes
+#			ctypes.CDLL('libflite.so.1')
+#		except (OSError, IOError):
+#			return False
+#		return True
 		
-class FLiteTTSBackend(TTSBackendBase):
+class FliteTTSBackend(TTSBackendBase):
 	provider = 'Flite'
+
 	def say(self,text,interrupt=False):
 		if not text: return
 		voice = self.currentVoice() or 'kal16'
@@ -127,7 +153,7 @@ class SAPITTSBackend(TTSBackendBase):
 	def available():
 		return sys.platform.lower().startswith('win')
 		
-backends = [SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FLiteTTSBackend,LogOnlyTTSBackend]
+backends = [SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice():
 	import xbmcgui
