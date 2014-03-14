@@ -308,12 +308,11 @@ def getBackend():
 	if not b.available():
  		for b in backendsByPriority:
 			if b.available(): break
-	util.LOG('TTS: %s' % b.provider)
 	return b
 			
 def getBackendByName(name):
 	for b in backends:
 		if b.provider == name and b.available():
-			util.LOG('TTS: %s' % b.provider)
+			util.LOG('Backend: %s' % b.provider)
 			return b
 	return None

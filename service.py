@@ -15,7 +15,7 @@ class TTSService:
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
 		self.tts = None
-		self.initTTS()
+		self.backendSettingID = None
 		
 	def initState(self):
 		self.winID = None
@@ -26,10 +26,14 @@ class TTSService:
 	def initTTS(self):
 		self.setBackend(tts.getBackend()())
 		self.backendSettingID = util.getSetting('default_tts',-1)
+		util.LOG('Backend: %s' % self.tts.provider)
 		
 	def start(self):
+		if not self.enabled:
+			util.LOG('DISABLED')
+			return
+		self.initTTS()
 		util.LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.tts.interval))
-		if not self.enabled: return
 		try:
 			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.tts.interval)
