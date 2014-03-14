@@ -3,6 +3,10 @@ import os, sys, time, xbmc, subprocess
 import util
 import ctypes
 import ctypes.util
+try:
+	from ctypes import windll
+except ImportError:
+	windll =None
 
 class TTSBackendBase:
 	provider = None
@@ -264,9 +268,9 @@ class SAPITTSBackend(TTSBackendBase):
 		
 	def say(self,text,interrupt=False):
 		if interrupt:
-			self.voice.Speak(text,3)
+			self.voice.Speak(text.decode('utf8'),3)
 		else:
-			self.voice.Speak(text,1)
+			self.voice.Speak(text.decode('utf8'),1)
 		
 	@staticmethod
 	def available():
@@ -294,8 +298,36 @@ class ESpeakTTSBackend(TTSBackendBase):
 	def available():
 		return bool(ctypes.util.find_library('espeak'))
 		
-backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
-backendsByPriority = [SAPITTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
+class NVDATTSBackend(TTSBackendBase):
+	provider = 'nvda'
+
+	@staticmethod
+	def available():
+		if not windll:
+			return False
+		try:
+			dll = windll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'nvdaControllerClient32.dll'))
+			res =dll.nvdaController_testIfRunning() == 0
+			del dll
+			return res
+		except:
+			return False
+
+	def __init__(self):
+		try:
+			self.dll = windll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'nvdaControllerClient32.dll'))
+		except:
+			self.dll =None
+
+	def say(self,text,interrupt=False):
+		if not self.dll:
+			return
+		if interrupt:
+			self.dll.nvdaController_cancelSpeech()
+		self.dll.nvdaController_speakText(text.decode("utf8"))
+
+backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,OSXSayTTSBackend,NVDATTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [NVDATTSBackend,SAPITTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice():
 	import xbmcgui

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
   <category label="Main">
-    <setting id="default_tts" type="enum" label="Default TTS Engine" values="Auto|SAPI|Pico2Wave|Festival|Flite|eSpeak|OSX say|Log" default="0" />
+    <setting id="default_tts" type="enum" label="Default TTS Engine" values="Auto|SAPI|Pico2Wave|Festival|Flite|eSpeak|OSX say|NVDA|Log" default="0" />
     <setting id="voice" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog)"/>
   </category>
 </settings>
