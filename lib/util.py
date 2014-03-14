@@ -3,6 +3,9 @@ import sys, xbmc, xbmcaddon
 
 DEBUG = True
 
+def info(key):
+	return xbmcaddon.Addon().getAddonInfo(key)
+	
 def ERROR(txt):
 	if isinstance (txt,str): txt = txt.decode("utf-8")
 	LOG('ERROR: ' + txt)

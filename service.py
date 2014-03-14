@@ -1,7 +1,7 @@
 import sys, re, xbmc, xbmcgui
 from lib import guitables
 from lib import skintables
-from lib import tts
+from lib import backends
 
 from lib import util
 
@@ -25,7 +25,7 @@ class TTSService:
 		self.win = None
 		
 	def initTTS(self):
-		self.setBackend(tts.getBackend()())
+		self.setBackend(backends.getBackend()())
 		self.backendSettingID = util.getSetting('default_tts',-1)
 		util.LOG('Backend: %s' % self.tts.provider)
 		
@@ -119,6 +119,6 @@ class TTSService:
 	
 if __name__ == '__main__':
 	if len(sys.argv) > 1 and sys.argv[1] == 'voice_dialog':
-		tts.selectVoice()
+		backends.selectVoice()
 	else:
 		TTSService().start()
