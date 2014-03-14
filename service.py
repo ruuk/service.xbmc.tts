@@ -25,6 +25,7 @@ class TTSService:
 		
 	def initTTS(self):
 		self.setBackend(tts.getBackend()())
+		self.backendSettingID = util.getSetting('default_tts',-1)
 		
 	def start(self):
 		util.LOG('STARTED :: Enabled: %s :: Interval: %sms' % (self.enabled,self.tts.interval))
@@ -42,10 +43,9 @@ class TTSService:
 		util.setSetting('voice',self.tts.currentVoice())
 		
 	def checkBackend(self):
-		settingsBackend = tts.settingsBackend()
-		if not settingsBackend: return
-		if settingsBackend.provider == self.tts.provider: return
-		self.setBackend(settingsBackend())
+		backendSettingID = util.getSetting('default_tts',-1)
+		if backendSettingID == self.backendSettingID: return
+		self.initTTS()
 		
 	def checkForText(self):
 		newW = self.checkWindow()

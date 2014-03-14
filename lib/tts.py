@@ -301,23 +301,15 @@ def selectVoice():
 	util.LOG('Voice for {0} set to: {1}'.format(b.provider,voice))
 	util.setSetting('voice.{0}'.format(b.provider),voice)
 	util.setSetting('voice',voice)
-	
-def settingsBackend():
-	userBackendIndex = util.getSetting('default_tts',-1)
-	if userBackendIndex < 0: return None
-	return backends[userBackendIndex]
 		
 def getBackend():
 	userBackendIndex = util.getSetting('default_tts',0)
 	b = backends[userBackendIndex]
-	if b.available():
-		util.LOG('TTS: %s' % b.provider)
-		return b
-	
-	for b in backendsByPriority:
-		if b.available():
-			util.LOG('TTS: %s' % b.provider)
-			return b
+	if not b.available():
+ 		for b in backendsByPriority:
+			if b.available(): break
+	util.LOG('TTS: %s' % b.provider)
+	return b
 			
 def getBackendByName(name):
 	for b in backends:
