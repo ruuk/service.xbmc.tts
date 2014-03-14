@@ -59,6 +59,9 @@ class TTSService:
 		self.checkBackend()
 		self.tts.say(text,interrupt)
 		
+	def pause(self):
+		self.tts.pause()
+		
 	def checkWindow(self):
 		winID = xbmcgui.getCurrentWindowId()
 		dialogID = xbmcgui.getCurrentWindowDialogId()
@@ -68,8 +71,8 @@ class TTSService:
 		del self.win
 		self.win = xbmcgui.Window(winID)
 		name = guitables.getWindowName(winID) or xbmc.getInfoLabel('System.CurrentWindow') or 'unknown'
-		self.tts.say('Window: {0}'.format(name))
-		self.tts.pause()
+		self.sayText('Window: {0}'.format(name),interrupt=True)
+		self.pause()
 		return True
 		
 	def checkControl(self,newW):
