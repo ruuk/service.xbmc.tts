@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-import os, sys, xbmc, subprocess
+import os, sys, time, xbmc, subprocess
 import util
+import ctypes
+import ctypes.util
 
 class TTSBackendBase:
 	provider = None
@@ -33,7 +35,10 @@ class ThreadedTTSBackend(TTSBackendBase):
 		util.LOG('Threaded TTS Started: {0}'.format(self.provider))
 		while self.active:
 			text = self.queue.get()
-			self.threadedSay(text)
+			if isinstance(text,int):
+				time.sleep(text/1000.0)
+			else:
+				self.threadedSay(text)
 		util.LOG('Threaded TTS Finished: {0}'.format(self.provider))
 			
 	def _emptyQueue(self):
@@ -49,9 +54,12 @@ class ThreadedTTSBackend(TTSBackendBase):
 			self._emptyQueue()
 			self.threadedInterrupt()
 		self.queue.put_nowait(text)
-		
-	def threadedSay(self,text): raise Exception('Not Implemented')
 	
+	def pause(self,ms=500):
+		self.queue.put(ms)
+	
+	def threadedSay(self,text): raise Exception('Not Implemented')
+		
 	def threadedInterrupt(self): raise Exception('Not Implemented')
 
 	def threadedClose(self):
@@ -197,6 +205,7 @@ class FliteTTSBackend(ThreadedTTSBackend):
 		if self.process:
 			try:
 				self.process.terminate()
+				self.process.wait()
 			except:
 				pass
 			
@@ -267,22 +276,22 @@ class ESpeakTTSBackend(TTSBackendBase):
 	provider = 'eSpeak'
 	interval = 100
 	def __init__(self):
-		import ctypes
-		self.ctypes = ctypes
-		import ctypes.util
 		libname = ctypes.util.find_library('espeak')
 		self.eSpeak = ctypes.cdll.LoadLibrary(libname)
 		self.eSpeak.espeak_Initialize(0,0,None,0)
 		
 	def say(self,text,interrupt=False):
 		if interrupt: self.eSpeak.espeak_Cancel()
-		sb_text = self.ctypes.create_string_buffer(text)
-		size = self.ctypes.sizeof(sb_text)
+		sb_text = ctypes.create_string_buffer(text)
+		size = ctypes.sizeof(sb_text)
 		self.eSpeak.espeak_Synth(text,size,0,0,0,0x1000,None,None)
+	
+	def close(self):
+		self.eSpeak.espeak_Cancel()
+		self.eSpeak.espeak_Terminate()
 		
 	@staticmethod
 	def available():
-		import ctypes.util
 		return bool(ctypes.util.find_library('espeak'))
 		
 backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
