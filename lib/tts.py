@@ -215,6 +215,37 @@ class FliteTTSBackend(ThreadedTTSBackend):
 			return False
 		return True
 		
+class OSXSayTTSBackend(ThreadedTTSBackend):
+	provider = 'OSXSay'
+	interval = 100
+	
+	def __init__(self):
+		self.process = None
+		self.threadedInit()
+		
+	def threadedSay(self,text):
+		if not text: return
+		self.process = subprocess.Popen(['say', text])
+		self.process.wait()
+		
+	def threadedInterrupt(self):
+		self.stopProcess()
+		
+	def stopProcess(self):
+		if self.process:
+			try:
+				self.process.terminate()
+			except:
+				pass
+		
+	def close(self):
+		self.stopProcess()
+		self.threadedClose()
+
+	@staticmethod
+	def available():
+		return sys.platform == 'darwin'
+		
 class SAPITTSBackend(TTSBackendBase):
 	provider = 'SAPI'
 	interval = 100
@@ -232,8 +263,30 @@ class SAPITTSBackend(TTSBackendBase):
 	def available():
 		return sys.platform.lower().startswith('win')
 		
-backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,LogOnlyTTSBackend]
-backendsByPriority = [SAPITTSBackend,FliteTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,LogOnlyTTSBackend]
+class ESpeakTTSBackend(TTSBackendBase):
+	provider = 'eSpeak'
+	interval = 100
+	def __init__(self):
+		import ctypes
+		self.ctypes = ctypes
+		import ctypes.util
+		libname = ctypes.util.find_library('espeak')
+		self.eSpeak = ctypes.cdll.LoadLibrary(libname)
+		self.eSpeak.espeak_Initialize(0,0,None,0)
+		
+	def say(self,text,interrupt=False):
+		if interrupt: self.eSpeak.espeak_Cancel()
+		sb_text = self.ctypes.create_string_buffer(text)
+		size = self.ctypes.sizeof(sb_text)
+		self.eSpeak.espeak_Synth(text,size,0,0,0,0x1000,None,None)
+		
+	@staticmethod
+	def available():
+		import ctypes.util
+		return bool(ctypes.util.find_library('espeak'))
+		
+backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [SAPITTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice():
 	import xbmcgui
