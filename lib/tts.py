@@ -285,8 +285,8 @@ class ESpeakTTSBackend(TTSBackendBase):
 		import ctypes.util
 		return bool(ctypes.util.find_library('espeak'))
 		
-backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,LogOnlyTTSBackend]
-backendsByPriority = [SAPITTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,LogOnlyTTSBackend]
+backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [SAPITTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice():
 	import xbmcgui

@@ -5,6 +5,9 @@ from lib import tts
 
 from lib import util
 
+util.LOG(util.xbmcaddon.Addon().getAddonInfo('version'))
+util.LOG('Platform: {0}'.format(sys.platform))
+
 class TTSService:
 	def __init__(self):
 		self.stop = False
