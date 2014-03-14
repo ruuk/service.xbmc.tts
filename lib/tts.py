@@ -255,9 +255,9 @@ class SAPITTSBackend(TTSBackendBase):
 		
 	def say(self,text,interrupt=False):
 		if interrupt:
-			self.voice.Speak(text,3)
+			self.voice.Speak(text.decode('utf8'),3)
 		else:
-			self.voice.Speak(text,1)
+			self.voice.Speak(text.decode('utf8'),1)
 		
 	@staticmethod
 	def available():
