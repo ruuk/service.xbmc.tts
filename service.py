@@ -11,7 +11,6 @@ util.LOG('Platform: {0}'.format(sys.platform))
 class TTSService:
 	def __init__(self):
 		self.stop = False
-		self.enabled = util.getSetting('enable',False)
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
 		self.tts = None
@@ -32,7 +31,7 @@ class TTSService:
 	def start(self):
 		util.LOG('STARTED :: Interval: %sms' % self.tts.interval)
 		try:
-			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
+			while (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.tts.interval)
 				self.checkForText()
 		finally:
