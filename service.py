@@ -71,8 +71,18 @@ class TTSService:
 		del self.win
 		self.win = xbmcgui.Window(winID)
 		name = guitables.getWindowName(winID) or xbmc.getInfoLabel('System.CurrentWindow') or 'unknown'
+		heading = xbmc.getInfoLabel('Control.GetLabel(1)') or ''
 		self.sayText('Window: {0}'.format(name),interrupt=True)
 		self.pause()
+		if heading:
+			self.sayText(heading)
+			self.pause()
+		texts = guitables.getWindowTexts(winID)
+		if texts:
+			self.pause()
+			for t in texts:
+				self.sayText(t)
+				self.pause()
 		return True
 		
 	def checkControl(self,newW):

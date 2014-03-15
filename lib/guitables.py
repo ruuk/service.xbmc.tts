@@ -97,9 +97,21 @@ winNames = {	10000: 10000,
 				12999: 512
 }
 
+winTexts = {	10100:(2,3,4),
+				12002:(2,3,4)
+
+}
+
 def getWindowName(winID):
 	if not winID in winNames: return ''
 	name = winNames[winID]
 	if isinstance(name,int): name = xbmc.getLocalizedString(name)
 	if not name: return ''
 	return name
+	
+def getWindowTexts(winID):
+	if not winID in winTexts: return None
+	ret = []
+	for cid in winTexts[winID]:
+		ret.append(xbmc.getInfoLabel('Control.GetLabel({0})'.format(cid)))
+	return ret or None
