@@ -1,0 +1,12 @@
+<keymap>
+  <global>
+    <keyboard>
+      <f1>XBMC.RunScript(service.xbmc.tts,repeat_text)</f1>
+      <f2>XBMC.RunScript(service.xbmc.tts,extra_text)</f2>
+    </keyboard>
+  </global>
+  <FullscreenVideo>
+    <keyboard>
+    </keyboard>
+  </FullscreenVideo>
+</keymap>

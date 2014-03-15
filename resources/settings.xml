@@ -3,5 +3,6 @@
   <category label="Main">
     <setting id="default_tts" type="enum" label="Default TTS Engine" values="Auto|SAPI|Pico2Wave|Festival|Flite|eSpeak|OSX say|NVDA|Log" default="0" />
     <setting id="voice" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog)"/>
+    <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>
 </settings>
