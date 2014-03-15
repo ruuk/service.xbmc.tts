@@ -105,7 +105,7 @@ winTexts = {	10100:(2,3,4),
 def getWindowName(winID):
 	if not winID in winNames: return ''
 	name = winNames[winID]
-	if isinstance(name,int): name = xbmc.getLocalizedString(name)
+	if isinstance(name,int): name = xbmc.getLocalizedString(name).encode('utf8')
 	if not name: return ''
 	return name
 	
