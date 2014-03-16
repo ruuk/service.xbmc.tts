@@ -17,7 +17,10 @@ class ESpeakTTSBackend(TTSBackendBase):
 		sb_text = ctypes.create_string_buffer(text)
 		size = ctypes.sizeof(sb_text)
 		self.eSpeak.espeak_Synth(text,size,0,0,0,0x1000,None,None)
-	
+
+	def stop(self):
+		self.eSpeak.espeak_Cancel()
+		
 	def close(self):
 		self.eSpeak.espeak_Cancel()
 		self.eSpeak.espeak_Terminate()
