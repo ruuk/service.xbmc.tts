@@ -8,7 +8,9 @@ from lib import util
 util.LOG(util.xbmcaddon.Addon().getAddonInfo('version'))
 util.LOG('Platform: {0}'.format(sys.platform))
 
-class TTSService:
+util.initCommands()
+
+class TTSService(xbmc.Monitor):
 	def __init__(self):
 		self.stop = False
 		self.skinTable = skintables.getSkinTable()
@@ -16,7 +18,20 @@ class TTSService:
 		self.tts = None
 		self.backendSettingID = None
 		self.initTTS()
+	
+	def onAbortRequested(self):
+		self.stop = True
+		if self.tts: self.tts.close()
 		
+	def onSettingsChanged(self):
+		command = util.getCommand()
+		if not command: return
+		util.LOG(command)
+		if command == 'REPEAT':
+			self.repeat()
+		elif command == 'EXTRA':
+			self.extra()
+	
 	def initState(self):
 		self.winID = None
 		self.controlID = None
@@ -54,6 +69,18 @@ class TTSService:
 		text = self.getControlText(self.controlID)
 		if (text != self.text) or newC: self.newText(text,newC)
 	
+	def repeat(self):
+		text = self.getControlText(self.controlID)
+		self.newText(text,False)
+		
+	def extra(self):
+		texts = guitables.getExtraTexts(self.winID)
+		if not texts: return
+		self.sayText(texts.pop(0),interrupt=True)
+		for t in texts:
+				self.pause()
+				self.sayText(t)
+
 	def sayText(self,text,interrupt=False):
 		self.checkBackend()
 		self.tts.say(text,interrupt)

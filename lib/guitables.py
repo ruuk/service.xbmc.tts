@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
 import xbmc
 
+'''
+Table data format:
+integer: XBMC localized string ID
+string integer: controll ID
+$INFO[<infolabel>]: infolabel
+string: normal string
+'''
+
 winNames = {	10000: 10000,
 				10001: 10001,
 				10002: 10002,
@@ -97,8 +105,13 @@ winNames = {	10000: 10000,
 				12999: 512
 }
 
-winTexts = {	10100:(2,3,4),
-				12002:(2,3,4)
+winTexts = {	10100:('2','3','4'),
+				12002:('2','3','4'),
+				10103:('311',)
+
+}
+
+winExtraTexts = {	10146:(21863,'$INFO[ListItem.Property(Addon.Creator)]',19114,'$INFO[ListItem.Property(Addon.Version)]',21821,'$INFO[ListItem.Property(Addon.Description)]')
 
 }
 
@@ -109,9 +122,21 @@ def getWindowName(winID):
 	if not name: return ''
 	return name
 	
-def getWindowTexts(winID):
-	if not winID in winTexts: return None
+def getWindowTexts(winID,table=winTexts):
+	if not winID in table: return None
 	ret = []
-	for cid in winTexts[winID]:
-		ret.append(xbmc.getInfoLabel('Control.GetLabel({0})'.format(cid)))
+	for sid in table[winID]:
+		if isinstance(sid,int):
+			ret.append(xbmc.getLocalizedString(sid).encode('utf8'))
+		elif sid.isdigit():
+			ret.append(xbmc.getInfoLabel('Control.GetLabel({0})'.format(sid)))
+		elif sid.startswith('$INFO['):
+			info = sid[6:-1]
+			ret.append(xbmc.getInfoLabel(info))
+		else:
+			ret.append(sid)
 	return ret or None
+	
+def getExtraTexts(winID):
+	return getWindowTexts(winID,table=winExtraTexts)
+

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, xbmc, xbmcaddon
+import sys, xbmc, time, xbmcaddon
 
 DEBUG = True
 
@@ -47,3 +47,33 @@ def _processSettingForWrite(value):
 	
 def isATV2():
 	return xbmc.getCondVisibility('System.Platform.ATV2')
+
+def installKeymap():
+	import os, xbmcvfs, xbmcgui
+	targetPath = os.path.join(xbmc.translatePath('special://userdata').decode('utf-8'),'keymaps','service.xbmc.tts.keyboard.xml')
+	sourcePath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','service.xbmc.tts.keyboard.xml')
+	if os.path.exists(targetPath): xbmcvfs.delete(targetPath)
+	success = xbmcvfs.copy(sourcePath,targetPath)
+	if success:
+		xbmcgui.Dialog().ok('Installed','Keymap installed successfully!','','Restart XBMC to use.')
+	else:
+		xbmcgui.Dialog().ok('Failed','Keymap installation failure.')
+	
+LAST_COMMAND_DATA = ''
+
+def initCommands():
+	global LAST_COMMAND_DATA
+	LAST_COMMAND_DATA = ''
+	setSetting('EXTERNAL_COMMAND','')
+
+def sendCommand(command):
+	commandData = '{0}:{1}'.format(time.time(),command)
+	setSetting('EXTERNAL_COMMAND',commandData)
+	
+def getCommand():
+	global LAST_COMMAND_DATA
+	commandData = getSetting('EXTERNAL_COMMAND','')
+	if commandData == LAST_COMMAND_DATA: return None
+	LAST_COMMAND_DATA = commandData
+	return commandData.split(':',1)[-1]
+	
