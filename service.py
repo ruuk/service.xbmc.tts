@@ -89,6 +89,7 @@ class TTSService(xbmc.Monitor):
 		if not text: text = xbmc.getInfoLabel('Container.ShowPlot').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Artist_Description)').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)').decode('utf-8')
+		if not text: text = xbmc.getInfoLabel('ListItem.Property(Addon.Description)').decode('utf-8')
 		if not text: text = guitables.getSongInfo()
 		if not text: return
 		if not isinstance(text,list): text = [text]
