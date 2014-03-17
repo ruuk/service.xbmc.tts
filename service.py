@@ -13,7 +13,7 @@ util.initCommands()
 class TTSService(xbmc.Monitor):
 	def __init__(self):
 		self.stop = False
-		self.enabled = util.getSetting('enable',False)
+		self.enabled = True #util.getSetting('enable',False)
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
 		self.tts = None
