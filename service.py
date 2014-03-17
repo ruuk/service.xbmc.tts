@@ -13,6 +13,7 @@ util.initCommands()
 class TTSService(xbmc.Monitor):
 	def __init__(self):
 		self.stop = False
+		self.enabled = True #util.getSetting('enable',False)
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
 		self.tts = None
@@ -50,7 +51,7 @@ class TTSService(xbmc.Monitor):
 	def start(self):
 		util.LOG('STARTED :: Interval: %sms' % self.tts.interval)
 		try:
-			while (not xbmc.abortRequested) and (not self.stop):
+			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.tts.interval)
 				self.checkForText()
 		finally:
@@ -84,18 +85,20 @@ class TTSService(xbmc.Monitor):
 		self.sayTexts(texts)
 
 	def sayItemExtra(self):
-		text = xbmc.getInfoLabel('ListItem.Plot')
-		if not text: text = xbmc.getInfoLabel('Container.ShowPlot')
-		if not text: text = xbmc.getInfoLabel('ListItem.Property(Artist_Description)')
-		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)')
+		text = xbmc.getInfoLabel('ListItem.Plot').decode('utf-8')
+		if not text: text = xbmc.getInfoLabel('Container.ShowPlot').decode('utf-8')
+		if not text: text = xbmc.getInfoLabel('ListItem.Property(Artist_Description)').decode('utf-8')
+		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)').decode('utf-8')
+		if not text: text = xbmc.getInfoLabel('ListItem.Property(Addon.Description)').decode('utf-8')
 		if not text: text = guitables.getSongInfo()
 		if not text: return
 		if not isinstance(text,list): text = [text]
 		self.sayTexts(text)
 			
 	def sayText(self,text,interrupt=False):
+		assert isinstance(text,unicode), "Not Unicode"
 		self.checkBackend()
-		self.tts.say(text,interrupt)
+		self.tts.say(self.cleanText(text),interrupt)
 		
 	def sayTexts(self,texts,interrupt=True):
 		if not texts: return
@@ -118,9 +121,9 @@ class TTSService(xbmc.Monitor):
 		self.winID = winID
 		del self.win
 		self.win = xbmcgui.Window(winID)
-		name = guitables.getWindowName(winID) or xbmc.getInfoLabel('System.CurrentWindow') or 'unknown'
-		heading = xbmc.getInfoLabel('Control.GetLabel(1)') or ''
-		self.sayText('Window: {0}'.format(name),interrupt=True)
+		name = guitables.getWindowName(winID)
+		heading = xbmc.getInfoLabel('Control.GetLabel(1)').decode('utf-8') or u''
+		self.sayText(u'Window: {0}'.format(name),interrupt=True)
 		self.pause()
 		if heading:
 			self.sayText(heading)
@@ -147,32 +150,30 @@ class TTSService(xbmc.Monitor):
 		return newW
 		
 	def newText(self,text,newC):
-		print newC
 		self.text = text
-		label2 = xbmc.getInfoLabel('Container({0}).ListItem.Label2'.format(self.controlID))
-		seasEp = xbmc.getInfoLabel('Container({0}).ListItem.Property(SeasonEpisode)'.format(self.controlID)) or ''
-		if label2:
-			if seasEp:
-				text = '{0}: {1}: {2} '.format(label2, text,self.formatSeasonEp(seasEp))
+		label2 = xbmc.getInfoLabel('Container({0}).ListItem.Label2'.format(self.controlID)).decode('utf-8')
+		seasEp = xbmc.getInfoLabel('Container({0}).ListItem.Property(SeasonEpisode)'.format(self.controlID)).decode('utf-8') or u''
+		if label2 and seasEp:
+				text = u'{0}: {1}: {2} '.format(label2, text,self.formatSeasonEp(seasEp))
 		self.sayText(text,interrupt=not newC)
 		
 	def getControlText(self,controlID):
-		if not controlID: return ''
+		if not controlID: return u''
 		text = xbmc.getInfoLabel('Container({0}).ListItem.Label'.format(controlID))
 		if not text: text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(controlID))
 		if not text: text = xbmc.getInfoLabel('System.CurrentControl')
-			
-		return self.formatText(text or '')
+		if not text: return u''
+		return text.decode('utf-8')
 		
 	def formatSeasonEp(self,seasEp):
-		if not seasEp: return ''
-		return seasEp.replace('S','season ').replace('E','episode ')
+		if not seasEp: return u''
+		return seasEp.replace(u'S',u'season ').replace(u'E',u'episode ')
 		
-	def formatText(self,text):
-		text = re.sub('\[/[^\[\]]+?\]','',text).rstrip(']')
-		text = re.sub('\[[^\[\]]+?\]','',text)
-		text = text.lstrip('[')
-		if text == '..': text = 'Parent Directory'
+	def cleanText(self,text):
+		text = re.sub('\[/?(?:CR|B|I|UPPERCASE|LOWERCASE)\](?i)','',text)
+		text = re.sub('\[/?COLOR[^\]\[]*?\](?i)','',text)
+		text = text.strip('[]')
+		if text == '..': text = u'Parent Directory'
 		return text
 	
 if __name__ == '__main__':

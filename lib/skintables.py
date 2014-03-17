@@ -2,14 +2,14 @@
 import xbmc
 
 quartz = {	10000:
-			{	301:{'name':20342,'prefix':'section'}, #Movies
-				302:{'name':20343,'prefix':'section'}, #TV Shows
-				303:{'name':2,'prefix':'section'}, #Music
-				304:{'name':1,'prefix':'section'}, #Pictures
-				305:{'name':24001,'prefix':'section'}, #Addons
-				306:{'name':'X B M C','prefix':'section'},
-				312:{'name':20387,'prefix':'area'}, #Recently added tv shows
-				313:{'name':359,'prefix':'area'}, #Recently added albums
+			{	301:{'name':20342,'prefix':u'section'}, #Movies
+				302:{'name':20343,'prefix':u'section'}, #TV Shows
+				303:{'name':2,'prefix':u'section'}, #Music
+				304:{'name':1,'prefix':u'section'}, #Pictures
+				305:{'name':24001,'prefix':u'section'}, #Addons
+				306:{'name':'X B M C','prefix':u'section'},
+				312:{'name':20387,'prefix':u'area'}, #Recently added tv shows
+				313:{'name':359,'prefix':u'area'}, #Recently added albums
 			}
 
 }
@@ -22,10 +22,10 @@ def getControlText(table,winID,controlID):
 	if not  winID in table: return
 	if not controlID in table[winID]: return
 	label = table[winID][controlID]['name']
-	if isinstance(label,int): label = xbmc.getLocalizedString(label).encode('utf8')
-	if not label: return ''
+	if isinstance(label,int): label = xbmc.getLocalizedString(label)
+	if not label: return u''
 	if not 'prefix' in table[winID][controlID]: return label
-	return '{0}: {1}'.format(table[winID][controlID]['prefix'],label)
+	return u'{0}: {1}'.format(table[winID][controlID]['prefix'],label)
 
 
 def getSkinTable():
