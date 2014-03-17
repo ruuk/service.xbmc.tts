@@ -17,6 +17,8 @@ class TTSBackendBase:
 
 	def pause(self,ms=500): xbmc.sleep(ms)
 	
+	def stop(self): pass
+
 	@staticmethod
 	def available(): return False
 

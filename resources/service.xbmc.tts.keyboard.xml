@@ -1,8 +1,10 @@
 <keymap>
   <global>
     <keyboard>
-      <f1>XBMC.RunScript(service.xbmc.tts,repeat_text)</f1>
-      <f2>XBMC.RunScript(service.xbmc.tts,extra_text)</f2>
+      <f1>XBMC.RunScript(service.xbmc.tts,key.REPEAT)</f1>
+      <f2>XBMC.RunScript(service.xbmc.tts,key.EXTRA)</f2>
+      <f3>XBMC.RunScript(service.xbmc.tts,key.ITEM_EXTRA)</f3>
+      <f4>XBMC.RunScript(service.xbmc.tts,key.STOP)</f4>
     </keyboard>
   </global>
   <FullscreenVideo>

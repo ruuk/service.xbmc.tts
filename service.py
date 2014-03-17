@@ -28,10 +28,14 @@ class TTSService(xbmc.Monitor):
 		if not command: return
 		util.LOG(command)
 		if command == 'REPEAT':
-			self.repeat()
+			self.repeatText()
 		elif command == 'EXTRA':
-			self.extra()
-	
+			self.sayExtra()
+		elif command == 'ITEM_EXTRA':
+			self.sayItemExtra()
+		elif command == 'STOP':
+			self.stopSpeech()
+
 	def initState(self):
 		self.winID = None
 		self.controlID = None
@@ -69,24 +73,42 @@ class TTSService(xbmc.Monitor):
 		text = self.getControlText(self.controlID)
 		if (text != self.text) or newC: self.newText(text,newC)
 	
-	def repeat(self):
-		text = self.getControlText(self.controlID)
-		self.newText(text,False)
+	def repeatText(self):
+		self.winID = None
+		self.controlID = None
+		self.text = None
+		self.checkForText()
 		
-	def extra(self):
+	def sayExtra(self):
 		texts = guitables.getExtraTexts(self.winID)
-		if not texts: return
-		self.sayText(texts.pop(0),interrupt=True)
-		for t in texts:
-				self.pause()
-				self.sayText(t)
+		self.sayTexts(texts)
 
+	def sayItemExtra(self):
+		text = xbmc.getInfoLabel('ListItem.Plot')
+		if not text: text = xbmc.getInfoLabel('Container.ShowPlot')
+		if not text: text = xbmc.getInfoLabel('ListItem.Property(Artist_Description)')
+		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)')
+		if not text: text = guitables.getSongInfo()
+		if not text: return
+		if not isinstance(text,list): text = [text]
+		self.sayTexts(text)
+			
 	def sayText(self,text,interrupt=False):
 		self.checkBackend()
 		self.tts.say(text,interrupt)
 		
+	def sayTexts(self,texts,interrupt=True):
+		if not texts: return
+		self.sayText(texts.pop(0),interrupt=interrupt)
+		for t in texts:
+				self.pause()
+				self.sayText(t)
+	
 	def pause(self):
 		self.tts.pause()
+		
+	def stopSpeech(self):
+		self.tts.stop()
 		
 	def checkWindow(self):
 		winID = xbmcgui.getCurrentWindowId()

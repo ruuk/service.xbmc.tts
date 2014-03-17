@@ -111,7 +111,8 @@ winTexts = {	10100:('2','3','4'),
 
 }
 
-winExtraTexts = {	10146:(21863,'$INFO[ListItem.Property(Addon.Creator)]',19114,'$INFO[ListItem.Property(Addon.Version)]',21821,'$INFO[ListItem.Property(Addon.Description)]')
+winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]','$INFO[Weather.Conditions]'),
+					10146:(21863,'$INFO[ListItem.Property(Addon.Creator)]',19114,'$INFO[ListItem.Property(Addon.Version)]',21821,'$INFO[ListItem.Property(Addon.Description)]')
 
 }
 
@@ -139,4 +140,22 @@ def getWindowTexts(winID,table=winTexts):
 	
 def getExtraTexts(winID):
 	return getWindowTexts(winID,table=winExtraTexts)
+
+def getSongInfo():
+	if xbmc.getCondVisibility('ListItem.IsFolder'): return None
+	title = xbmc.getInfoLabel('ListItem.Title')
+	genre = xbmc.getInfoLabel('ListItem.Genre')
+	duration = xbmc.getInfoLabel('ListItem.Duration')
+	if not (title or genre or duration): return None
+	ret = []
+	if title:
+		ret.append(xbmc.getLocalizedString(556))
+		ret.append(title)
+	if genre:
+		ret.append(xbmc.getLocalizedString(515))
+		ret.append(genre)
+	if duration:
+		ret.append(xbmc.getLocalizedString(180))
+		ret.append(duration)
+	return ret
 

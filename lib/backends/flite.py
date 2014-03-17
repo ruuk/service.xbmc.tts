@@ -30,6 +30,9 @@ class FliteTTSBackend(ThreadedTTSBackend):
 	def voices(self):
 		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
 		
+	def stop(self):
+		self.process.terminate()
+		
 	def close(self):
 		self.stopProcess()
 		self.threadedClose()
