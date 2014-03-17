@@ -10,6 +10,9 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 	interval = 100
 
 	def __init__(self):
+		self.connect()
+
+	def connect(self):
 		try:
 			self.speechdObject = speechd.Speaker('XBMC', 'XBMC')
 		except:
@@ -25,8 +28,11 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 		if not self.speechdObject:
 			return
 		if interrupt:
-			self.speechdObject.cancel()
+			self.stop()
 		self.speechdObject.speak(text.decode('utf8'))
+
+	def stop(self):
+		self.speechdObject.cancel()
 
 	@staticmethod
 	def available():
@@ -37,6 +43,5 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 		return True
 
 	def close(self):
-		self.speechdObject.close()
-		self.speechdObject =None
+		if self.speechdObject: self.speechdObject.close()
 

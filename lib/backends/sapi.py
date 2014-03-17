@@ -18,3 +18,7 @@ class SAPITTSBackend(TTSBackendBase):
 	@staticmethod
 	def available():
 		return sys.platform.lower().startswith('win')
+
+	def stop(self):
+		self.voice.Speak('',3)
+
