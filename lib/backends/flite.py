@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import os, subprocess
+import os, subprocess, time, threading, wave, xbmc
+from lib import util
 from base import ThreadedTTSBackend
 
 class FliteTTSBackend(ThreadedTTSBackend):
@@ -43,6 +44,71 @@ class FliteTTSBackend(ThreadedTTSBackend):
 			subprocess.call(['flite', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
 		except (OSError, IOError):
 			return False
+		return True
+
+class FliteATV2TTSBackend(ThreadedTTSBackend):
+	provider = 'FliteATV2'
+	interval = 50
+
+	def __init__(self):
+		self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'fliteatv2wavs')
+		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
+		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
+		self.outFile = ''
+		self.event = threading.Event()
+		self.event.clear()
+		self._xbmcHasStopSFX = False
+		try:
+			self.stopSFX = xbmc.stopSFX
+			self._xbmcHasStopSFX = True
+		except:
+			pass
+		
+		self.threadedInit()
+		util.LOG('FliteATV2 wav output: ' + self.outDir)
+		
+	def deleteOutfile(self):
+		if os.path.exists(self.outFile): os.remove(self.outFile)
+		
+	def nextOutFile(self):
+		self.outFile = self.outFileBase % time.time()
+		
+	def threadedSay(self,text):
+		if not text: return
+		self.deleteOutfile()
+		self.nextOutFile()
+		os.system('flite -t "{0}" -o "{1}"'.format(text,self.outFile))
+		xbmc.playSFX(self.outFile)
+		f = wave.open(self.outFile,'r')
+		frames = f.getnframes()
+		rate = f.getframerate()
+		f.close()
+		duration = frames / float(rate)
+		self.event.clear()
+		self.event.wait(duration)
+		
+	def threadedInterrupt(self):
+		self.stop()
+		
+	def stop(self):
+		if self._xbmcHasStopSFX: #If not available, then we force the event to stay cleared. Unfortunately speech will be uninterruptible
+			self.event.set()
+			xbmc.stopSFX()
+		
+	def close(self):
+		self.stop()
+		for f in os.listdir(self.outDir):
+			if f.startswith('.'): continue
+			os.remove(os.path.join(self.outDir,f))
+		self.threadedClose()
+			
+	@staticmethod
+	def available():
+		if not xbmc.getCondVisibility('System.Platform.ATV2'): return False
+		try:
+			return not os.system('flite --help')
+		except (OSError, IOError):
+			raise
 		return True
 
 #class FliteTTSBackend(TTSBackendBase):

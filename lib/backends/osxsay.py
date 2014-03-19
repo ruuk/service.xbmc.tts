@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, subprocess
+import xbmc, sys, subprocess
 from base import ThreadedTTSBackend
 
 class OSXSayTTSBackend(ThreadedTTSBackend):
@@ -31,4 +31,4 @@ class OSXSayTTSBackend(ThreadedTTSBackend):
 
 	@staticmethod
 	def available():
-		return sys.platform == 'darwin'
+		return sys.platform == 'darwin' and not xbmc.getCondVisibility('System.Platform.ATV2')
