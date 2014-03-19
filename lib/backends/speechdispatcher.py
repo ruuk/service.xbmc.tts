@@ -30,7 +30,7 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 		if interrupt:
 			self.stop()
 		try:
-			self.speechdObject.speak(text.decode('utf8'))
+			self.speechdObject.speak(text)
 		except speechd.SSIPCommunicationError:
 			self.close()
 			self.connect()
