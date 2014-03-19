@@ -8,10 +8,10 @@ from flite import FliteTTSBackend, FliteATV2TTSBackend
 from osxsay import OSXSayTTSBackend
 from sapi import SAPITTSBackend
 from espeak import ESpeakTTSBackend
+from speechdispatcher import SpeechDispatcherTTSBackend
 
-
-backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,OSXSayTTSBackend,NVDATTSBackend,FliteATV2TTSBackend,LogOnlyTTSBackend]
-backendsByPriority = [NVDATTSBackend,SAPITTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,OSXSayTTSBackend,FliteATV2TTSBackend,LogOnlyTTSBackend]
+backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,OSXSayTTSBackend,NVDATTSBackend,SpeechDispatcherTTSBackend,FliteATV2TTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteATV2TTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice():
 	import xbmcgui

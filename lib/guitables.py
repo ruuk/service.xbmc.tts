@@ -140,7 +140,7 @@ def getWindowTexts(winID,table=winTexts):
 	
 def getExtraTexts(winID):
 	return getWindowTexts(winID,table=winExtraTexts)
-	
+
 def getSongInfo():
 	if xbmc.getCondVisibility('ListItem.IsFolder'): return None
 	title = xbmc.getInfoLabel('ListItem.Title')
@@ -158,3 +158,4 @@ def getSongInfo():
 		ret.append(xbmc.getLocalizedString(180))
 		ret.append(duration.decode('utf-8'))
 	return ret
+

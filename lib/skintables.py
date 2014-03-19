@@ -23,7 +23,7 @@ def getControlText(table,winID,controlID):
 	if not controlID in table[winID]: return
 	label = table[winID][controlID]['name']
 	if isinstance(label,int): label = xbmc.getLocalizedString(label)
-	if not label: return ''
+	if not label: return u''
 	if not 'prefix' in table[winID][controlID]: return label
 	return u'{0}: {1}'.format(table[winID][controlID]['prefix'],label)
 

@@ -35,5 +35,9 @@ class NVDATTSBackend(TTSBackendBase):
 		if not self.dll:
 			return
 		if interrupt:
-			self.dll.nvdaController_cancelSpeech()
-		self.dll.nvdaController_speakText(text.decode("utf8"))
+			self.stop()
+		self.dll.nvdaController_speakText(text)
+
+	def stop(self):
+		self.dll.nvdaController_cancelSpeech()
+
