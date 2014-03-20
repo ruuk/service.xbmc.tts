@@ -7,6 +7,7 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 	"""Supports The speech-dispatcher on linux"""
 
 	provider = 'Speech-dispatcher'
+	displayName = 'Speech Dispatcher'
 	interval = 100
 
 	def __init__(self):

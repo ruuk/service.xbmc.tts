@@ -4,6 +4,7 @@ from base import TTSBackendBase
 
 class SAPITTSBackend(TTSBackendBase):
 	provider = 'SAPI'
+	displayName = 'SAPI (Windows Internal)'
 	interval = 100
 	def __init__(self):
 		import comtypes.client

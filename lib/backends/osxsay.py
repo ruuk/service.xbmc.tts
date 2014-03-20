@@ -4,6 +4,7 @@ from base import ThreadedTTSBackend
 
 class OSXSayTTSBackend(ThreadedTTSBackend):
 	provider = 'OSXSay'
+	displayName = 'OSX Say (OSX Internal)'
 	interval = 100
 	
 	def __init__(self):

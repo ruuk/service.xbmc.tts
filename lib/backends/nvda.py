@@ -12,6 +12,7 @@ except ImportError:
 
 class NVDATTSBackend(TTSBackendBase):
 	provider = 'nvda'
+	displayName = 'NVDA'
 
 	@staticmethod
 	def available():

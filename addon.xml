@@ -2,7 +2,7 @@
 <addon id="service.xbmc.tts"
        name="XBMC TTS"
        version="0.0.19"
-       provider-name="Rick Phillips (ruuk),pvagner">
+       provider-name="Rick Phillips (ruuk), pvagner">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="script.module.comtypes" version="1.0.0"/>

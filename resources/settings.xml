@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
   <category label="Main">
-    <setting id="default_tts" type="enum" label="Default TTS Engine" values="Auto|SAPI|Pico2Wave|Festival|Flite|eSpeak|OSX say|NVDA|Speech dispatcher|Flite (ATV2)|Log" default="0" />
-    <setting id="voice" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog)"/>
+    <setting label="Default TTS Engine" type="action" id="backend" action="RunScript(service.xbmc.tts,backend_dialog)"/>
+    <setting id="voice.Flite" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.Flite)" visible="eq(-1,Flite)" />
+    <setting id="voice.eSpeak" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.eSpeak)" visible="eq(-2,eSpeak)" />
+    <setting id="voice.eSpeak-XA" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.eSpeak-XA)" visible="eq(-3,eSpeak-XA)" />
+    <setting id="voice.SAPI" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.SAPI)" visible="eq(-4,SAPI)" />
+    <setting label="Speed" type="slider" id="speed.eSpeak-XA" option="int" default="175" range="80,450" visible="eq(-5,eSpeak-XA)" />
     <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>
 </settings>

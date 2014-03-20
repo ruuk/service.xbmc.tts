@@ -8,9 +8,14 @@ if __name__ == '__main__':
 		command = arg[4:]
 		from lib import util
 		util.sendCommand(command)
-	elif arg == 'voice_dialog':
+	elif arg and arg.startswith('voice_dialog.'):
+		provider = arg[13:]
 		from lib import backends
-		backends.selectVoice()
+		backends.selectVoice(provider)
+	elif arg == 'backend_dialog':
+		#<setting id="default_tts" type="enum" label="Default TTS Engine" values="Auto|SAPI|Pico2Wave|Festival|Flite|eSpeak|OSX say|NVDA|Speech dispatcher|Flite (ATV2)|Log" default="0" />
+		from lib import util
+		util.selectBackend()
 	elif arg == 'install_keymap':
 		from lib import util
 		util.installKeymap()

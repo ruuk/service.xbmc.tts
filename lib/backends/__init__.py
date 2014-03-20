@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 from lib import util
-from base import TTSBackendBase, LogOnlyTTSBackend
+from base import LogOnlyTTSBackend
 from nvda import NVDATTSBackend
 from festival import FestivalTTSBackend
 from pico2wave import Pico2WaveTTSBackend
 from flite import FliteTTSBackend, FliteATV2TTSBackend
 from osxsay import OSXSayTTSBackend
 from sapi import SAPITTSBackend
-from espeak import ESpeakTTSBackend
+from espeak import ESpeakTTSBackend, ESpeak_XA_TTSBackend
 from speechdispatcher import SpeechDispatcherTTSBackend
 
-backends = [TTSBackendBase,SAPITTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteTTSBackend,ESpeakTTSBackend,OSXSayTTSBackend,NVDATTSBackend,SpeechDispatcherTTSBackend,FliteATV2TTSBackend,LogOnlyTTSBackend]
-backendsByPriority = [NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteATV2TTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,ESpeak_XA_TTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteATV2TTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
 
-def selectVoice():
+def selectVoice(provider):
+	print provider
 	import xbmcgui
-	b = getBackend()()
-	voices = b.voices()
+	voices = None
+	bClass = getBackendByProvider(provider)
+	if bClass:
+		b = bClass()
+		voices = b.voices()
 	if not voices:
 		xbmcgui.Dialog().ok('Not Available','No voices to select.')
 		return
@@ -28,15 +31,16 @@ def selectVoice():
 	util.setSetting('voice',voice)
 		
 def getBackend():
-	userBackendIndex = util.getSetting('default_tts',0)
-	b = backends[userBackendIndex]
-	if not b.available():
+	provider = util.getSetting('backend')
+	b = getBackendByProvider(provider)
+	if not b or not b.available():
  		for b in backendsByPriority:
 			if b.available(): break
 	return b
 			
-def getBackendByName(name):
-	for b in backends:
+def getBackendByProvider(name):
+	if name == 'auto': return None
+	for b in backendsByPriority:
 		if b.provider == name and b.available():
 			util.LOG('Backend: %s' % b.provider)
 			return b

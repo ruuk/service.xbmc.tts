@@ -13,11 +13,11 @@ util.initCommands()
 class TTSService(xbmc.Monitor):
 	def __init__(self):
 		self.stop = False
-		self.enabled = True #util.getSetting('enable',False)
+		self.enabled = True
 		self.skinTable = skintables.getSkinTable()
 		self.initState()
 		self.tts = None
-		self.backendSettingID = None
+		self.backendProvider = None
 		self.initTTS()
 	
 	def onAbortRequested(self):
@@ -44,9 +44,9 @@ class TTSService(xbmc.Monitor):
 		self.win = None
 		
 	def initTTS(self):
-		self.setBackend(backends.getBackend()())
-		self.backendSettingID = util.getSetting('default_tts',-1)
-		util.LOG('Backend: %s' % self.tts.provider)
+		provider = self.setBackend(backends.getBackend()())
+		self.backendProvider = provider
+		util.LOG('Backend: %s' % provider)
 		
 	def start(self):
 		util.LOG('STARTED :: Interval: %sms' % self.tts.interval)
@@ -62,10 +62,11 @@ class TTSService(xbmc.Monitor):
 		if self.tts: self.tts.close()
 		self.tts = backend
 		util.setSetting('voice',self.tts.currentVoice())
+		return backend.provider
 		
 	def checkBackend(self):
-		backendSettingID = util.getSetting('default_tts',-1)
-		if backendSettingID == self.backendSettingID: return
+		provider = util.getSetting('backend',None)
+		if provider == self.backendProvider: return
 		self.initTTS()
 		
 	def checkForText(self):
@@ -169,9 +170,13 @@ class TTSService(xbmc.Monitor):
 		if not seasEp: return u''
 		return seasEp.replace(u'S',u'season ').replace(u'E',u'episode ')
 		
+	_formatTagRE = re.compile(r'\[/?(?:CR|B|I|UPPERCASE|LOWERCASE)\](?i)')
+	_colorTagRE = re.compile(r'\[/?COLOR[^\]\[]*?\](?i)')
+	_okTagRE = re.compile(r'(^|\W|\s)OK($|\s|\W)') #Prevents saying Oklahoma
 	def cleanText(self,text):
-		text = re.sub('\[/?(?:CR|B|I|UPPERCASE|LOWERCASE)\](?i)','',text)
-		text = re.sub('\[/?COLOR[^\]\[]*?\](?i)','',text)
+		text = self._formatTagRE.sub('',text)
+		text = self._colorTagRE.sub('',text)
+		text = self._okTagRE.sub(r'\1O K\2', text)
 		text = text.strip('[]')
 		if text == '..': text = u'Parent Directory'
 		return text

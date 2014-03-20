@@ -4,6 +4,7 @@ from base import TTSBackendBase
 
 class FestivalTTSBackend(TTSBackendBase):
 	provider = 'festival'
+	displayName = 'Festival'
 	def __init__(self):
 		self.startFestivalProcess()
 		

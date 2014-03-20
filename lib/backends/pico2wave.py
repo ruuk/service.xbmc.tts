@@ -5,6 +5,7 @@ from base import TTSBackendBase
 
 class Pico2WaveTTSBackend(TTSBackendBase):
 	provider = 'pico2wav'
+	displayName = 'pico2wav'
 	def __init__(self):
 		import xbmcaddon
 		profile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))

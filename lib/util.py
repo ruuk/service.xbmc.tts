@@ -59,6 +59,19 @@ def installKeymap():
 	else:
 		xbmcgui.Dialog().ok('Failed','Keymap installation failure.')
 	
+def selectBackend():
+	import backends
+	import xbmcgui
+	choices = ['auto']
+	display = ['Auto']
+	for b in backends.backendsByPriority:
+		if b.available():
+			choices.append(b.provider)
+			display.append(b.displayName)
+	idx = xbmcgui.Dialog().select('Choose Backend',display)
+	if idx < 0: return
+	setSetting('backend',choices[idx])
+	
 LAST_COMMAND_DATA = ''
 
 def initCommands():

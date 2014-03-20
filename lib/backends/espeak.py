@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from base import TTSBackendBase
+from base import TTSBackendBase, XBMCAudioTTSBackendBase
+import subprocess
 import ctypes
 import ctypes.util
 import os
@@ -19,6 +20,7 @@ class espeak_VOICE(ctypes.Structure):
 
 class ESpeakTTSBackend(TTSBackendBase):
 	provider = 'eSpeak'
+	displayName = 'eSpeak'
 	interval = 100
 	def __init__(self):
 		libname = ctypes.util.find_library('espeak')
@@ -56,3 +58,34 @@ class ESpeakTTSBackend(TTSBackendBase):
 			index+=1
 		return voiceList
 
+class ESpeak_XA_TTSBackend(XBMCAudioTTSBackendBase):
+	provider = 'eSpeak-XA'
+	displayName = 'eSpeak (XBMC Audio)'
+	interval = 50
+
+	
+	def runCommand(self,text):
+		voice = self.currentVoice()
+		speed = self.currentSpeed()
+		args = ['espeak','-w',self.outFile]
+		if voice: args += ['-v',voice]
+		if speed: args += ['-s',speed]
+		args.append(text)
+		subprocess.call(args)			
+			
+	def voices(self):
+		import re
+		ret = []
+		out = subprocess.check_output(['espeak','--voices']).splitlines()
+		out.pop(0)
+		for l in out:
+			ret.append(re.split('\s+',l.strip(),5)[3])
+		return ret
+		
+	@staticmethod
+	def available():
+		try:
+			subprocess.call(['espeak','--help'])
+		except (OSError, IOError):
+			raise
+		return True
