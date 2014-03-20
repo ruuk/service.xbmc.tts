@@ -15,7 +15,8 @@ class FliteTTSBackend(ThreadedTTSBackend):
 		if not text: return
 		voice = self.currentVoice() or 'kal16'
 		self.process = subprocess.Popen(['flite', '-voice', voice, '-t', text])
-		self.process.wait()
+		while self.process.poll() == None and self.active: xbmc.sleep(10)
+		#self.process.wait()
 		
 	def threadedInterrupt(self):
 		self.stopProcess()
@@ -24,7 +25,7 @@ class FliteTTSBackend(ThreadedTTSBackend):
 		if self.process:
 			try:
 				self.process.terminate()
-				self.process.wait()
+				#self.process.wait()
 			except:
 				pass
 			

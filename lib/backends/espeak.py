@@ -69,7 +69,7 @@ class ESpeak_XA_TTSBackend(XBMCAudioTTSBackendBase):
 		speed = self.currentSpeed()
 		args = ['espeak','-w',self.outFile]
 		if voice: args += ['-v',voice]
-		if speed: args += ['-s',speed]
+		if speed: args += ['-s',str(speed)]
 		args.append(text)
 		subprocess.call(args)			
 			

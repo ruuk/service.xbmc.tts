@@ -15,7 +15,7 @@ class TTSBackendBase:
 
 	def currentVoice(self): return util.getSetting('voice.{0}'.format(self.provider),'')
 		
-	def currentSpeed(self): return util.getSetting('speed.{0}'.format(self.provider),'')
+	def currentSpeed(self): return util.getSetting('speed.{0}'.format(self.provider),0)
 		
 	def close(self): pass
 

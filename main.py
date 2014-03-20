@@ -19,6 +19,9 @@ if __name__ == '__main__':
 	elif arg == 'install_keymap':
 		from lib import util
 		util.installKeymap()
+	elif arg == 'settings':
+		from lib import util
+		util.xbmcaddon.Addon().openSettings()
 	elif arg == None:
 		from service import TTSService
 		TTSService().start()
