@@ -1,0 +1,80 @@
+Changelog for service.xbmc.tts
+==============================
+
+Current version: 0.0.20
+-----------------------
+
+Authors: ruuk, pvagner
+
+TODO:
+-----
+ Android backend
+ Speech for more window types that isn't automatically handled
+ Fix ctypes implementation of eSpeak
+ Add speed and voices to other backends
+ Add xbmc audio option to more backends
+
+EXTERNAL TODO:
+--------------
+ Windows and OSX installers?
+ Android TTS app for android backend
+ 
+
+** 0.0.21 **
+
+Added changelog.txt
+Added documentation for items in guitables.py Removed giutables.py items that were removed in frodo
+
+** 0.0.20 and before ** 
+
+Fix for Flite hanging XBMC on shutdown F6 key now opens the addon settings when the keymap is installed The backend currentSpeed() now returns 0 if none is set
+Backend select dialog now handled manually Added displayName to backends - used for selection dialog Backend selection now saved with provider name Added currentSpeed() to TTSBackendBase, works like currentVoice() Added XBMCAudioTTSBackendBase backend base Added ESpeak_XA_TTSBackend which uses subprocess and XBMC audio and implements currentSpeed() Added a fix for OK speaking as Oklahoma Settings now only shows 'Voices' option for the currently displayed speech engine
+Merge branch 'master' of https://github.com/ruuk/service.xbmc.tts
+Handle stopSFX in flite for ATV2
+Forgot to remove UTF8 decoding from SpeechDispatcherBackend.
+SapiTTSBackend: Added support for setting voices. Also reverted utf8 decoding for NVDA and Sapi TTSBackends as it is no longer needed after the latest refactor.
+ESpeakTTSBackend: prevent double speaking. I don't know when this did crep in.
+Merge branch 'master' of https://github.com/ruuk/service.xbmc.tts
+SpeechDispatcherTTSBackend: handle connection lost errors e.g. while speech-dispatcher daemon is restarted.
+Addon addon description to spoken info when pressing F3 in the addon browser
+Added assert to SayText to ensure unicode text Made changes to ensure all text passed to SayText is unicode Changed formatText to cleanText and fixed it to properly remove text formatting All text passed to a backend is now run through cleanText
+fix from phone
+Added stop method to more TTSBackends NVDA, Sapi and SpeechDispatcher
+Merge branch 'master' of https://github.com/ruuk/service.xbmc.tts
+ESpeakTTSBackend: Added voices selection.
+Added keys to keymap. F3 for extra selected item information and F to stop. Stop only works in espeak and flite so far. speech. Changed F1 to repeat Window:Section:Item instead of just Item text. F2 now speaks time and weather on the home screen. F3 currently speaks TV show plots, episode plots, probably Movie plots, and song title,genre,duration.
+Added SpeechDispatcherTTSBackend with some default values attempting to load a voice coresponding with the user's locale if it exists.
+Merge branch 'master' of https://github.com/ruuk/service.xbmc.tts
+Added a custom keymap installable from settings:Install Keymap Keymap adds F1 repeat item text, F2 say extra text Currently F2 only works in the addon information window Fix eSpeak to encode to unicode to UTF-8 string before speaking Changed lib file in addon.xml to main.py which starts the service or other functions depending on the calling args
+Fixed inability to start service without "enabled" setting which has been removed
+Quick fix for UnicodeDecode errors occuring while presenting some non english window and control names. This should be properly addressed later.
+Added basic .gitignore
+Removed 64 bit NVDA controller client library as this is not needed at this point
+Now speaks titles of dialogs Now speaks text in OK and YES/NO dialogs
+Version bump
+Restructure backends Add nvda controller dlls and license
+Fix for new window not interrupting speech
+Added pvagner to the authors in addon.xml
+Version bump
+Merge branch 'master' of git://github.com/pvagner/service.xbmc.tts into pvagner-master
+Localize window names via XBMC strings Localize quartz control table labels via XBMC strings Removed 'Enable' setting to use XBMC enable/disable button instead Added pausing to threaded backend base Some tweaks to Flite to prevent crashing XBMC Fixes for proper interruption when changing button controls Now falls back to System.CurrentControl when getting control label, which works with settings items
+Added NVDATTSBackend. This only works on windows. NVDA has to be running. NVDA controller client library needs to be copied into the lib folder.
+SAPITTSBackend: convert text to unicode before sending for TTS. Fixes issues speaking non ascii characters.
+Do not init backend unless enabled
+Fixes for backend change check
+Finish adding stuff for osx say Log version and platform
+Version bump
+Added eSpeak tts backend Added code for OSX say backend (untested)
+version bump
+Implemented a threaded tts backend base class Implemented Flite backend using threaded base class Added auto option to setting 'Default TTS Engine'
+Added Flite via ctypes and commented it out
+Fix Speak() flag in SAPI say() Service now uses tts backend specific sleep interval
+Finish interruptable speech interface
+Add import for comtypes module Rename WindowsInternalTTS to SAPITTS Use comtypes instead of subprocess to access SAPI
+Added voice selection
+Version bump
+Changed addon file structure Added support for flite tts (should work on ATV2) Added 'Enable' setting Added 'Default TTS Engine' setting
+Fix windows TTS Auto select TTS provider Some cleanup
+Various Windows TTS
+Add license and icon
+Initial commit
