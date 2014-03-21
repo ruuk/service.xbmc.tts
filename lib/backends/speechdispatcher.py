@@ -43,6 +43,9 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 			self.close()
 			self.connect()
 
+	def close(self):
+		if self.speechdObject: self.speechdObject.close()
+		
 	@staticmethod
 	def available():
 		try:
@@ -50,7 +53,4 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 		except:
 			return False
 		return True
-
-	def close(self):
-		if self.speechdObject: self.speechdObject.close()
 

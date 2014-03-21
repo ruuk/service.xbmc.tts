@@ -13,17 +13,28 @@ TODO:
  Fix ctypes implementation of eSpeak
  Add speed and voices to other backends
  Add xbmc audio option to more backends
+ Pageination for large texts?
+ Subtitle speech? Maybe only possible with something like pysrt and a subtitle file. https://pypi.python.org/pypi/pysrt
 
 EXTERNAL TODO:
 --------------
  Windows and OSX installers?
  Android TTS app for android backend
  
+Known Issues:
+-------------
+ eSpeak crashes on reload and voice selection
 
 ** 0.0.21 **
 
 Added changelog.txt
 Added documentation for items in guitables.py Removed giutables.py items that were removed in frodo
+Added speaking of changelog dialog
+Changed voice and speed settings to appear as subsettings
+Add class and method documentation to the backend base classes
+Some restructuring to the backend base classes and backends to make more sense and fix some threading issues
+Change XBMCAudioTTSBackendBase to WaveFileTTSBackendBase and allow it to work with XBMC audio with stopSFX (if available) or external audio
+Re-implement pico2wav using WaveFileTTSBackendBase
 
 ** 0.0.20 and before ** 
 

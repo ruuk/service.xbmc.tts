@@ -16,19 +16,12 @@ class OSXSayTTSBackend(ThreadedTTSBackend):
 		self.process = subprocess.Popen(['say', text])
 		self.process.wait()
 		
-	def threadedInterrupt(self):
-		self.stopProcess()
-		
-	def stopProcess(self):
-		if self.process:
-			try:
-				self.process.terminate()
-			except:
-				pass
-		
-	def close(self):
-		self.stopProcess()
-		self.threadedClose()
+	def stop(self):
+		if not self.process: return
+		try:
+			self.process.terminate()
+		except:
+			pass
 
 	@staticmethod
 	def available():

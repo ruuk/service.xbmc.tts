@@ -22,7 +22,7 @@ class TTSService(xbmc.Monitor):
 	
 	def onAbortRequested(self):
 		self.stop = True
-		if self.tts: self.tts.close()
+		if self.tts: self.tts._close()
 		
 	def onSettingsChanged(self):
 		command = util.getCommand()
@@ -54,12 +54,14 @@ class TTSService(xbmc.Monitor):
 			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.tts.interval)
 				self.checkForText()
+		except RuntimeError:
+			util.ERROR('start()',hide_tb=True)
 		finally:
-			self.tts.close()
+			self.tts._close()
 			util.LOG('STOPPED')
 		
 	def setBackend(self,backend):
-		if self.tts: self.tts.close()
+		if self.tts: self.tts._close()
 		self.tts = backend
 		util.setSetting('voice',self.tts.currentVoice())
 		return backend.provider
@@ -103,16 +105,13 @@ class TTSService(xbmc.Monitor):
 		
 	def sayTexts(self,texts,interrupt=True):
 		if not texts: return
-		self.sayText(texts.pop(0),interrupt=interrupt)
-		for t in texts:
-				self.pause()
-				self.sayText(t)
+		self.tts.sayList(texts,interrupt=interrupt)
 	
 	def pause(self):
 		self.tts.pause()
 		
 	def stopSpeech(self):
-		self.tts.stop()
+		self.tts._stop()
 		
 	def checkWindow(self):
 		winID = xbmcgui.getCurrentWindowId()
@@ -174,10 +173,13 @@ class TTSService(xbmc.Monitor):
 	_colorTagRE = re.compile(r'\[/?COLOR[^\]\[]*?\](?i)')
 	_okTagRE = re.compile(r'(^|\W|\s)OK($|\s|\W)') #Prevents saying Oklahoma
 	def cleanText(self,text):
+		if text.endswith(')'): #Skip this most of the time
+			text = text.replace('( )','{0} no'.format(self.tts.pauseInsert)).replace('(*)','{0} yes'.format(self.tts.pauseInsert)) #For boolean settings
 		text = self._formatTagRE.sub('',text)
 		text = self._colorTagRE.sub('',text)
 		text = self._okTagRE.sub(r'\1O K\2', text)
 		text = text.strip('[]')
+		text = text.replace('XBMC','X B M C')
 		if text == '..': text = u'Parent Directory'
 		return text
 	

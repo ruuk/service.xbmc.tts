@@ -1,23 +1,31 @@
 # -*- coding: utf-8 -*-
 import os, subprocess, xbmc
-from lib import util
-from base import TTSBackendBase
+from base import WavFileTTSBackendBase
 
-class Pico2WaveTTSBackend(TTSBackendBase):
+class Pico2WaveTTSBackend(WavFileTTSBackendBase):
 	provider = 'pico2wav'
 	displayName = 'pico2wav'
 	def __init__(self):
-		import xbmcaddon
-		profile = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile'))
-		if not os.path.exists(profile): os.makedirs(profile)
-		self.outFile = os.path.join(profile,'speech.wav')
-		util.LOG('pico2wave output file: ' + self.outFile)
+		self.process = None
+		self.active = True
+		WavFileTTSBackendBase.__init__(self)
 		
-	def say(self,text,interrupt=False):
-		if not text: return
+	def runCommand(self,text):
 		subprocess.call(['pico2wave', '-w', '{0}'.format(self.outFile), '{0}'.format(text)])
-		#xbmc.playSFX(self.outFile) #Doesn't work - caches wav
-		subprocess.call(['aplay','{0}'.format(self.outFile)])
+		
+	def play(self):
+		self.process = subprocess.Popen(['aplay','{0}'.format(self.outFile)])
+		while self.process.poll() == None and self.active: xbmc.sleep(10)
+			
+	def stop(self):
+		if not self.process: return
+		try:
+			self.process.terminate()
+		except:
+			pass
+		
+	def close(self):
+		self.active = False
 		
 	@staticmethod
 	def available():

@@ -16,28 +16,16 @@ class FliteTTSBackend(ThreadedTTSBackend):
 		voice = self.currentVoice() or 'kal16'
 		self.process = subprocess.Popen(['flite', '-voice', voice, '-t', text])
 		while self.process.poll() == None and self.active: xbmc.sleep(10)
-		#self.process.wait()
-		
-	def threadedInterrupt(self):
-		self.stopProcess()
-		
-	def stopProcess(self):
-		if self.process:
-			try:
-				self.process.terminate()
-				#self.process.wait()
-			except:
-				pass
 			
 	def voices(self):
 		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
 		
 	def stop(self):
-		self.process.terminate()
-		
-	def close(self):
-		self.stopProcess()
-		self.threadedClose()
+		if not self.process: return
+		try:
+			self.process.terminate()
+		except:
+			pass
 
 	@staticmethod
 	def available():

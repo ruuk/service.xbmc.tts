@@ -3,31 +3,111 @@ import xbmc, time, os, threading, wave
 from lib import util
 
 class TTSBackendBase:
+	"""The base class for all speech engine backends
+		
+	Subclasses must at least implement the say() method, and can use whatever
+	means are available to speak text.
+	"""
 	provider = 'auto'
 	displayName = 'Auto'
+	pauseInsert = '...'
 	
 	interval = 400
-	def say(self,text,interrupt=False): raise Exception('Not Implemented')
-
-	def voices(self): return []
-	
-	def setVoice(self,voice): pass
-
-	def currentVoice(self): return util.getSetting('voice.{0}'.format(self.provider),'')
+	def say(self,text,interrupt=False):
+		"""Method accepting text to be spoken
 		
-	def currentSpeed(self): return util.getSetting('speed.{0}'.format(self.provider),0)
+		Must be overridden by subclasses.
+		text is unicode and the text to be spoken.
+		If interrupt is True, the subclass should interrupt all previous speech.
 		
-	def close(self): pass
+		"""
+		raise Exception('Not Implemented')
 
-	def pause(self,ms=500): xbmc.sleep(ms)
+	def sayList(self,texts,interrupt=False):
+		"""Accepts a list of text strings to be spoken
+		
+		May be overriden by subclasses. The default implementation calls say()
+		for each item in texts, calling pause() between each.
+		If interrupt is True, the subclass should interrupt all previous speech.
+		"""
+		self.say(texts.pop(0),interrupt=interrupt)
+		for t in texts:
+			self.pause()
+			self.say(t)
+		
+	def voices(self):
+		"""Returns a list of voice string names
+		
+		May be overridden by subclasses. Default implementation returns None.
+		"""
+		return None
 	
-	def stop(self): pass
+	def currentVoice(self):
+		"""Returns a saved voice name
+		"""
+		return util.getSetting('voice.{0}'.format(self.provider),'')
+		
+	def currentSpeed(self):
+		"""Returns a saved speed integer
+		"""
+		return util.getSetting('speed.{0}'.format(self.provider),0)
+	
+	def pause(self,ms=500):
+		"""Insert a pause of ms milliseconds
+		
+		May be overridden by sublcasses. Default implementation sleeps for ms.
+		"""
+		xbmc.sleep(ms)
+	
+	def stop(self):
+		"""Stop all speech, implicitly called when close() is called
+		
+		Subclasses shoud override this to respond to requests to stop speech.
+		Default implementation does nothing.
+		"""
+		pass
+	
+	def close(self):
+		"""Close the speech engine
+		
+		Subclasses shoud override this to clean up after themselves.
+		Default implementation does nothing.
+		"""
+		pass
+
+	def _stop(self): self.stop()
+	
+	def _close(self):
+		self._stop()
+		self.close()
 
 	@staticmethod
-	def available(): return False
+	def available():
+		"""Static method representing the the speech engines availability
+		
+		Subclasses shoud override this and return True if the speech engine is
+		capable of speaking text in the current environment.
+		Default implementation returns False.
+		"""
+		return False
 
 class ThreadedTTSBackend(TTSBackendBase):
+	"""A threaded speech engine backend
+		
+	Handles all the threading mechanics internally.
+	Subclasses must at least implement the threadedSay() method, and can use
+	whatever means are available to speak text.
+	They say() and sayList() and pause() methods are not meant to be overridden.
+	"""
+	
+	def __init__(self):
+		self.threadedInit()
+		
 	def threadedInit(self):
+		"""Initialize threading
+		
+		Must be called if you override the __init__() method
+		"""
 		import Queue
 		self.active = True
 		self.queue = Queue.Queue()
@@ -53,26 +133,47 @@ class ThreadedTTSBackend(TTSBackendBase):
 			return
 			
 	def say(self,text,interrupt=False):
-		if interrupt:
-			self._emptyQueue()
-			self.threadedInterrupt()
+		if interrupt: self._stop()
 		self.queue.put_nowait(text)
-	
+		
+	def sayList(self,texts,interrupt=False):
+		if interrupt: self._stop()
+		self.queue.put_nowait(texts.pop(0))
+		for t in texts: 
+			self.pause()
+			self.queue.put_nowait(t)
+		
+	def _stop(self):
+		self._emptyQueue()
+		TTSBackendBase._stop(self)
+
 	def pause(self,ms=500):
 		self.queue.put(ms)
 	
-	def threadedSay(self,text): raise Exception('Not Implemented')
+	def threadedSay(self,text):
+		"""Method accepting text to be spoken
 		
-	def threadedInterrupt(self): raise Exception('Not Implemented')
-
-	def threadedClose(self):
+		Subclasses must override this method and should speak the unicode text.
+		Speech interruption is implemented in the stop() method.
+		"""
+		raise Exception('Not Implemented')
+		
+	def _close(self):
 		self.active = False
-		self._emptyQueue()
-		
-	def close(self):
-		self.threadedClose()
-		
-class XBMCAudioTTSBackendBase(ThreadedTTSBackend):
+		TTSBackendBase._close(self)
+
+class WavFileTTSBackendBase(ThreadedTTSBackend):
+	"""Handles speech engines that output wav files
+	
+	Uses XBMC audio via xbmc.playSFX() if xbmc.stopSFX() is available or play()
+	is not implemented.
+	Subclasses must at least implement the runCommand() method which should
+	save a wav file to the path in the instance's outFile attribute.
+	Subclasses should also implement a play() method if possible to handle the
+	situation where xbmc.stopSFX is not available otherwise speech will not be
+	interruptible. xbmc.stopSFX() is not available in Frodo, and is only
+	available as a patch as of 03-21-2014.
+	"""
 	def __init__(self):
 		self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'playsfx_wavs')
 		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
@@ -81,28 +182,42 @@ class XBMCAudioTTSBackendBase(ThreadedTTSBackend):
 		self.event = threading.Event()
 		self.event.clear()
 		self._xbmcHasStopSFX = False
-		try:
-			self.stopSFX = xbmc.stopSFX
+		if hasattr(xbmc,'stopSFX'):
+			util.LOG('stopSFX available')
+			self._play = self.xbmcPlay
 			self._xbmcHasStopSFX = True
-		except:
-			pass
+		else:
+			util.LOG('stopSFX not available')
+			if self.play:
+				self._play = self.play
+			else:
+				self._play = self.xbmcPlay
 		
 		self.threadedInit()
 		util.LOG('{0} wav output: {1}'.format(self.provider,self.outDir))
 		
-	def runCommand(): raise Exception('Not Implemented')
-	
-	def deleteOutfile(self):
+	def runCommand(text):
+		"""Convert text to a speech in a wav file
+		
+		Subclasses must override this method, and create a wav file to the
+		path in the instances outFile attribute.
+		"""
+		raise Exception('Not Implemented')
+
+	def _deleteOutfile(self):
 		if os.path.exists(self.outFile): os.remove(self.outFile)
 		
-	def nextOutFile(self):
+	def _nextOutFile(self):
 		self.outFile = self.outFileBase % time.time()
 		
-	def threadedSay(self,text):
-		if not text: return
-		self.deleteOutfile()
-		self.nextOutFile()
-		self.runCommand(text)
+	def _play(self): pass
+
+	play = None
+
+	def xbmcPlay(self):
+		if not os.path.exists(self.outFile):
+			util.log('xbmcPlay() - Missing wav file')
+			return
 		xbmc.playSFX(self.outFile)
 		f = wave.open(self.outFile,'r')
 		frames = f.getnframes()
@@ -112,20 +227,24 @@ class XBMCAudioTTSBackendBase(ThreadedTTSBackend):
 		self.event.clear()
 		self.event.wait(duration)
 		
-	def threadedInterrupt(self):
-		self.stop()
+	def threadedSay(self,text):
+		if not text: return
+		self._deleteOutfile()
+		self._nextOutFile()
+		self.runCommand(text)
+		self._play()
 		
-	def stop(self):
-		if self._xbmcHasStopSFX: #If not available, then we force the event to stay cleared. Unfortunately speech will be uninterruptible
+	def _stop(self):
+		if self._xbmcHasStopSFX:
 			self.event.set()
 			xbmc.stopSFX()
+		ThreadedTTSBackend._stop(self)
 		
-	def close(self):
-		self.stop()
+	def _close(self):
+		ThreadedTTSBackend._close(self)
 		for f in os.listdir(self.outDir):
 			if f.startswith('.'): continue
 			os.remove(os.path.join(self.outDir,f))
-		self.threadedClose()
 
 class LogOnlyTTSBackend(TTSBackendBase):
 	provider = 'log'

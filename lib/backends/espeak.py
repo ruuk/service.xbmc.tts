@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from base import TTSBackendBase, XBMCAudioTTSBackendBase
+from base import TTSBackendBase, WavFileTTSBackendBase
 import subprocess
 import ctypes
 import ctypes.util
@@ -40,7 +40,6 @@ class ESpeakTTSBackend(TTSBackendBase):
 		self.eSpeak.espeak_Cancel()
 		
 	def close(self):
-		self.eSpeak.espeak_Cancel()
 		self.eSpeak.espeak_Terminate()
 		
 	@staticmethod
@@ -58,7 +57,7 @@ class ESpeakTTSBackend(TTSBackendBase):
 			index+=1
 		return voiceList
 
-class ESpeak_XA_TTSBackend(XBMCAudioTTSBackendBase):
+class ESpeak_XA_TTSBackend(WavFileTTSBackendBase):
 	provider = 'eSpeak-XA'
 	displayName = 'eSpeak (XBMC Audio)'
 	interval = 50

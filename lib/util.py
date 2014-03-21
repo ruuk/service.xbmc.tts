@@ -6,10 +6,13 @@ DEBUG = True
 def info(key):
 	return xbmcaddon.Addon().getAddonInfo(key)
 	
-def ERROR(txt):
+def ERROR(txt,hide_tb=False):
 	if isinstance (txt,str): txt = txt.decode("utf-8")
-	LOG('ERROR: ' + txt)
 	short = str(sys.exc_info()[1])
+	if hide_tb:
+		LOG('ERROR: {0} - {1}'.format(txt,short))
+		return short
+	LOG('ERROR: ' + txt)
 	import traceback
 	traceback.print_exc()
 	return short

@@ -12,7 +12,7 @@ class FestivalTTSBackend(TTSBackendBase):
 		p = subprocess.Popen(['festival','-i'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 		d = p.communicate('(voice.list)')
 		l = map(str.strip,d[0].rsplit('> (',1)[-1].rsplit(')',1)[0].split('\n'))
-		return l
+		return l or None
 		
 	def startFestivalProcess(self):
 		#LOG('Starting Festival...')
