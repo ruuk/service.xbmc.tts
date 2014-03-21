@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, subprocess, xbmc
-from base import ThreadedTTSBackend, XBMCAudioTTSBackendBase
+from base import ThreadedTTSBackend, WavFileTTSBackendBase
 
 class FliteTTSBackend(ThreadedTTSBackend):
 	provider = 'Flite'
@@ -35,7 +35,7 @@ class FliteTTSBackend(ThreadedTTSBackend):
 			return False
 		return True
 
-class FliteATV2TTSBackend(XBMCAudioTTSBackendBase):
+class FliteATV2TTSBackend(WavFileTTSBackendBase):
 	provider = 'FliteATV2'
 	displayName = 'Flite For ATV2'
 	interval = 50
