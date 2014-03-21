@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.20
+Current version: 0.0.21
 -----------------------
 
 Authors: ruuk, pvagner
