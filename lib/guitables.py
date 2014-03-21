@@ -9,39 +9,38 @@ $INFO[<infolabel>]: infolabel
 string: normal string
 '''
 
-winNames = {	10000: 10000,
-				10001: 10001,
-				10002: 10002,
-				10003: 10003,
-				10004: 10004,
-				10005: 10005,
-				10006: 10006,
-				10007: 10007,
-				10011: 10011,
-				10012: 10012,
-				10013: 10013,
-				10014: 10014,
-				10015: 10015,
-				10016: 10016,
-				10017: 10017,
-				10018: 10018,
-				10019: 10019,
-				10020: 10020,
-				10024: 10024,
-				10025: 10025,
-				10028: 10028,
-				10029: 10029,
-				10034: 10034,
-				10040: 10040,
-				10100: 10100,
-				10101: 10101,
+winNames = {	10000: 10000, #Home
+				10001: 10001, #programs
+				10002: 10002, #pictures
+				10003: 10003, #filemanager
+				10004: 10004, #settings
+				10005: 10005, #music
+				10006: 10006, #video
+				10007: 10007, #systeminfo
+				10011: 10011, #screencalibration
+				10012: 10012, #picturessettings
+				10013: 10013, #programssettings
+				10014: 10014, #weathersettings
+				10015: 10015, #musicsettings
+				10016: 10016, #systemsettings
+				10017: 10017, #videossettings
+				10018: 10018, #servicesettings
+				10019: 10019, #appearancesettings
+				10020: 10020, #scripts
+				10024: 10024, #videofiles: Removed in Gotham
+				10025: 10025, #videolibrary
+				10028: 10028, #videoplaylist
+				10029: 10029, #loginscreen
+				10034: 10034, #profiles
+				10040: 10040, #addonbrowser
+				10100: 10100, #yesnodialog
+				10101: 10101, #progressdialog
 				10103: u'virtual keyboard',
 				10104: u'volume bar',
 				10106: u'context menu',
 				10107: u'info dialog',
 				10109: u'numeric input',
 				10111: u'shutdown menu',
-				10112: u'music scan',
 				10113: u'mute bug',
 				10114: u'player controls',
 				10115: u'seek bar',
@@ -53,32 +52,31 @@ winNames = {	10000: 10000,
 				10126: u'file browser',
 				10128: u'network setup',
 				10129: u'media source',
-				10130: 10034,
-				10131: 20043,
-				10132: 20333,
-				10133: u'video scan',
-				10134: 1036,
-				10135: 658,
+				10130: 10034, #profilesettings
+				10131: 20043, #locksettings
+				10132: 20333, #contentsettings
+				10134: 1036, #favourites
+				10135: 658, #songinformation
 				10136: u'smart playlist editor',
-				10137: 21421,
+				10137: 21421, #smartplaylistrule
 				10138: u'busy dialog',
-				10139: 13406,
+				10139: 13406, #pictureinfo
 				10140: u'addon settings',
-				10141: 1046,
+				10141: 1046, #accesspoints
 				10142: u'fullscreen info',
 				10143: u'karaoke selector',
 				10144: u'karaoke large selector',
 				10145: u'slider dialog',
 				10146: u'addon information',
 				10147: u'text viewer',
-				10149: 35000,
+				10149: 35000, #peripherals
 				10150: u'peripheral settings',
 				10151: 10101, #extended progress dialog - using string for progress dialog
 				10152: u'media filter',
-				10500: 20011,
-				10501: 10501,
-				10502: 10502,
-				10503: 10503,
+				10500: 20011, #musicplaylist
+				10501: 10501, #musicfiles
+				10502: 10502, #musiclibrary
+				10503: 10503, #musicplaylisteditor
 				10601: u'pvr',
 				10602: u'pvr guide info',
 				10603: u'pvr recording info',
@@ -89,30 +87,36 @@ winNames = {	10000: 10000,
 				10610: u'pvr OSD channels',
 				10611: u'pvr OSD guide',
 				11000: u'virtual keyboard',
-				12000: 12000,
-				12001: 12001,
-				12002: 12002,
-				12003: 12003,
-				12005: 12005,
-				12006: 12006,
-				12007: 108,
-				12008: 12008,
-				12009: 13327,
-				12600: 12600,
-				12900: 12900,
-				12901: 12901,
+				12000: 12000, #selectdialog
+				12001: 12001, #musicinformation
+				12002: 12002, #okdialog
+				12003: 12003, #movieinformation
+				12005: 12005, #fullscreenvideo
+				12006: 12006, #visualisation
+				12007: 108, #slideshow
+				12008: 12008, #filestackingdialog
+				12009: 13327, #karaoke
+				12600: 12600, #weather
+				12900: 12900, #screensaver
+				12901: 12901, #videoosd
 				12902: u'video menu',
-				12999: 512
+				12999: 512 #startup
 }
 
-winTexts = {	10100:('2','3','4'),
-				12002:('2','3','4'),
-				10103:('311',)
+winTexts = {	10100:('2','3','4'), #Yes/No Dialog
+				12002:('2','3','4'), #OK Dialog
+				10103:('311',),#Virtual Keyboard
+				10147:('5',) #Text Viewer
 
 }
 
-winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]','$INFO[Weather.Conditions]'),
-					10146:(21863,'$INFO[ListItem.Property(Addon.Creator)]',19114,'$INFO[ListItem.Property(Addon.Version)]',21821,'$INFO[ListItem.Property(Addon.Description)]')
+winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]','$INFO[Weather.Conditions]'), #Home
+					10146:(	21863, #Addon Info Dialog
+							'$INFO[ListItem.Property(Addon.Creator)]',
+							19114,
+							'$INFO[ListItem.Property(Addon.Version)]',
+							21821,'$INFO[ListItem.Property(Addon.Description)]'
+					)
 
 }
 
