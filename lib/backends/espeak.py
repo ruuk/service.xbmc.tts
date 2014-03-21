@@ -85,6 +85,6 @@ class ESpeak_XA_TTSBackend(WavFileTTSBackendBase):
 	def available():
 		try:
 			subprocess.call(['espeak','--help'])
-		except (OSError, IOError):
-			raise
+		except:
+			return False
 		return True
