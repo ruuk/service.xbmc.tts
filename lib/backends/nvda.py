@@ -19,21 +19,18 @@ class NVDATTSBackend(TTSBackendBase):
 		if not windll:
 			return False
 		try:
-			handle = ctypes.windll.kernel32.LoadLibraryA(DLL_PATH)
 			dll = ctypes.windll.LoadLibrary(DLL_PATH)
 			res = dll.nvdaController_testIfRunning() == 0
+			ctypes.windll.kernel32.FreeLibrary(dll._handle)
 			del dll
-			ctypes.windll.kernel32.FreeLibrary(handle)
 			return res
 		except:
 			return False
 
 	def __init__(self):
 		try:
-			self.handle = ctypes.windll.kernel32.LoadLibraryA(DLL_PATH)
 			self.dll = ctypes.windll.LoadLibrary(DLL_PATH)
 		except:
-			self.handle = None
 			self.dll =None
 
 	def say(self,text,interrupt=False):
@@ -44,9 +41,12 @@ class NVDATTSBackend(TTSBackendBase):
 		self.dll.nvdaController_speakText(text)
 
 	def stop(self):
+		if not self.dll: return
 		self.dll.nvdaController_cancelSpeech()
 		
 	def close(self):
+		if not self.dll: return
+		ctypes.windll.kernel32.FreeLibrary(self.dll._handle)
 		del self.dll
-		ctypes.windll.kernel32.FreeLibrary(self.handle)
+		self.dll = None
 

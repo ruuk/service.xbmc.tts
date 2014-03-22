@@ -86,7 +86,7 @@ class TTSBackendBase:
 	def available():
 		"""Static method representing the the speech engines availability
 		
-		Subclasses shoud override this and return True if the speech engine is
+		Subclasses should override this and return True if the speech engine is
 		capable of speaking text in the current environment.
 		Default implementation returns False.
 		"""

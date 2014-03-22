@@ -14,9 +14,11 @@ class SAPITTSBackend(ThreadedTTSBackend):
 		self.threadedInit()
 		
 	def threadedSay(self,text):
+		if not self.voice: return
 		self.voice.Speak(text,1)
 
 	def stop(self):
+		if not self.voice: return
 		self.voice.Speak('',3)
 
 	def voices(self):
@@ -40,6 +42,10 @@ class SAPITTSBackend(ThreadedTTSBackend):
 			# Voice not found.
 			return
 		self.voice.voice = voice
+		
+	def close(self):
+		del self.voice
+		self.voice = None
 		
 	@staticmethod
 	def available():

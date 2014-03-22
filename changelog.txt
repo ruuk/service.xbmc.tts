@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.21
+Current version: 0.0.25
 -----------------------
 
 Authors: ruuk, pvagner
@@ -25,9 +25,22 @@ Known Issues:
 -------------
  eSpeak crashes on reload and voice selection
 
+** 0.0.25 **
+
+NVDA: Unload nvdaController library on close (prevented addon from updating)
+SAPI: Delete comtypes object on close (maybe? caused XBMC to hang on shutdown)
+
 ** 0.0.24 **
 
 Change SAPI to threaded to enable interruption of speech lists
+
+** 0.0.23 **
+
+Fix for espeak available causing error in windows
+
+** 0.0.22 **
+
+Fix Flite subclass
 
 ** 0.0.21 **
 
