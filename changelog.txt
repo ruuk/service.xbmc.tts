@@ -25,6 +25,10 @@ Known Issues:
 -------------
  eSpeak crashes on reload and voice selection
 
+** 0.0.24 **
+
+Change SAPI to threaded to enable interruption of speech lists
+
 ** 0.0.21 **
 
 Added changelog.txt

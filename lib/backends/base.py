@@ -75,7 +75,8 @@ class TTSBackendBase:
 		"""
 		pass
 
-	def _stop(self): self.stop()
+	def _stop(self):
+		self.stop()
 	
 	def _close(self):
 		self._stop()

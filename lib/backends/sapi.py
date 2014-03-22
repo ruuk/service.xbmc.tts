@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
-from base import TTSBackendBase
+from base import ThreadedTTSBackend
 
-class SAPITTSBackend(TTSBackendBase):
+class SAPITTSBackend(ThreadedTTSBackend):
 	provider = 'SAPI'
 	displayName = 'SAPI (Windows Internal)'
 	interval = 100
@@ -11,16 +11,10 @@ class SAPITTSBackend(TTSBackendBase):
 		self.voice = comtypes.client.CreateObject("SAPI.SpVoice")
 		voice = self.currentVoice()
 		if voice: self.setVoice(voice)
+		self.threadedInit()
 		
-	def say(self,text,interrupt=False):
-		if interrupt:
-			self.voice.Speak(text,3)
-		else:
-			self.voice.Speak(text,1)
-		
-	@staticmethod
-	def available():
-		return sys.platform.lower().startswith('win')
+	def threadedSay(self,text):
+		self.voice.Speak(text,1)
 
 	def stop(self):
 		self.voice.Speak('',3)
@@ -46,3 +40,7 @@ class SAPITTSBackend(TTSBackendBase):
 			# Voice not found.
 			return
 		self.voice.voice = voice
+		
+	@staticmethod
+	def available():
+		return sys.platform.lower().startswith('win')
