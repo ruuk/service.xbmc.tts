@@ -8,22 +8,21 @@ class SAPITTSBackend(ThreadedTTSBackend):
 	interval = 100
 	def __init__(self):
 		import comtypes.client
-		self.voice = comtypes.client.CreateObject("SAPI.SpVoice")
-		voice = self.currentVoice()
-		if voice: self.setVoice(voice)
+		self.SpVoice = comtypes.client.CreateObject("SAPI.SpVoice")
+		self.update(self.userVoice(),None)
 		self.threadedInit()
 		
 	def threadedSay(self,text):
-		if not self.voice: return
-		self.voice.Speak(text,1)
+		if not self.SpVoice: return
+		self.SpVoice.Speak(text,1)
 
 	def stop(self):
-		if not self.voice: return
-		self.voice.Speak('',3)
+		if not self.SpVoice: return
+		self.SpVoice.Speak('',3)
 
 	def voices(self):
 		voices=[]
-		v=self.voice.getVoices()
+		v=self.SpVoice.getVoices()
 		for i in xrange(len(v)):
 			try:
 				name=v[i].GetDescription()
@@ -32,20 +31,21 @@ class SAPITTSBackend(ThreadedTTSBackend):
 			voices.append(name)
 		return voices
 
-	def setVoice(self,value):
-		v=self.voice.getVoices()
-		for i in xrange(len(v)):
-			voice=v[i]
-			if value==voice.GetDescription():
-				break
-		else:
-			# Voice not found.
-			return
-		self.voice.voice = voice
+	def update(self,voice_name,speed):
+		if voice_name:
+			v=self.SpVoice.getVoices()
+			for i in xrange(len(v)):
+				voice=v[i]
+				if voice_name==voice.GetDescription():
+					break
+			else:
+				# Voice not found.
+				return
+			self.SpVoice.voice = voice
 		
 	def close(self):
-		del self.voice
-		self.voice = None
+		del self.SpVoice
+		self.SpVoice = None
 		
 	@staticmethod
 	def available():

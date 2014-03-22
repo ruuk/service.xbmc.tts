@@ -28,7 +28,6 @@ def selectVoice(provider):
 	voice = voices[idx]
 	util.LOG('Voice for {0} set to: {1}'.format(b.provider,voice))
 	util.setSetting('voice.{0}'.format(b.provider),voice)
-	util.setSetting('voice',voice)
 		
 def getBackend():
 	provider = util.getSetting('backend')

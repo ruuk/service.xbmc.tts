@@ -26,21 +26,32 @@ class ESpeakTTSBackend(TTSBackendBase):
 		libname = ctypes.util.find_library('espeak')
 		self.eSpeak = ctypes.cdll.LoadLibrary(libname)
 		self.eSpeak.espeak_Initialize(0,0,None,0)
+		self.voice = self.userVoice()
 		
 	def say(self,text,interrupt=False):
-		voice = self.currentVoice()
-		if voice: self.eSpeak.espeak_SetVoiceByName(voice)
+		if not self.eSpeak: return
+		if self.voice: self.eSpeak.espeak_SetVoiceByName(self.voice)
 		if interrupt: self.eSpeak.espeak_Cancel()
 		if isinstance(text,unicode): text = text.encode('utf-8')
 		sb_text = ctypes.create_string_buffer(text)
 		size = ctypes.sizeof(sb_text)
 		self.eSpeak.espeak_Synth(sb_text,size,0,0,0,0x1000,None,None)
 
+	def update(self,voice,speed):
+		if voice: self.voice = voice
+		
 	def stop(self):
+		if not self.eSpeak: return
 		self.eSpeak.espeak_Cancel()
 		
 	def close(self):
+		if not self.eSpeak: return
 		self.eSpeak.espeak_Terminate()
+		#ctypes.cdll.LoadLibrary('libdl.so').dlclose(self.eSpeak._handle)
+		del self.eSpeak
+		self.eSpeak = None
+		
+		
 		
 	@staticmethod
 	def available():
@@ -61,17 +72,23 @@ class ESpeak_XA_TTSBackend(WavFileTTSBackendBase):
 	provider = 'eSpeak-XA'
 	displayName = 'eSpeak (XBMC Audio)'
 	interval = 50
-
 	
+	def __init__(self):
+		WavFileTTSBackendBase.__init__(self)
+		self.voice = self.userVoice()
+		self.speed = self.userSpeed()
+		
 	def runCommand(self,text):
-		voice = self.currentVoice()
-		speed = self.currentSpeed()
 		args = ['espeak','-w',self.outFile]
-		if voice: args += ['-v',voice]
-		if speed: args += ['-s',str(speed)]
+		if self.voice: args += ['-v',self.voice]
+		if self.speed: args += ['-s',str(self.speed)]
 		args.append(text)
 		subprocess.call(args)			
 			
+	def update(self,voice,speed):
+		if voice: self.voice = voice
+		if speed: self.speed = speed
+		
 	def voices(self):
 		import re
 		ret = []

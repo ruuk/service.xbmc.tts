@@ -25,6 +25,8 @@ class TTSService(xbmc.Monitor):
 		if self.tts: self.tts._close()
 		
 	def onSettingsChanged(self):
+		self.tts._update()
+		self.checkBackend()
 		command = util.getCommand()
 		if not command: return
 		util.LOG(command)
@@ -63,7 +65,6 @@ class TTSService(xbmc.Monitor):
 	def setBackend(self,backend):
 		if self.tts: self.tts._close()
 		self.tts = backend
-		util.setSetting('voice',self.tts.currentVoice())
 		return backend.provider
 		
 	def checkBackend(self):
@@ -100,7 +101,6 @@ class TTSService(xbmc.Monitor):
 			
 	def sayText(self,text,interrupt=False):
 		assert isinstance(text,unicode), "Not Unicode"
-		self.checkBackend()
 		self.tts.say(self.cleanText(text),interrupt)
 		
 	def sayTexts(self,texts,interrupt=True):

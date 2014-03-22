@@ -42,15 +42,17 @@ class TTSBackendBase:
 		"""
 		return None
 	
-	def currentVoice(self):
-		"""Returns a saved voice name
+	def userVoice(self):
+		"""Returns a user saved voice name
 		"""
-		return util.getSetting('voice.{0}'.format(self.provider),'')
+		self._voice = util.getSetting('voice.{0}'.format(self.provider),'')
+		return self._voice
 		
-	def currentSpeed(self):
-		"""Returns a saved speed integer
+	def userSpeed(self):
+		"""Returns a user saved speed integer
 		"""
-		return util.getSetting('speed.{0}'.format(self.provider),0)
+		self._speed = util.getSetting('speed.{0}'.format(self.provider),0)
+		return self._speed
 	
 	def pause(self,ms=500):
 		"""Insert a pause of ms milliseconds
@@ -58,6 +60,15 @@ class TTSBackendBase:
 		May be overridden by sublcasses. Default implementation sleeps for ms.
 		"""
 		xbmc.sleep(ms)
+	
+	def update(self,voice_name,speed):
+		"""Called when the user has changed voice or speed
+		
+		Voice will be the new voice name or None if not changed.
+		Speed will be the speed integer on None if not changed.
+		Subclasses should override this to react to user changes.
+		"""
+		pass
 	
 	def stop(self):
 		"""Stop all speech, implicitly called when close() is called
@@ -74,7 +85,30 @@ class TTSBackendBase:
 		Default implementation does nothing.
 		"""
 		pass
-
+	
+	def _update(self):
+		voice = self._updateVoice()
+		speed = self._updateSpeed()
+		if voice or speed: self.update(voice,speed)
+		
+	def _updateVoice(self):
+		old = hasattr(self,'_voice') and self._voice or None
+		voice = self.userVoice()
+		if old != None:
+			if voice == old: return None
+		else:
+			return None
+		return voice
+		
+	def _updateSpeed(self):
+		old = hasattr(self,'_speed') and self._speed or None
+		speed = self.userSpeed()
+		if old != None:
+			if speed == old: return None
+		else:
+			return None
+		return speed
+			
 	def _stop(self):
 		self.stop()
 	
@@ -217,7 +251,7 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 
 	def xbmcPlay(self):
 		if not os.path.exists(self.outFile):
-			util.log('xbmcPlay() - Missing wav file')
+			util.LOG('xbmcPlay() - Missing wav file')
 			return
 		xbmc.playSFX(self.outFile)
 		f = wave.open(self.outFile,'r')

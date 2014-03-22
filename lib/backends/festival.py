@@ -6,6 +6,7 @@ class FestivalTTSBackend(TTSBackendBase):
 	provider = 'festival'
 	displayName = 'Festival'
 	def __init__(self):
+		self.voice = self.userVoice()
 		self.startFestivalProcess()
 		
 	def voices(self):
@@ -23,11 +24,14 @@ class FestivalTTSBackend(TTSBackendBase):
 		if not text: return
 		##self.festivalProcess.send_signal(signal.SIGINT)
 		#self.festivalProcess = subprocess.Popen(['festival'],shell=True,stdin=subprocess.PIPE)
-		voice = self.currentVoice()
-		if voice: voice = '(voice_{0})\n'.format(voice)
+		voice = ''
+		if self.voice: voice = '(voice_{0})\n'.format(self.voice)
 		self.festivalProcess = subprocess.Popen(['festival','--pipe'],shell=True,stdin=subprocess.PIPE)
 		self.festivalProcess.communicate('{0}(SayText "{1}")\n'.format(voice,text))
 		#if self.festivalProcess.poll() != None: self.startFestivalProcess()
+		
+	def update(self,voice,speed):
+		if voice: self.voice = voice
 		
 	def close(self):
 		#if self.festivalProcess.poll() != None: return
