@@ -29,6 +29,8 @@ Known Issues:
 
 NVDA: Unload nvdaController library on close (prevented addon from updating)
 SAPI: Delete comtypes object on close (maybe? caused XBMC to hang on shutdown)
+Fix for OSXSay hanging XBMC on quit
+Some backend restructuring/improvement
 
 ** 0.0.24 **
 
