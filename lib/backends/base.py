@@ -11,6 +11,7 @@ class TTSBackendBase:
 	provider = 'auto'
 	displayName = 'Auto'
 	pauseInsert = '...'
+	extras = None
 	
 	interval = 400
 	def say(self,text,interrupt=False):
@@ -53,7 +54,13 @@ class TTSBackendBase:
 		"""
 		self._speed = util.getSetting('speed.{0}'.format(self.provider),0)
 		return self._speed
-	
+
+	def userExtra(self,extra,default=None):
+		"""Returns a user saved extra setting named key, or default if not set
+		"""
+		setattr(self,extra,util.getSetting('{0}.{1}'.format(extra,self.provider),default))
+		return getattr(self,extra)
+		
 	def pause(self,ms=500):
 		"""Insert a pause of ms milliseconds
 		
@@ -89,7 +96,8 @@ class TTSBackendBase:
 	def _update(self):
 		voice = self._updateVoice()
 		speed = self._updateSpeed()
-		if voice or speed: self.update(voice,speed)
+		extras = self._updateExtras()
+		if voice or speed or extras: self.update(voice,speed)
 		
 	def _updateVoice(self):
 		old = hasattr(self,'_voice') and self._voice or None
@@ -109,6 +117,15 @@ class TTSBackendBase:
 			return None
 		return speed
 			
+	def _updateExtras(self):
+		if not self.extras: return False
+		for (extra,default) in self.extras:
+			old = None
+			if hasattr(self, extra): old = getattr(self,extra)
+			new = self.userExtra(extra,default)
+			if old != None and new != old: return True
+		return False
+		
 	def _stop(self):
 		self.stop()
 	
@@ -232,10 +249,10 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 		util.LOG('{0} wav output: {1}'.format(self.provider,self.outDir))
 		
 	def runCommand(text):
-		"""Convert text to a speech in a wav file
+		"""Convert text to speech and output to a .wav file
 		
-		Subclasses must override this method, and create a wav file to the
-		path in the instances outFile attribute.
+		Subclasses must override this method, and output a .wav file to the
+		path in the outFile attribute.
 		"""
 		raise Exception('Not Implemented')
 

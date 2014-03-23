@@ -177,8 +177,8 @@ class TTSService(xbmc.Monitor):
 			text = text.replace('( )','{0} no'.format(self.tts.pauseInsert)).replace('(*)','{0} yes'.format(self.tts.pauseInsert)) #For boolean settings
 		text = self._formatTagRE.sub('',text)
 		text = self._colorTagRE.sub('',text)
-		text = self._okTagRE.sub(r'\1O K\2', text)
-		text = text.strip('[]')
+		text = self._okTagRE.sub(r'\1O K\2', text) #Some speech engines say OK as Oklahoma
+		text = text.strip('-[]') #getLabel() on lists wrapped in [] and some speech engines have problems with text starting with -
 		text = text.replace('XBMC','X B M C')
 		if text == '..': text = u'Parent Directory'
 		return text
