@@ -10,9 +10,9 @@ class JAWSTTSBackend(ThreadedTTSBackend):
 	def __init__(self):
 		import comtypes.client
 		try:
-			self.jaws = comtypes.client.CreateObject("FreedomSci.JawsApi")
+			self.jaws = comtypes.client.CreateObject('FreedomSci.JawsApi')
 		except:
-			self.jaws = comtypes.client.CreateObject("jfwapi")
+			self.jaws = comtypes.client.CreateObject('jfwapi')
 		self.threadedInit()
 		
 	def threadedSay(self,text):
@@ -30,4 +30,13 @@ class JAWSTTSBackend(ThreadedTTSBackend):
 		
 	@staticmethod
 	def available():
-		return sys.platform.lower().startswith('win')
+		if not sys.platform.lower().startswith('win'): return False
+		try:
+			import comtypes
+			comtypes.GUID.from_progid('FreedomSci.JawsApi') #If we fail on this, we haven't loaded anything
+			import comtypes.client
+			test = comtypes.client.CreateObject("FreedomSci.JawsApi")
+			return test.SayString("",False)
+		except:
+			return False
+		return True

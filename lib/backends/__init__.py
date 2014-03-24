@@ -11,7 +11,7 @@ from espeak import ESpeakTTSBackend, ESpeak_XA_TTSBackend
 from speechdispatcher import SpeechDispatcherTTSBackend
 from jaws import JAWSTTSBackend
 
-backendsByPriority = [NVDATTSBackend,SAPITTSBackend,JAWSTTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,ESpeak_XA_TTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteATV2TTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [JAWSTTSBackend,NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,ESpeak_XA_TTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteATV2TTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice(provider):
 	print provider

@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.27
+Current version: 0.0.28
 -----------------------
 
 Authors: ruuk, pvagner
@@ -18,12 +18,17 @@ TODO:
 
 EXTERNAL TODO:
 --------------
- Windows and OSX installers?
+ Test Windows installer on Vista/7/8
+ OSX installer?
  Android TTS app for android backend
  
 Known Issues:
 -------------
  eSpeak crashes on reload and voice selection
+
+** 0.0.28 **
+
+JAWS backend now properly shows availability
 
 ** 0.0.27 **
 
