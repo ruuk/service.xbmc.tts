@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.26
+Current version: 0.0.27
 -----------------------
 
 Authors: ruuk, pvagner
@@ -24,6 +24,10 @@ EXTERNAL TODO:
 Known Issues:
 -------------
  eSpeak crashes on reload and voice selection
+
+** 0.0.27 **
+
+Added JAWS backend
 
 ** 0.0.26 **
 
