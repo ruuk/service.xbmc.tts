@@ -29,7 +29,7 @@ Known Issues:
 
 Added 'Use SOX If Available' setting to pico2wav
 Added 'Speed (Requires SOX)' setting to pico2wav
-Added fix for test starting with - not speaking on some speech engines
+Added fix for text starting with - not speaking on some speech engines
 
 ** 0.0.25 **
 
