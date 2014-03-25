@@ -169,6 +169,7 @@ def getWindowTexts(winID,table=winTexts):
 			ret.append(xbmc.getInfoLabel(info).decode('utf-8'))
 		else:
 			ret.append(sid)
+		print ret
 	return ret or None
 	
 def getExtraTexts(winID):

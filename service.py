@@ -1,4 +1,4 @@
-import sys, re, xbmc, xbmcgui
+import sys, re, difflib, xbmc, xbmcgui
 from lib import guitables
 from lib import skintables
 from lib import backends
@@ -43,6 +43,7 @@ class TTSService(xbmc.Monitor):
 		self.winID = None
 		self.controlID = None
 		self.text = None
+		self.keyboardText = ''
 		self.win = None
 		
 	def initTTS(self):
@@ -76,7 +77,26 @@ class TTSService(xbmc.Monitor):
 		newW = self.checkWindow()
 		newC = self.checkControl(newW)
 		text = self.getControlText(self.controlID)
-		if (text != self.text) or newC: self.newText(text,newC)
+		if (text != self.text) or newC:
+			self.newText(text,newC)
+		else:
+			if self.winID == 10103: self.checkVirtualKeyboard()
+			
+	def checkVirtualKeyboard(self):
+		text = xbmc.getInfoLabel('Control.GetLabel(310)').decode('utf-8')
+		if (text != self.keyboardText):
+			out = ''
+			d = difflib.Differ()
+			if len(text) > len(self.keyboardText):
+				for c in d.compare(self.keyboardText,text):
+					if c.startswith('+'): out += u' ' + (c.strip(' +') or 'space')
+			else:
+				for c in d.compare(self.keyboardText,text):
+					if c.startswith('-'): out += u' ' + (c.strip(' -') or 'space')
+				if out: out = out.strip() + ' deleted'
+			if out:
+				self.sayText(out.strip(),interrupt=False)
+			self.keyboardText = text
 	
 	def repeatText(self):
 		self.winID = None
