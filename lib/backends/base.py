@@ -28,12 +28,12 @@ class TTSBackendBase:
 		"""Accepts a list of text strings to be spoken
 		
 		May be overriden by subclasses. The default implementation calls say()
-		for each item in texts, calling pause() between each.
+		for each item in texts, calling insertPause() between each.
 		If interrupt is True, the subclass should interrupt all previous speech.
 		"""
 		self.say(texts.pop(0),interrupt=interrupt)
 		for t in texts:
-			self.pause()
+			self.insertPause()
 			self.say(t)
 		
 	def voices(self):
@@ -61,13 +61,21 @@ class TTSBackendBase:
 		setattr(self,extra,util.getSetting('{0}.{1}'.format(extra,self.provider),default))
 		return getattr(self,extra)
 		
-	def pause(self,ms=500):
+	def insertPause(self,ms=500):
 		"""Insert a pause of ms milliseconds
 		
 		May be overridden by sublcasses. Default implementation sleeps for ms.
 		"""
 		xbmc.sleep(ms)
 	
+	def isSpeaking(self):
+		"""Returns True if speech engine is currently speaking, False if not 
+		and None if unknown
+		
+		Subclasses should override this respond accordingly
+		"""
+		return None
+		
 	def update(self,voice_name,speed):
 		"""Called when the user has changed voice or speed
 		
@@ -149,7 +157,7 @@ class ThreadedTTSBackend(TTSBackendBase):
 	Handles all the threading mechanics internally.
 	Subclasses must at least implement the threadedSay() method, and can use
 	whatever means are available to speak text.
-	They say() and sayList() and pause() methods are not meant to be overridden.
+	They say() and sayList() and insertPause() methods are not meant to be overridden.
 	"""
 	
 	def __init__(self):
@@ -162,6 +170,7 @@ class ThreadedTTSBackend(TTSBackendBase):
 		"""
 		import Queue
 		self.active = True
+		self._threadedIsSpeaking = False
 		self.queue = Queue.Queue()
 		self.thread = threading.Thread(target=self._handleQueue,name='TTSThread')
 		self.thread.start()
@@ -173,7 +182,9 @@ class ThreadedTTSBackend(TTSBackendBase):
 			if isinstance(text,int):
 				time.sleep(text/1000.0)
 			else:
+				self._threadedIsSpeaking = True
 				self.threadedSay(text)
+				self._threadedIsSpeaking = False
 		util.LOG('Threaded TTS Finished: {0}'.format(self.provider))
 			
 	def _emptyQueue(self):
@@ -192,14 +203,17 @@ class ThreadedTTSBackend(TTSBackendBase):
 		if interrupt: self._stop()
 		self.queue.put_nowait(texts.pop(0))
 		for t in texts: 
-			self.pause()
+			self.insertPause()
 			self.queue.put_nowait(t)
+		
+	def isSpeaking(self):
+		return self._threadedIsSpeaking or not self.queue.empty()
 		
 	def _stop(self):
 		self._emptyQueue()
 		TTSBackendBase._stop(self)
 
-	def pause(self,ms=500):
+	def insertPause(self,ms=500):
 		self.queue.put(ms)
 	
 	def threadedSay(self,text):
@@ -231,6 +245,7 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
 		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
 		self.outFile = ''
+		self._WFTTSisSpeaking = False 
 		self.event = threading.Event()
 		self.event.clear()
 		self._xbmcHasStopSFX = False
@@ -270,6 +285,7 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 		if not os.path.exists(self.outFile):
 			util.LOG('xbmcPlay() - Missing wav file')
 			return
+		self._WFTTSisSpeaking = True
 		xbmc.playSFX(self.outFile)
 		f = wave.open(self.outFile,'r')
 		frames = f.getnframes()
@@ -278,6 +294,7 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 		duration = frames / float(rate)
 		self.event.clear()
 		self.event.wait(duration)
+		self._WFTTSisSpeaking = False
 		
 	def threadedSay(self,text):
 		if not text: return
@@ -285,6 +302,9 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 		self._nextOutFile()
 		self.runCommand(text)
 		self._play()
+		
+	def isSpeaking(self):
+		return self._WFTTSisSpeaking or ThreadedTTSBackend.isSpeaking(self)
 		
 	def _stop(self):
 		if self._xbmcHasStopSFX:

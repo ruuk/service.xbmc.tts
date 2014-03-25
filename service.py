@@ -1,4 +1,4 @@
-import sys, re, difflib, xbmc, xbmcgui
+import sys, re, difflib, time, xbmc, xbmcgui
 from lib import guitables
 from lib import skintables
 from lib import backends
@@ -43,7 +43,9 @@ class TTSService(xbmc.Monitor):
 		self.winID = None
 		self.controlID = None
 		self.text = None
-		self.keyboardText = ''
+		self.keyboardText = u''
+		self.progressPercent = u''
+		self.lastProgressPercentUnixtime = 0
 		self.win = None
 		
 	def initTTS(self):
@@ -80,7 +82,10 @@ class TTSService(xbmc.Monitor):
 		if (text != self.text) or newC:
 			self.newText(text,newC)
 		else:
-			if self.winID == 10103: self.checkVirtualKeyboard()
+			if self.winID == 10103:
+				self.checkVirtualKeyboard()
+			elif self.winID == 10101:
+				self.checkProgressDialog()
 			
 	def checkVirtualKeyboard(self):
 		text = xbmc.getInfoLabel('Control.GetLabel(310)').decode('utf-8')
@@ -100,6 +105,19 @@ class TTSService(xbmc.Monitor):
 				self.sayText(out.strip(),interrupt=True)
 			self.keyboardText = text
 	
+	def checkProgressDialog(self):
+		progress = xbmc.getInfoLabel('System.Progressbar').decode('utf-8')
+		if not progress or progress == self.progressPercent: return
+		isSpeaking = self.tts.isSpeaking()
+		if isSpeaking == None:
+			now = time.time()
+			if now - self.lastProgressPercentUnixtime < 2: return
+			self.lastProgressPercentUnixtime = now
+		elif isSpeaking:
+			return
+		self.progressPercent = progress
+		self.sayText(u'%s%%' % progress,interrupt=True)
+		
 	def repeatText(self):
 		self.winID = None
 		self.controlID = None
@@ -129,8 +147,8 @@ class TTSService(xbmc.Monitor):
 		if not texts: return
 		self.tts.sayList(texts,interrupt=interrupt)
 	
-	def pause(self):
-		self.tts.pause()
+	def insertPause(self):
+		self.tts.insertPause()
 		
 	def stopSpeech(self):
 		self.tts._stop()
@@ -146,16 +164,16 @@ class TTSService(xbmc.Monitor):
 		name = guitables.getWindowName(winID)
 		heading = xbmc.getInfoLabel('Control.GetLabel(1)').decode('utf-8') or u''
 		self.sayText(u'Window: {0}'.format(name),interrupt=True)
-		self.pause()
+		self.insertPause()
 		if heading:
 			self.sayText(heading)
-			self.pause()
+			self.insertPause()
 		texts = guitables.getWindowTexts(winID)
 		if texts:
-			self.pause()
+			self.insertPause()
 			for t in texts:
 				self.sayText(t)
-				self.pause()
+				self.insertPause()
 		return True
 		
 	def checkControl(self,newW):
@@ -167,7 +185,7 @@ class TTSService(xbmc.Monitor):
 		text = skintables.getControlText(self.skinTable,self.winID,self.controlID)
 		if text:
 			self.sayText(text,interrupt=not newW)
-			self.tts.pause()
+			self.tts.insertPause()
 			return True
 		return newW
 		

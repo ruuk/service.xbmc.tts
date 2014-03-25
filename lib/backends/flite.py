@@ -17,6 +17,9 @@ class FliteTTSBackend(ThreadedTTSBackend):
 		self.process = subprocess.Popen(['flite', '-voice', self.voice, '-t', text])
 		while self.process.poll() == None and self.active: xbmc.sleep(10)
 			
+	def isSpeaking(self):
+		return (self.process and self.process.poll() == None) or ThreadedTTSBackend.isSpeaking(self)
+
 	def voices(self):
 		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
 		

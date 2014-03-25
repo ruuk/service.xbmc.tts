@@ -45,7 +45,10 @@ class Pico2WaveTTSBackend(WavFileTTSBackendBase):
 		else:
 			self.process = subprocess.Popen(['aplay',self.outFile])
 		while self.process.poll() == None and self.active: xbmc.sleep(10)
-			
+		
+	def isSpeaking(self):
+		return (self.process and self.process.poll() == None) or WavFileTTSBackendBase.isSpeaking(self)
+		
 	def voices(self):
 		try:
 			out = subprocess.check_output(['pico2wave','-l','NONE','-w','/dev/null','X'],stderr=subprocess.STDOUT)

@@ -104,6 +104,7 @@ winNames = {	10000: 10000, #Home
 }
 
 winTexts = {	10100:('2','3','4'), #Yes/No Dialog
+				10101:('2','3','4'), #Progress Dialog
 				12002:('2','3','4'), #OK Dialog
 				10103:('311',) #Virtual Keyboard
 				
@@ -169,7 +170,6 @@ def getWindowTexts(winID,table=winTexts):
 			ret.append(xbmc.getInfoLabel(info).decode('utf-8'))
 		else:
 			ret.append(sid)
-		print ret
 	return ret or None
 	
 def getExtraTexts(winID):

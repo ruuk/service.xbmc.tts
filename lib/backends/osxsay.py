@@ -16,6 +16,9 @@ class OSXSayTTSBackend(ThreadedTTSBackend):
 		self.process = subprocess.Popen(['say', text])
 		while self.process.poll() == None and self.active: xbmc.sleep(10)
 		
+	def isSpeaking(self):
+		return (self.process and self.process.poll() == None) or ThreadedTTSBackend.isSpeaking(self)
+
 	def stop(self):
 		if not self.process: return
 		try:
