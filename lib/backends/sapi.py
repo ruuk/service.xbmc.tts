@@ -31,6 +31,9 @@ class SAPITTSBackend(ThreadedTTSBackend):
 			voices.append(name)
 		return voices
 
+	def isSpeaking(self):
+		return ThreadedTTSBackend.isSpeaking(self) or None
+		
 	def update(self,voice_name,speed):
 		if voice_name:
 			v=self.SpVoice.getVoices()

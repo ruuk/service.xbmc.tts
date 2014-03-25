@@ -23,6 +23,8 @@ class JAWSTTSBackend(ThreadedTTSBackend):
 		if not self.jaws: return
 		self.jaws.StopSpeech()
 
+	def isSpeaking(self):
+		return ThreadedTTSBackend.isSpeaking(self) or None
 		
 	def close(self):
 		del self.jaws
