@@ -87,7 +87,9 @@ class TTSService(xbmc.Monitor):
 		if (text != self.keyboardText):
 			out = ''
 			d = difflib.Differ()
-			if len(text) > len(self.keyboardText):
+			if not text:
+				out = u'No text'
+			elif len(text) > len(self.keyboardText):
 				for c in d.compare(self.keyboardText,text):
 					if c.startswith('+'): out += u' ' + (c.strip(' +') or 'space')
 			else:
@@ -95,7 +97,7 @@ class TTSService(xbmc.Monitor):
 					if c.startswith('-'): out += u' ' + (c.strip(' -') or 'space')
 				if out: out = out.strip() + ' deleted'
 			if out:
-				self.sayText(out.strip(),interrupt=False)
+				self.sayText(out.strip(),interrupt=True)
 			self.keyboardText = text
 	
 	def repeatText(self):
