@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.29
+Current version: 0.0.30
 -----------------------
 
 Authors: ruuk, pvagner
@@ -19,12 +19,18 @@ TODO:
 EXTERNAL TODO:
 --------------
  Test Windows installer on Vista/7/8
+ Make Windows installer download XBMC + addons and install all
  OSX installer?
  Android TTS app for android backend
  
 Known Issues:
 -------------
  eSpeak crashes on reload and voice selection
+
+** 0.0.30 **
+
+Added speaking of addon status including addon download progress
+Change to prevent errors from killing the addon, thereby stopping speech and possibly hanging XBMC on exit
 
 ** 0.0.29 **
 

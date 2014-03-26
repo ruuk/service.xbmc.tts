@@ -43,6 +43,7 @@ class TTSService(xbmc.Monitor):
 		self.winID = None
 		self.controlID = None
 		self.text = None
+		self.secondaryText = None
 		self.keyboardText = u''
 		self.progressPercent = u''
 		self.lastProgressPercentUnixtime = 0
@@ -54,16 +55,20 @@ class TTSService(xbmc.Monitor):
 		util.LOG('Backend: %s' % provider)
 		
 	def start(self):
-		util.LOG('STARTED :: Interval: %sms' % self.tts.interval)
+		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
 		try:
 			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.tts.interval)
-				self.checkForText()
-		except RuntimeError:
-			util.ERROR('start()',hide_tb=True)
+				try:
+					self.checkForText()
+				except RuntimeError:
+					util.ERROR('start()',hide_tb=True)
+				except: #Because we don't want to kill speech on an error
+					util.ERROR('start()',notify=True)
+					self.initState() #To help keep errors repeating on the loop
 		finally:
 			self.tts._close()
-			util.LOG('STOPPED')
+			util.LOG('SERVICE STOPPED')
 		
 	def setBackend(self,backend):
 		if self.tts: self.tts._close()
@@ -79,8 +84,11 @@ class TTSService(xbmc.Monitor):
 		newW = self.checkWindow()
 		newC = self.checkControl(newW)
 		text = self.getControlText(self.controlID)
+		secondary = guitables.getListItemProperty(self.winID)
 		if (text != self.text) or newC:
-			self.newText(text,newC)
+			self.newText(text,newC,secondary)
+		elif secondary != self.secondaryText:
+			self.newSecondaryText(secondary)
 		else:
 			if self.winID == 10103:
 				self.checkVirtualKeyboard()
@@ -189,13 +197,22 @@ class TTSService(xbmc.Monitor):
 			return True
 		return newW
 		
-	def newText(self,text,newC):
+	def newText(self,text,newC,secondary=None):
 		self.text = text
 		label2 = xbmc.getInfoLabel('Container({0}).ListItem.Label2'.format(self.controlID)).decode('utf-8')
 		seasEp = xbmc.getInfoLabel('Container({0}).ListItem.Property(SeasonEpisode)'.format(self.controlID)).decode('utf-8') or u''
 		if label2 and seasEp:
 				text = u'{0}: {1}: {2} '.format(label2, text,self.formatSeasonEp(seasEp))
+		if secondary:
+			self.secondaryText = secondary
+			text += self.tts.pauseInsert + u' ' + secondary
 		self.sayText(text,interrupt=not newC)
+		
+	def newSecondaryText(self, text):
+		if not text: return
+		self.secondaryText = text
+		if text.endswith('%'): text = text.rsplit(u' ',1)[-1] #Get just the percent part, so we don't keep saying downloading
+		if not self.tts.isSpeaking(): self.sayText(text,interrupt=True)
 		
 	def getControlText(self,controlID):
 		if not controlID: return u''

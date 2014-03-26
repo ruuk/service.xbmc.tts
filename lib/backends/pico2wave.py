@@ -33,8 +33,8 @@ class Pico2WaveTTSBackend(WavFileTTSBackendBase):
 		
 	def runCommand(self,text):
 		args = ['pico2wave']
-		if self.language: args += ['-l',self.language]
-		args += ['-w', '{0}'.format(self.outFile), '{0}'.format(text)]
+		if self.language: args.extend(['-l',self.language])
+		args.extend(['-w', '{0}'.format(self.outFile), '{0}'.format(text)])
 		subprocess.call(args)
 		
 	def play(self):

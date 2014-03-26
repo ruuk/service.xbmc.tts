@@ -10,7 +10,7 @@ class TTSBackendBase:
 	"""
 	provider = 'auto'
 	displayName = 'Auto'
-	pauseInsert = '...'
+	pauseInsert = u'...'
 	extras = None
 	
 	interval = 400

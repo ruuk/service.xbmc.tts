@@ -19,7 +19,7 @@ if __name__ == '__main__':
 	elif arg == 'install_keymap':
 		from lib import util
 		util.installKeymap()
-	elif arg == 'settings':
+	elif arg == 'settings': #No longer used, using XBMC.Addon.OpenSettings(service.xbmc.tts) in keymap instead
 		from lib import util
 		util.xbmcaddon.Addon().openSettings()
 	elif arg == None:

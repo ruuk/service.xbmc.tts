@@ -6,7 +6,7 @@ DEBUG = True
 def info(key):
 	return xbmcaddon.Addon().getAddonInfo(key)
 	
-def ERROR(txt,hide_tb=False):
+def ERROR(txt,hide_tb=False,notify=False):
 	if isinstance (txt,str): txt = txt.decode("utf-8")
 	short = str(sys.exc_info()[1])
 	if hide_tb:
@@ -15,11 +15,16 @@ def ERROR(txt,hide_tb=False):
 	LOG('ERROR: ' + txt)
 	import traceback
 	traceback.print_exc()
+	if notify: showNotification('ERROR: {0}'.format(short))
 	return short
 	
 def LOG(message):
 	message = 'service.xbmc.tts: ' + message
 	xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGNOTICE)
+	
+def showNotification(message,time_ms=3000,icon_path=None,header='XBMC TTS'):
+	icon_path = icon_path or xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('icon')).decode('utf-8')
+	xbmc.executebuiltin('Notification({0},{1},{2},{3})'.format(header,message,time_ms,icon_path))
 	
 def getSetting(key,default=None):
 	setting = xbmcaddon.Addon().getSetting(key)

@@ -122,6 +122,10 @@ winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]'
 					
 }
 
+winListItemProperties = {		10040:('$INFO[ListItem.Property(Addon.Status)]',)
+
+}
+	
 def textviewerText(winID):
 	folderPath = xbmc.getInfoLabel('Container.FolderPath')
 	if folderPath.startswith('addons://'):
@@ -174,6 +178,11 @@ def getWindowTexts(winID,table=winTexts):
 	
 def getExtraTexts(winID):
 	return getWindowTexts(winID,table=winExtraTexts)
+
+def getListItemProperty(winID):
+	texts = getWindowTexts(winID,table=winListItemProperties)
+	if not texts: return None
+	return u','.join(texts)
 
 def getSongInfo():
 	if xbmc.getCondVisibility('ListItem.IsFolder'): return None
