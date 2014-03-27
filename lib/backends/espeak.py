@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from base import TTSBackendBase, WavFileTTSBackendBase
+from base import TTSBackendBase, WavFileTTSBackendBase, UnixWavPlayer
 import subprocess
 import ctypes
 import ctypes.util
@@ -18,10 +18,12 @@ class espeak_VOICE(ctypes.Structure):
 		('spare',ctypes.c_void_p),
 	]
 
-class ESpeakTTSBackend(TTSBackendBase):
-	provider = 'eSpeak'
-	displayName = 'eSpeak'
+class ESpeakCtypesTTSBackend(TTSBackendBase):
+	provider = 'eSpeak-ctypes'
+	displayName = 'eSpeak (ctypes)'
 	interval = 100
+	broken = True
+	
 	def __init__(self):
 		libname = ctypes.util.find_library('espeak')
 		self.eSpeak = ctypes.cdll.LoadLibrary(libname)
@@ -39,7 +41,7 @@ class ESpeakTTSBackend(TTSBackendBase):
 
 	def update(self,voice,speed):
 		if voice: self.voice = voice
-		
+	
 	def stop(self):
 		if not self.eSpeak: return
 		self.eSpeak.espeak_Cancel()
@@ -68,13 +70,15 @@ class ESpeakTTSBackend(TTSBackendBase):
 			index+=1
 		return voiceList
 
-class ESpeak_XA_TTSBackend(WavFileTTSBackendBase):
-	provider = 'eSpeak-XA'
-	displayName = 'eSpeak (XBMC Audio)'
+class ESpeakTTSBackend(UnixWavPlayer,WavFileTTSBackendBase):
+	provider = 'eSpeak'
+	displayName = 'eSpeak'
 	interval = 50
 	
 	def __init__(self):
+		UnixWavPlayer.__init__(self)
 		WavFileTTSBackendBase.__init__(self)
+		
 		self.voice = self.userVoice()
 		self.speed = self.userSpeed()
 		
@@ -97,6 +101,18 @@ class ESpeak_XA_TTSBackend(WavFileTTSBackendBase):
 		for l in out:
 			ret.append(re.split('\s+',l.strip(),5)[3])
 		return ret
+	
+	def isSpeaking(self):
+		return self.isPlaying() or WavFileTTSBackendBase.isSpeaking(self)
+	
+	def canPlayExternal(self):
+		return self.playerAvailable()
+		
+	def stop(self):
+		self.stopPlaying()
+		
+	def close(self):
+		self.closePlayer()
 		
 	@staticmethod
 	def available():

@@ -1,35 +1,20 @@
 # -*- coding: utf-8 -*-
-import os, subprocess, xbmc
-from lib import util
-from base import WavFileTTSBackendBase
+import os, subprocess
+from base import WavFileTTSBackendBase, UnixWavPlayer
 
-class Pico2WaveTTSBackend(WavFileTTSBackendBase):
+class Pico2WaveTTSBackend(UnixWavPlayer,WavFileTTSBackendBase):
 	provider = 'pico2wave'
 	displayName = 'pico2wave'
 	
 	extras = (('use_sox',False),)
 	
 	def __init__(self):
-		self.process = None
-		self.active = True
-		self.language = self.userVoice()
-		self.speed = self.userSpeed()
-		self.useSOX = False
-		self.checkForSox()
-		self.updateSoxUsage()
+		UnixWavPlayer.__init__(self)
 		WavFileTTSBackendBase.__init__(self)
 		
-	def checkForSox(self):
-		try:
-			subprocess.call(['sox','--version'])
-			self._soxAvailable = True
-		except:
-			self._soxAvailable = False
-
-	def updateSoxUsage(self):
-		useSOX = self.useSOX
-		self.useSOX = self.userExtra('use_sox',False) and self._soxAvailable
-		if not useSOX and self.useSOX: util.LOG('Using SOX')
+		self.language = self.userVoice()
+		self.wavPlayerSpeed = self.userSpeed() * 0.01
+		self.setSox()
 		
 	def runCommand(self,text):
 		args = ['pico2wave']
@@ -37,17 +22,8 @@ class Pico2WaveTTSBackend(WavFileTTSBackendBase):
 		args.extend(['-w', '{0}'.format(self.outFile), '{0}'.format(text)])
 		subprocess.call(args)
 		
-	def play(self):
-		if self.useSOX:
-			args = ['play','-q',self.outFile]
-			if self.speed: args += ['tempo','-s',str(self.speed/100.0)]
-			self.process = subprocess.Popen(args)
-		else:
-			self.process = subprocess.Popen(['aplay',self.outFile])
-		while self.process.poll() == None and self.active: xbmc.sleep(10)
-		
 	def isSpeaking(self):
-		return (self.process and self.process.poll() == None) or WavFileTTSBackendBase.isSpeaking(self)
+		return self.isPlaying() or WavFileTTSBackendBase.isSpeaking(self)
 		
 	def voices(self):
 		try:
@@ -60,25 +36,23 @@ class Pico2WaveTTSBackend(WavFileTTSBackendBase):
 		
 	def update(self,voice_name,speed):
 		if voice_name: self.language = voice_name
-		if speed: self.speed = speed
-		self.updateSoxUsage()
+		if speed: self.wavPlayerSpeed = speed * 0.01
+		self.setSox()
+		
+	def setSox(self):
+		preferred = None
+		if self.userExtra('use_sox',False): preferred = 'sox'
+		if self.setPlayer(preferred) == 'sox':
+			self.useExternalPlayer()
+		
+	def canPlayExternal(self):
+		return self.playerAvailable()
 		
 	def stop(self):
-		if not self.process: return
-		try:
-			if self.useSOX:
-				self.process.kill()
-			else:
-				self.process.terminate()
-		except:
-			pass
+		self.stopPlaying()
 		
 	def close(self):
-		self.active = False
-		try:
-			self.process.kill()
-		except:
-			pass
+		self.closePlayer()
 		
 	@staticmethod
 	def available():

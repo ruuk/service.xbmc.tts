@@ -27,6 +27,7 @@ class TTSService(xbmc.Monitor):
 	def onSettingsChanged(self):
 		self.tts._update()
 		self.checkBackend()
+		util.DEBUG = util.getSetting('debug_logging',True)
 		command = util.getCommand()
 		if not command: return
 		util.LOG(command)

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys, xbmc, time, xbmcaddon
 
-DEBUG = True
-
 def info(key):
 	return xbmcaddon.Addon().getAddonInfo(key)
 	
@@ -73,7 +71,7 @@ def selectBackend():
 	choices = ['auto']
 	display = ['Auto']
 	for b in backends.backendsByPriority:
-		if b.available():
+		if b._available():
 			choices.append(b.provider)
 			display.append(b.displayName)
 	idx = xbmcgui.Dialog().select('Choose Backend',display)
@@ -98,3 +96,4 @@ def getCommand():
 	LAST_COMMAND_DATA = commandData
 	return commandData.split(':',1)[-1]
 	
+DEBUG = getSetting('debug_logging',True)

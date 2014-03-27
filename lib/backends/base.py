@@ -1,6 +1,83 @@
 # -*- coding: utf-8 -*-
-import xbmc, time, os, threading, wave
+import xbmc, time, os, threading, subprocess, wave
 from lib import util
+
+class WavPlayer:
+	players = None
+	playerCommands = None
+	def __init__(self):
+		self._wavProcess = None
+		self._player = False
+		self.wavPlayerSpeed = 0
+		self.getAvailablePlayers()
+		self.setPlayer()
+		assert isinstance(self,ThreadedTTSBackend), 'WavPlayer class only works with ThreadedTTSBackend class'
+			
+	def player(self):
+		return self._player
+
+	def playerAvailable(self):
+		return bool(self.availablePlayers)
+	
+	def getAvailablePlayers(self):
+		self.availablePlayers = []
+		for p in self.players:
+			try:
+				subprocess.call(self.playerCommands[p]['available'])
+				self.availablePlayers.append(p)
+			except:
+				pass
+			
+	def setPlayer(self,preferred=None):
+		old = self._player
+		if preferred and preferred in self.availablePlayers:
+			self._player = preferred
+		elif self.availablePlayers:
+			self._player = self.availablePlayers[0]
+		else:
+			self._player = None
+			
+		if old != self._player: util.LOG('External Player: %s' % self._player)
+		return self._player
+			
+	def play(self):
+		args = []
+		args.extend(self.playerCommands[self._player]['play'])
+		args[args.index(None)] = self.outFile
+		if self.wavPlayerSpeed:
+			sargs = self.playerCommands[self._player]['speed']
+			if sargs:
+				args.extend(sargs)
+				args[args.index(None)] = str(self.wavPlayerSpeed)
+		self._wavProcess = subprocess.Popen(args)
+		
+		while self._wavProcess.poll() == None and self.active: xbmc.sleep(10)
+		
+	def isPlaying(self):
+		return self._wavProcess and self._wavProcess.poll() == None
+
+	def stopPlaying(self):
+		if not self._wavProcess: return
+		try:
+			if self.playerCommands[self._player].get('kill'):
+				self._wavProcess.kill()
+			else:
+				self._wavProcess.terminate()
+		except:
+			pass
+		
+	def closePlayer(self):
+		if not self._wavProcess: return
+		try:
+			self._wavProcess.kill()
+		except:
+			pass
+
+class UnixWavPlayer(WavPlayer):
+	players = ('aplay','sox') #By priority (aplay seems more responsive than sox)
+	playerCommands = {		'aplay':{'available':('aplay','--version'), 	'play':('aplay',None), 		'speed':None},
+							'sox':{'available':('sox','--version'),			'play':('play','-q',None),	'speed':('tempo','-s',None),		'kill':True}
+	}
 
 class TTSBackendBase:
 	"""The base class for all speech engine backends
@@ -12,8 +89,9 @@ class TTSBackendBase:
 	displayName = 'Auto'
 	pauseInsert = u'...'
 	extras = None
-	
 	interval = 400
+	broken = False
+	
 	def say(self,text,interrupt=False):
 		"""Method accepting text to be spoken
 		
@@ -141,6 +219,11 @@ class TTSBackendBase:
 		self._stop()
 		self.close()
 
+	@classmethod
+	def _available(cls):
+		if cls.broken and util.getSetting('disable_broken_backends',True): return False
+		return cls.available()
+		
 	@staticmethod
 	def available():
 		"""Static method representing the the speech engines availability
@@ -249,20 +332,32 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 		self.event = threading.Event()
 		self.event.clear()
 		self._xbmcHasStopSFX = False
-		if hasattr(xbmc,'stopSFX'):
-			util.LOG('stopSFX available')
-			self._play = self.xbmcPlay
-			self._xbmcHasStopSFX = True
-		else:
+		if not self.usePlaySFX():
 			util.LOG('stopSFX not available')
-			if self.play:
-				self._play = self.play
-			else:
-				self._play = self.xbmcPlay
+			self.useExternalPlayer()
 		
 		self.threadedInit()
 		util.LOG('{0} wav output: {1}'.format(self.provider,self.outDir))
 		
+	def usePlaySFX(self):
+		if hasattr(xbmc,'stopSFX'):
+			util.LOG('stopSFX available - Using xbmcPlay()')
+			self._play = self.xbmcPlay
+			self._xbmcHasStopSFX = True
+			return True
+		return False
+		
+	def useExternalPlayer(self):
+		if self.play and self.canPlayExternal():
+			self._play = self.play
+			util.LOG('Using external player')
+		else:
+			self._play = self.xbmcPlay
+			util.LOG('No external player - falling back to playSFX()')
+
+	def canPlayExternal(self):
+		return False
+
 	def runCommand(text):
 		"""Convert text to speech and output to a .wav file
 		

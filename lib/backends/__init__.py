@@ -7,14 +7,13 @@ from pico2wave import Pico2WaveTTSBackend
 from flite import FliteTTSBackend, FliteATV2TTSBackend
 from osxsay import OSXSayTTSBackend
 from sapi import SAPITTSBackend
-from espeak import ESpeakTTSBackend, ESpeak_XA_TTSBackend
+from espeak import ESpeakTTSBackend, ESpeakCtypesTTSBackend
 from speechdispatcher import SpeechDispatcherTTSBackend
 from jaws import JAWSTTSBackend
 
-backendsByPriority = [JAWSTTSBackend,NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,ESpeak_XA_TTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteATV2TTSBackend,OSXSayTTSBackend,LogOnlyTTSBackend]
+backendsByPriority = [JAWSTTSBackend,NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,FliteATV2TTSBackend,OSXSayTTSBackend,ESpeakCtypesTTSBackend,LogOnlyTTSBackend]
 
 def selectVoice(provider):
-	print provider
 	import xbmcgui
 	voices = None
 	bClass = getBackendByProvider(provider)
@@ -33,15 +32,15 @@ def selectVoice(provider):
 def getBackend():
 	provider = util.getSetting('backend')
 	b = getBackendByProvider(provider)
-	if not b or not b.available():
+	if not b or not b._available():
  		for b in backendsByPriority:
-			if b.available(): break
+			if b._available(): break
 	return b
 			
 def getBackendByProvider(name):
 	if name == 'auto': return None
 	for b in backendsByPriority:
-		if b.provider == name and b.available():
+		if b.provider == name and b._available():
 			util.LOG('Backend: %s' % b.provider)
 			return b
 	return None
