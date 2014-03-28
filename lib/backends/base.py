@@ -2,16 +2,80 @@
 import xbmc, time, os, threading, subprocess, wave
 from lib import util
 
-class WavPlayer:
+class PlayerHandler:
+	def setSpeed(self,speed): pass
+	def player(self): return None
+	def getOutFile(self): raise Exception('Not Implemented')
+	def play(self): raise Exception('Not Implemented')
+	def isPlaying(self): raise Exception('Not Implemented')
+	def stop(self): raise Exception('Not Implemented')
+	def close(self): raise Exception('Not Implemented')
+	
+class PlaySFXHandler(PlayerHandler):
+	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
+	def __init__(self):
+		self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'playsfx_wavs')
+		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
+		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
+		self.outFile = ''
+		self._isPlaying = False 
+		self.event = threading.Event()
+		self.event.clear()
+		
+	@staticmethod
+	def hasStopSFX():
+		return PlaySFXHandler._xbmcHasStopSFX
+		
+	def _nextOutFile(self):
+		self.outFile = self.outFileBase % time.time()
+		return self.outFile
+		
+	def player(self): return 'playSFX'
+	
+	def getOutFile(self):
+		return self._nextOutFile()
+
+	def play(self):
+		if not os.path.exists(self.outFile):
+			util.LOG('playSFXHandler.play() - Missing wav file')
+			return
+		self._isPlaying = True
+		xbmc.playSFX(self.outFile)
+		f = wave.open(self.outFile,'r')
+		frames = f.getnframes()
+		rate = f.getframerate()
+		f.close()
+		duration = frames / float(rate)
+		self.event.clear()
+		self.event.wait(duration)
+		self._isPlaying = False
+		
+	def isPlaying(self):
+		return self._isPlaying
+		
+	def stop(self):
+		if self._xbmcHasStopSFX:
+			self.event.set()
+			xbmc.stopSFX()
+		
+	def close(self):
+		for f in os.listdir(self.outDir):
+			if f.startswith('.'): continue
+			os.remove(os.path.join(self.outDir,f))
+
+class ExternalPlayerHandler(PlayerHandler):
 	players = None
 	playerCommands = None
-	def __init__(self):
+	def __init__(self,preferred=None):
+		outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'playsfx_wavs')
+		if not os.path.exists(outDir): os.makedirs(outDir)
+		self.outFile = os.path.join(outDir,'speech.wav')
 		self._wavProcess = None
 		self._player = False
-		self.wavPlayerSpeed = 0
+		self.speed = 0
+		self.active = True
 		self.getAvailablePlayers()
-		self.setPlayer()
-		assert isinstance(self,ThreadedTTSBackend), 'WavPlayer class only works with ThreadedTTSBackend class'
+		self.setPlayer(preferred)
 			
 	def player(self):
 		return self._player
@@ -39,16 +103,26 @@ class WavPlayer:
 			
 		if old != self._player: util.LOG('External Player: %s' % self._player)
 		return self._player
-			
+	
+	def _deleteOutFile(self):
+		if os.path.exists(self.outFile): os.remove(self.outFile)
+		
+	def getOutFile(self):
+		self._deleteOutFile()
+		return self.outFile
+		
+	def setSpeed(self,speed):
+		self.speed = speed
+		
 	def play(self):
 		args = []
 		args.extend(self.playerCommands[self._player]['play'])
 		args[args.index(None)] = self.outFile
-		if self.wavPlayerSpeed:
+		if self.speed:
 			sargs = self.playerCommands[self._player]['speed']
 			if sargs:
 				args.extend(sargs)
-				args[args.index(None)] = str(self.wavPlayerSpeed)
+				args[args.index(None)] = str(self.speed)
 		self._wavProcess = subprocess.Popen(args)
 		
 		while self._wavProcess.poll() == None and self.active: xbmc.sleep(10)
@@ -56,7 +130,7 @@ class WavPlayer:
 	def isPlaying(self):
 		return self._wavProcess and self._wavProcess.poll() == None
 
-	def stopPlaying(self):
+	def stop(self):
 		if not self._wavProcess: return
 		try:
 			if self.playerCommands[self._player].get('kill'):
@@ -66,18 +140,74 @@ class WavPlayer:
 		except:
 			pass
 		
-	def closePlayer(self):
+	def close(self):
+		self.active = False
 		if not self._wavProcess: return
 		try:
 			self._wavProcess.kill()
 		except:
 			pass
 
-class UnixWavPlayer(WavPlayer):
+class UnixExternalPlayerHandler(ExternalPlayerHandler):
 	players = ('aplay','sox') #By priority (aplay seems more responsive than sox)
 	playerCommands = {		'aplay':{'available':('aplay','--version'), 	'play':('aplay',None), 		'speed':None},
 							'sox':{'available':('sox','--version'),			'play':('play','-q',None),	'speed':('tempo','-s',None),		'kill':True}
 	}
+	
+class WavPlayer:
+	def __init__(self,external_handler=None,preferred=None):
+		self.handler = None
+		self.externalHandler = external_handler
+		self.setPlayer(preferred)
+		
+	def initPlayer(self):
+		if not self.usePlaySFX():
+			util.LOG('stopSFX not available')
+			self.useExternalPlayer()
+
+	def usePlaySFX(self):
+		if PlaySFXHandler.hasStopSFX():
+			util.LOG('stopSFX available - Using xbmcPlay()')
+			self.handler = PlaySFXHandler()
+			return True
+		return False
+
+	def useExternalPlayer(self):
+		external = None
+		if self.externalHandler: external = self.externalHandler()
+		if external and external.playerAvailable():
+			self.handler = external
+			util.LOG('Using external player')
+		else:
+			self.handler = PlaySFXHandler()
+			util.LOG('No external player - falling back to playSFX()')
+		
+	def setPlayer(self,preferred=None):
+		if self.handler and preferred == self.handler.player(): return 
+		if preferred and self.externalHandler:
+			external = self.externalHandler(preferred)
+			if external.player() == preferred:
+				self.handler = external
+				return
+		self.initPlayer()
+	
+	def setSpeed(self,speed):
+		return self.handler.setSpeed(speed)
+		
+	def getOutFile(self):
+		return self.handler.getOutFile()
+			
+	def play(self):
+		return self.handler.play()
+		
+	def isPlaying(self):
+		return self.handler.isPlaying()
+
+	def stop(self):
+		return self.handler.stop()
+		
+	def close(self):
+		return self.handler.close()
 
 class TTSBackendBase:
 	"""The base class for all speech engine backends
@@ -310,55 +440,24 @@ class ThreadedTTSBackend(TTSBackendBase):
 	def _close(self):
 		self.active = False
 		TTSBackendBase._close(self)
-
+			
 class WavFileTTSBackendBase(ThreadedTTSBackend):
 	"""Handles speech engines that output wav files
-	
-	Uses XBMC audio via xbmc.playSFX() if xbmc.stopSFX() is available or play()
-	is not implemented.
+
 	Subclasses must at least implement the runCommand() method which should
-	save a wav file to the path in the instance's outFile attribute.
-	Subclasses should also implement a play() method if possible to handle the
-	situation where xbmc.stopSFX is not available otherwise speech will not be
-	interruptible. xbmc.stopSFX() is not available in Frodo, and is only
-	available as a patch as of 03-21-2014.
+	save a wav file to outFile.
 	"""
-	def __init__(self):
-		self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'playsfx_wavs')
-		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
-		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
-		self.outFile = ''
-		self._WFTTSisSpeaking = False 
-		self.event = threading.Event()
-		self.event.clear()
-		self._xbmcHasStopSFX = False
-		if not self.usePlaySFX():
-			util.LOG('stopSFX not available')
-			self.useExternalPlayer()
-		
+	def __init__(self,player):
+		self.player = player
 		self.threadedInit()
-		util.LOG('{0} wav output: {1}'.format(self.provider,self.outDir))
-		
-	def usePlaySFX(self):
-		if hasattr(xbmc,'stopSFX'):
-			util.LOG('stopSFX available - Using xbmcPlay()')
-			self._play = self.xbmcPlay
-			self._xbmcHasStopSFX = True
-			return True
-		return False
-		
-	def useExternalPlayer(self):
-		if self.play and self.canPlayExternal():
-			self._play = self.play
-			util.LOG('Using external player')
-		else:
-			self._play = self.xbmcPlay
-			util.LOG('No external player - falling back to playSFX()')
 
-	def canPlayExternal(self):
-		return False
-
-	def runCommand(text):
+	def setPlayer(self,preferred):
+		self.player.setPlayer(preferred)
+	 
+	def setSpeed(self,speed):
+		self.player.setSpeed(speed)
+		
+	def runCommand(text,outFile):
 		"""Convert text to speech and output to a .wav file
 		
 		Subclasses must override this method, and output a .wav file to the
@@ -366,52 +465,22 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 		"""
 		raise Exception('Not Implemented')
 
-	def _deleteOutfile(self):
-		if os.path.exists(self.outFile): os.remove(self.outFile)
-		
-	def _nextOutFile(self):
-		self.outFile = self.outFileBase % time.time()
-		
-	def _play(self): pass
-
-	play = None
-
-	def xbmcPlay(self):
-		if not os.path.exists(self.outFile):
-			util.LOG('xbmcPlay() - Missing wav file')
-			return
-		self._WFTTSisSpeaking = True
-		xbmc.playSFX(self.outFile)
-		f = wave.open(self.outFile,'r')
-		frames = f.getnframes()
-		rate = f.getframerate()
-		f.close()
-		duration = frames / float(rate)
-		self.event.clear()
-		self.event.wait(duration)
-		self._WFTTSisSpeaking = False
-		
 	def threadedSay(self,text):
 		if not text: return
-		self._deleteOutfile()
-		self._nextOutFile()
-		self.runCommand(text)
-		self._play()
-		
+		outFile = self.player.getOutFile()
+		self.runCommand(text,outFile)
+		self.player.play()
+
 	def isSpeaking(self):
-		return self._WFTTSisSpeaking or ThreadedTTSBackend.isSpeaking(self)
+		return self.player.isPlaying() or ThreadedTTSBackend.isSpeaking(self)
 		
 	def _stop(self):
-		if self._xbmcHasStopSFX:
-			self.event.set()
-			xbmc.stopSFX()
+		self.player.stop()
 		ThreadedTTSBackend._stop(self)
 		
 	def _close(self):
 		ThreadedTTSBackend._close(self)
-		for f in os.listdir(self.outDir):
-			if f.startswith('.'): continue
-			os.remove(os.path.join(self.outDir,f))
+		self.player.close()
 
 class LogOnlyTTSBackend(TTSBackendBase):
 	provider = 'log'

@@ -41,6 +41,5 @@ def getBackendByProvider(name):
 	if name == 'auto': return None
 	for b in backendsByPriority:
 		if b.provider == name and b._available():
-			util.LOG('Backend: %s' % b.provider)
 			return b
 	return None

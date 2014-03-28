@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from base import TTSBackendBase, WavFileTTSBackendBase, UnixWavPlayer
+from base import TTSBackendBase, WavFileTTSBackendBase, WavPlayer, UnixExternalPlayerHandler
 import subprocess
 import ctypes
 import ctypes.util
@@ -70,20 +70,19 @@ class ESpeakCtypesTTSBackend(TTSBackendBase):
 			index+=1
 		return voiceList
 
-class ESpeakTTSBackend(UnixWavPlayer,WavFileTTSBackendBase):
+class ESpeakTTSBackend(WavFileTTSBackendBase):
 	provider = 'eSpeak'
 	displayName = 'eSpeak'
 	interval = 50
 	
 	def __init__(self):
-		UnixWavPlayer.__init__(self)
-		WavFileTTSBackendBase.__init__(self)
-		
+		player = WavPlayer(UnixExternalPlayerHandler)
+		WavFileTTSBackendBase.__init__(self,player)
 		self.voice = self.userVoice()
 		self.speed = self.userSpeed()
 		
-	def runCommand(self,text):
-		args = ['espeak','-w',self.outFile]
+	def runCommand(self,text,outFile):
+		args = ['espeak','-w',outFile]
 		if self.voice: args += ['-v',self.voice]
 		if self.speed: args += ['-s',str(self.speed)]
 		args.append(text)
@@ -101,18 +100,6 @@ class ESpeakTTSBackend(UnixWavPlayer,WavFileTTSBackendBase):
 		for l in out:
 			ret.append(re.split('\s+',l.strip(),5)[3])
 		return ret
-	
-	def isSpeaking(self):
-		return self.isPlaying() or WavFileTTSBackendBase.isSpeaking(self)
-	
-	def canPlayExternal(self):
-		return self.playerAvailable()
-		
-	def stop(self):
-		self.stopPlaying()
-		
-	def close(self):
-		self.closePlayer()
 		
 	@staticmethod
 	def available():
