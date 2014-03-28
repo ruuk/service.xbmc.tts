@@ -104,7 +104,7 @@ class ESpeakTTSBackend(WavFileTTSBackendBase):
 	@staticmethod
 	def available():
 		try:
-			subprocess.call(['espeak','--help'])
+			subprocess.call(['espeak','--version'])
 		except:
 			return False
 		return True
