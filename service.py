@@ -28,6 +28,7 @@ class TTSService(xbmc.Monitor):
 		self.tts._update()
 		self.checkBackend()
 		util.DEBUG = util.getSetting('debug_logging',True)
+		self.updateInterval()
 		command = util.getCommand()
 		if not command: return
 		util.LOG(command)
@@ -48,18 +49,20 @@ class TTSService(xbmc.Monitor):
 		self.keyboardText = u''
 		self.progressPercent = u''
 		self.lastProgressPercentUnixtime = 0
+		self.interval = 400
 		self.win = None
 		
 	def initTTS(self):
 		provider = self.setBackend(backends.getBackend()())
 		self.backendProvider = provider
+		self.updateInterval()
 		util.LOG('Backend: %s' % provider)
 		
 	def start(self):
 		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
 		try:
 			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
-				xbmc.sleep(self.tts.interval)
+				xbmc.sleep(self.interval)
 				try:
 					self.checkForText()
 				except RuntimeError:
@@ -71,6 +74,12 @@ class TTSService(xbmc.Monitor):
 			self.tts._close()
 			util.LOG('SERVICE STOPPED')
 		
+	def updateInterval(self):
+		if util.getSetting('override_poll_interval',False):
+			self.interval = util.getSetting('poll_interval',self.tts.interval)
+		else:
+			self.interval = self.tts.interval
+
 	def setBackend(self,backend):
 		if self.tts: self.tts._close()
 		self.tts = backend
