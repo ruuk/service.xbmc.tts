@@ -72,8 +72,17 @@ class TTSService(xbmc.Monitor):
 					self.initState() #To help keep errors repeating on the loop
 		finally:
 			self.tts._close()
+			self.end()
 			util.LOG('SERVICE STOPPED')
 		
+	def end(self):
+		if util.DEBUG:
+			xbmc.sleep(500) #Give threads a chance to finish
+			import threading
+			util.LOG('Remaining Threads:')
+			for t in threading.enumerate():
+				util.LOG('  {0}'.format(t.name))
+			
 	def updateInterval(self):
 		if util.getSetting('override_poll_interval',False):
 			self.interval = util.getSetting('poll_interval',self.tts.interval)

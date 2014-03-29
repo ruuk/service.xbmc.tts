@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from base import TTSBackendBase, WavFileTTSBackendBase, WavPlayer, UnixExternalPlayerHandler
+from base import TTSBackendBase, SimpleTTSBackendBase, WavPlayer, UnixExternalPlayerHandler
 import subprocess
 import ctypes
 import ctypes.util
 import os
+import xbmc
 
 class espeak_VOICE(ctypes.Structure):
 	_fields_=[
@@ -70,28 +71,52 @@ class ESpeakCtypesTTSBackend(TTSBackendBase):
 			index+=1
 		return voiceList
 
-class ESpeakTTSBackend(WavFileTTSBackendBase):
+class ESpeakTTSBackend(SimpleTTSBackendBase):
 	provider = 'eSpeak'
 	displayName = 'eSpeak'
-	interval = 50
+	interval = 100
+	extras = (('output_via_espeak',False),)
 	
 	def __init__(self):
 		player = WavPlayer(UnixExternalPlayerHandler)
-		WavFileTTSBackendBase.__init__(self,player)
+		SimpleTTSBackendBase.__init__(self,player,self.getMode())
 		self.voice = self.userVoice()
 		self.speed = self.userSpeed()
+		self.process = None
 		
 	def runCommand(self,text,outFile):
 		args = ['espeak','-w',outFile]
 		if self.voice: args += ['-v',self.voice]
 		if self.speed: args += ['-s',str(self.speed)]
 		args.append(text)
-		subprocess.call(args)			
+		subprocess.call(args)
 			
+	def runCommandAndSpeak(self,text):
+		args = ['espeak']
+		if self.voice: args.extend(('-v',self.voice))
+		if self.speed: args.extend(('-s',str(self.speed)))
+		args.append(text)
+		self.process = subprocess.Popen(args)
+		while self.process.poll() == None and self.active: xbmc.sleep(10)	
+		
 	def update(self,voice,speed):
 		if voice: self.voice = voice
 		if speed: self.speed = speed
+		self.setMode(self.getMode())
 		
+	def getMode(self):
+		if self.userExtra('output_via_espeak',False):
+			return SimpleTTSBackendBase.ENGINESPEAK
+		else:
+			return SimpleTTSBackendBase.WAVOUT
+
+	def stop(self):
+		if not self.process: return
+		try:
+			self.process.terminate()
+		except:
+			pass
+
 	def voices(self):
 		import re
 		ret = []

@@ -40,8 +40,7 @@ class SpeechDispatcherTTSBackend(ThreadedTTSBackend):
 		try:
 			self.speechdObject.speak(text)
 		except speechd.SSIPCommunicationError:
-			self.close()
-			self.connect()
+			self.reconnect()
 		except AttributeError: #Happens on shutdown
 			pass
 
@@ -49,13 +48,18 @@ class SpeechDispatcherTTSBackend(ThreadedTTSBackend):
 		try:
 			self.speechdObject.cancel()
 		except speechd.SSIPCommunicationError:
-			self.close()
-			self.connect()
+			self.reconnect()
 		except AttributeError: #Happens on shutdown
 			pass
 
+	def reconnect(self):
+		self.close()
+		if self.active: self.connect()
+			
 	def close(self):
 		if self.speechdObject: self.speechdObject.close()
+		del self.speechdObject
+		self.speechdObject = None
 		
 	@staticmethod
 	def available():

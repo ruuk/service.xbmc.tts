@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 import os, subprocess
-from base import WavFileTTSBackendBase, WavPlayer,UnixExternalPlayerHandler
+from base import SimpleTTSBackendBase, WavPlayer,UnixExternalPlayerHandler
 
-class Pico2WaveTTSBackend(WavFileTTSBackendBase):
+class Pico2WaveTTSBackend(SimpleTTSBackendBase):
 	provider = 'pico2wave'
 	displayName = 'pico2wave'
-	
+	interval = 100
 	extras = (('use_sox',False),)
 	
 	def __init__(self):
 		preferred = None
 		if self.userExtra('use_sox',False): preferred = 'sox'
 		player = WavPlayer(UnixExternalPlayerHandler,preferred)
-		WavFileTTSBackendBase.__init__(self,player)
+		SimpleTTSBackendBase.__init__(self,player)
 
 		self.language = self.userVoice()
 		self.setSpeed(self.userSpeed() * 0.01)

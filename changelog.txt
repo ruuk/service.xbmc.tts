@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.32
+Current version: 0.0.33
 -----------------------
 
 Authors: ruuk, pvagner
@@ -20,6 +20,12 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.33 **
+
+Fix for a bug with several backends causing XBMC to hang on shutdown
+Added the settings option for espeak 'Play Speech Directly Via eSpeak' which bypasses writing to wav
+Fix for speech-dispatcher not being available/working on some platforms (Ubuntu?)
 
 ** 0.0.32 **
 

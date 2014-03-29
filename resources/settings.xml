@@ -8,8 +8,9 @@
     <setting id="voice.SAPI" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.SAPI)" visible="eq(-4,SAPI)" />
     <setting id="voice.pico2wave" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,voice_dialog.pico2wave)" visible="eq(-5,pico2wave)" />
     <setting label="Speed (WPM)" type="slider" id="speed.eSpeak" subsetting="true" option="int" default="175" range="80,450" visible="eq(-6,eSpeak)" />
-    <setting label="Use SOX If Available" type="bool" id="use_sox.pico2wave" subsetting="true" default="false" visible="eq(-7,pico2wave)" />
-    <setting label="Speed % (Requires SOX)" type="slider" id="speed.pico2wave" subsetting="true" option="int" default="100" range="20,200" visible="eq(-8,pico2wave)" enable="eq(-1,true)" />
+	<setting label="Play Speech Directly Via eSpeak" type="bool" id="output_via_espeak.eSpeak" subsetting="true" default="false" visible="eq(-7,eSpeak)" />
+    <setting label="Use SOX If Available" type="bool" id="use_sox.pico2wave" subsetting="true" default="false" visible="eq(-8,pico2wave)" />
+    <setting label="Speed % (Requires SOX)" type="slider" id="speed.pico2wave" subsetting="true" option="int" default="100" range="20,200" visible="eq(-9,pico2wave)" enable="eq(-1,true)" />
     <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>
   <category label="Advanced">

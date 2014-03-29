@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import xbmc, time, os, threading, subprocess, wave
+import xbmc, time, os, threading, Queue, subprocess, wave
 from lib import util
 
 class PlayerHandler:
@@ -10,7 +10,7 @@ class PlayerHandler:
 	def isPlaying(self): raise Exception('Not Implemented')
 	def stop(self): raise Exception('Not Implemented')
 	def close(self): raise Exception('Not Implemented')
-	
+
 class PlaySFXHandler(PlayerHandler):
 	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
 	def __init__(self):
@@ -381,23 +381,26 @@ class ThreadedTTSBackend(TTSBackendBase):
 		
 		Must be called if you override the __init__() method
 		"""
-		import Queue
 		self.active = True
 		self._threadedIsSpeaking = False
 		self.queue = Queue.Queue()
-		self.thread = threading.Thread(target=self._handleQueue,name='TTSThread')
+		self.thread = threading.Thread(target=self._handleQueue,name='TTSThread: %s' % self.provider)
 		self.thread.start()
 		
 	def _handleQueue(self):
 		util.LOG('Threaded TTS Started: {0}'.format(self.provider))
-		while self.active:
-			text = self.queue.get()
-			if isinstance(text,int):
-				time.sleep(text/1000.0)
-			else:
-				self._threadedIsSpeaking = True
-				self.threadedSay(text)
-				self._threadedIsSpeaking = False
+		while self.active and not xbmc.abortRequested:
+			try:
+				text = self.queue.get(timeout=0.5)
+				self.queue.task_done()
+				if isinstance(text,int):
+					time.sleep(text/1000.0)
+				else:
+					self._threadedIsSpeaking = True
+					self.threadedSay(text)
+					self._threadedIsSpeaking = False
+			except Queue.Empty:
+				pass
 		util.LOG('Threaded TTS Finished: {0}'.format(self.provider))
 			
 	def _emptyQueue(self):
@@ -405,10 +408,11 @@ class ThreadedTTSBackend(TTSBackendBase):
 			while True:
 				self.queue.get_nowait()
 				self.queue.task_done()
-		except:
+		except Queue.Empty:
 			return
 			
 	def say(self,text,interrupt=False):
+		if not self.active: return
 		if interrupt: self._stop()
 		self.queue.put_nowait(text)
 		
@@ -440,16 +444,29 @@ class ThreadedTTSBackend(TTSBackendBase):
 	def _close(self):
 		self.active = False
 		TTSBackendBase._close(self)
+		self._emptyQueue()
 			
-class WavFileTTSBackendBase(ThreadedTTSBackend):
+class SimpleTTSBackendBase(ThreadedTTSBackend):
+	WAVOUT = 0
+	ENGINESPEAK = 1
 	"""Handles speech engines that output wav files
 
 	Subclasses must at least implement the runCommand() method which should
-	save a wav file to outFile.
+	save a wav file to outFile and/or the runCommandAndSpeak() method which
+	must play the speech directly.
 	"""
-	def __init__(self,player):
-		self.player = player
+	def __init__(self,player=None,mode=WAVOUT):
+		self.setMode(mode)
+		self.player = player or WavPlayer()
 		self.threadedInit()
+
+	def setMode(self,mode):
+		assert isinstance(mode,int), 'Bad mode'
+		self.mode = mode
+		if mode == self.WAVOUT:
+			util.LOG('Mode: WAVOUT')
+		else:
+			util.LOG('Mode: ENGINESPEAK')
 
 	def setPlayer(self,preferred):
 		self.player.setPlayer(preferred)
@@ -460,16 +477,27 @@ class WavFileTTSBackendBase(ThreadedTTSBackend):
 	def runCommand(text,outFile):
 		"""Convert text to speech and output to a .wav file
 		
-		Subclasses must override this method, and output a .wav file to the
-		path in the outFile attribute.
+		If using WAVOUT mode, subclasses must override this method
+		and output a .wav file to outFile.
 		"""
 		raise Exception('Not Implemented')
-
+		
+	def runCommandAndSpeak(self,text):
+		"""Convert text to speech and output to a .wav file
+		
+		If using ENGINESPEAK mode, subclasses must override this method
+		and speak text.
+		"""
+		raise Exception('Not Implemented')
+	
 	def threadedSay(self,text):
 		if not text: return
-		outFile = self.player.getOutFile()
-		self.runCommand(text,outFile)
-		self.player.play()
+		if self.mode == self.WAVOUT:
+			outFile = self.player.getOutFile()
+			self.runCommand(text,outFile)
+			self.player.play()
+		else:
+			self.runCommandAndSpeak(text)
 
 	def isSpeaking(self):
 		return self.player.isPlaying() or ThreadedTTSBackend.isSpeaking(self)
