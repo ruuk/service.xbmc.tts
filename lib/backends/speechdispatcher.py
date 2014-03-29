@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
-from base import TTSBackendBase
-import locale
+from base import ThreadedTTSBackend
+import locale, os
 import speechd
 
-class SpeechDispatcherTTSBackend(TTSBackendBase):
+def getSpeechDSpeaker():
+	try:
+		return speechd.Speaker('XBMC', 'XBMC')
+	except:
+		try:
+			socket_path = os.path.expanduser('~/.speech-dispatcher/speechd.sock')
+			return speechd.Speaker('XBMC', 'XBMC',socket_path=socket_path)
+		except:
+			pass
+	return None
+	
+class SpeechDispatcherTTSBackend(ThreadedTTSBackend):
 	"""Supports The speech-dispatcher on linux"""
 
 	provider = 'Speech-dispatcher'
@@ -12,29 +23,27 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 
 	def __init__(self):
 		self.connect()
+		self.threadedInit()
 
 	def connect(self):
-		try:
-			self.speechdObject = speechd.Speaker('XBMC', 'XBMC')
-		except:
-			self.speechdObject =None 
-			return
+		self.speechdObject = getSpeechDSpeaker()
+		if not self.speechdObject: return
 		try:
 			self.speechdObject.set_language(locale.getdefaultlocale()[0][:2])
 		except (KeyError,IndexError):
 			pass
-		self.speechdObject.set_rate(50)
+		self.speechdObject.set_rate(35)
 
-	def say(self,text,interrupt=False):
+	def threadedSay(self,text,interrupt=False):
 		if not self.speechdObject:
 			return
-		if interrupt:
-			self.stop()
 		try:
 			self.speechdObject.speak(text)
 		except speechd.SSIPCommunicationError:
 			self.close()
 			self.connect()
+		except AttributeError: #Happens on shutdown
+			pass
 
 	def stop(self):
 		try:
@@ -42,15 +51,13 @@ class SpeechDispatcherTTSBackend(TTSBackendBase):
 		except speechd.SSIPCommunicationError:
 			self.close()
 			self.connect()
+		except AttributeError: #Happens on shutdown
+			pass
 
 	def close(self):
 		if self.speechdObject: self.speechdObject.close()
 		
 	@staticmethod
 	def available():
-		try:
-			speechdObject = speechd.Speaker('XBMC', 'XBMC')
-		except:
-			return False
-		return True
+		return bool(getSpeechDSpeaker)
 

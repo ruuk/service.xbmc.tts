@@ -9,7 +9,6 @@ Authors: ruuk, pvagner
 TODO:
 -----
  Android backend
- Move the playSFX() handling from WavFileTTSBackendBase to WavPlayer
  Speech for more window types that isn't automatically handled
  Add speed and voices to other backends
  Add xbmc audio option to more backends
