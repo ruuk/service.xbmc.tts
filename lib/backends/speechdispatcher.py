@@ -63,5 +63,5 @@ class SpeechDispatcherTTSBackend(ThreadedTTSBackend):
 		
 	@staticmethod
 	def available():
-		return bool(getSpeechDSpeaker)
+		return bool(getSpeechDSpeaker())
 

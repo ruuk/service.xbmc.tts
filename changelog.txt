@@ -25,6 +25,7 @@ EXTERNAL TODO:
 
 Enable wave output in Flite
 Merge Flite backend for ATV2 into main Flite backend
+Fix for speech dispatcher always showing available
 
 ** 0.0.33 **
 
