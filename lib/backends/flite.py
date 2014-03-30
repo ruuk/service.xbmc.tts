@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, subprocess, xbmc
+from lib import util
 from base import SimpleTTSBackendBase, WavPlayer, UnixExternalPlayerHandler
 
 class FliteTTSBackend(SimpleTTSBackendBase):
@@ -9,7 +10,7 @@ class FliteTTSBackend(SimpleTTSBackendBase):
 	interval = 100
 	
 	def __init__(self):
-		self.onATV2 = xbmc.getCondVisibility('System.Platform.ATV2')
+		self.onATV2 = util.isATV2()
 		player = WavPlayer(UnixExternalPlayerHandler)
 		SimpleTTSBackendBase.__init__(self,player, self.getMode())
 		self.process = None
@@ -51,7 +52,7 @@ class FliteTTSBackend(SimpleTTSBackendBase):
 		try:
 			subprocess.call(['flite', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
 		except (OSError, IOError):
-			return False
+			return util.isATV2() and util.commandIsAvailable('flite')
 		return True
 
 #class FliteTTSBackend(TTSBackendBase):

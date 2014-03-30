@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys, xbmc, time, xbmcaddon
+import os, sys, xbmc, time, xbmcaddon
 
 def info(key):
 	return xbmcaddon.Addon().getAddonInfo(key)
@@ -53,6 +53,11 @@ def _processSettingForWrite(value):
 	
 def isATV2():
 	return xbmc.getCondVisibility('System.Platform.ATV2')
+	
+def commandIsAvailable(command):
+	for p in os.environ["PATH"].split(os.pathsep):
+		if os.path.isfile(os.path.join(p,command)): return True
+	return False
 
 def installKeymap():
 	import os, xbmcvfs, xbmcgui

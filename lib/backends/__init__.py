@@ -30,7 +30,7 @@ def selectVoice(provider):
 	util.setSetting('voice.{0}'.format(b.provider),voice)
 		
 def getBackend():
-	provider = util.getSetting('backend')
+	provider = util.getSetting('backend') or 'auto'
 	b = getBackendByProvider(provider)
 	if not b or not b._available():
  		for b in backendsByPriority:
