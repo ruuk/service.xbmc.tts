@@ -1,31 +1,44 @@
 # -*- coding: utf-8 -*-
 import os, subprocess, xbmc
-from base import ThreadedTTSBackend, SimpleTTSBackendBase
+from base import SimpleTTSBackendBase, WavPlayer, UnixExternalPlayerHandler
 
-class FliteTTSBackend(ThreadedTTSBackend):
+class FliteTTSBackend(SimpleTTSBackendBase):
 	provider = 'Flite'
 	displayName = 'Flite'
+	extras = (('output_via_flite',False),)
 	interval = 100
 	
 	def __init__(self):
+		self.onATV2 = xbmc.getCondVisibility('System.Platform.ATV2')
+		player = WavPlayer(UnixExternalPlayerHandler)
+		SimpleTTSBackendBase.__init__(self,player, self.getMode())
 		self.process = None
 		self.voice = self.userVoice() or 'kal16'
-		self.threadedInit()
 		
-	def threadedSay(self,text):
-		if not text: return
+	def runCommand(self,text,outFile):
+		if self.onATV2:
+			os.system('flite -t "{0}" -o "{1}"'.format(text,outFile))
+		else:
+			subprocess.call(['flite', '-voice', self.voice, '-t', text,'-o',outFile])
+		
+	def runCommandAndSpeak(self,text):
 		self.process = subprocess.Popen(['flite', '-voice', self.voice, '-t', text])
 		while self.process.poll() == None and self.active: xbmc.sleep(10)
-			
-	def isSpeaking(self):
-		return (self.process and self.process.poll() == None) or ThreadedTTSBackend.isSpeaking(self)
 
 	def voices(self):
+		if self.onATV2: return None
 		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
 		
 	def update(self,voice,speed):
 		if voice: self.voice = voice
+		self.setMode(self.getMode())
 
+	def getMode(self):
+		if not self.onATV2 and self.userExtra('output_via_flite',False):
+			return SimpleTTSBackendBase.ENGINESPEAK
+		else:
+			return SimpleTTSBackendBase.WAVOUT
+			
 	def stop(self):
 		if not self.process: return
 		try:
@@ -39,24 +52,6 @@ class FliteTTSBackend(ThreadedTTSBackend):
 			subprocess.call(['flite', '--help'], stdout=(open(os.path.devnull, 'w')), stderr=subprocess.STDOUT)
 		except (OSError, IOError):
 			return False
-		return True
-
-class FliteATV2TTSBackend(SimpleTTSBackendBase):
-	provider = 'FliteATV2'
-	displayName = 'Flite For ATV2'
-	interval = 50
-
-	
-	def runCommand(self,text):
-		os.system('flite -t "{0}" -o "{1}"'.format(text,self.outFile))
-			
-	@staticmethod
-	def available():
-		if not xbmc.getCondVisibility('System.Platform.ATV2'): return False
-		try:
-			return not os.system('flite --help')
-		except (OSError, IOError):
-			raise
 		return True
 
 #class FliteTTSBackend(TTSBackendBase):
