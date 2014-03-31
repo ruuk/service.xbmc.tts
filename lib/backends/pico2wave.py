@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os, subprocess
-from base import SimpleTTSBackendBase, WavPlayer,UnixExternalPlayerHandler
+import base
+import audio
 
-class Pico2WaveTTSBackend(SimpleTTSBackendBase):
+class Pico2WaveTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'pico2wave'
 	displayName = 'pico2wave'
 	interval = 100
@@ -10,12 +11,11 @@ class Pico2WaveTTSBackend(SimpleTTSBackendBase):
 	
 	def __init__(self):
 		preferred = None
-		if self.userExtra('use_sox',False): preferred = 'sox'
-		player = WavPlayer(UnixExternalPlayerHandler,preferred)
-		SimpleTTSBackendBase.__init__(self,player)
+		player = audio.WavPlayer(audio.UnixExternalPlayerHandler,preferred,True)
+		base.SimpleTTSBackendBase.__init__(self,player)
 
 		self.language = self.userVoice()
-		self.setSpeed(self.userSpeed() * 0.01)
+		self.setSpeed(self.userSpeed())
 		
 	def runCommand(self,text,outFile):
 		args = ['pico2wave']
@@ -34,14 +34,8 @@ class Pico2WaveTTSBackend(SimpleTTSBackendBase):
 
 	def update(self,voice_name,speed):
 		if voice_name: self.language = voice_name
-		self.setSox()
 		speed = speed or self.userSpeed()
-		self.setSpeed(speed * 0.01)
-		
-	def setSox(self):
-		preferred = None
-		if self.userExtra('use_sox',False): preferred = 'sox'
-		self.setPlayer(preferred)
+		self.setSpeed(speed)
 		
 	@staticmethod
 	def available():

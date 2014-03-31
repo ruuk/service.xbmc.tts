@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import os, subprocess, xbmc
 from lib import util
-from base import SimpleTTSBackendBase, WavPlayer, UnixExternalPlayerHandler
+import base
+import audio
 
-class FliteTTSBackend(SimpleTTSBackendBase):
+class FliteTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'Flite'
 	displayName = 'Flite'
 	extras = (('output_via_flite',False),)
@@ -11,8 +12,8 @@ class FliteTTSBackend(SimpleTTSBackendBase):
 	
 	def __init__(self):
 		self.onATV2 = util.isATV2()
-		player = WavPlayer(UnixExternalPlayerHandler)
-		SimpleTTSBackendBase.__init__(self,player, self.getMode())
+		player = audio.WavPlayer(audio.UnixExternalPlayerHandler)
+		base.SimpleTTSBackendBase.__init__(self,player, self.getMode())
 		self.process = None
 		self.voice = self.userVoice() or 'kal16'
 		
@@ -36,9 +37,9 @@ class FliteTTSBackend(SimpleTTSBackendBase):
 
 	def getMode(self):
 		if not self.onATV2 and self.userExtra('output_via_flite',False):
-			return SimpleTTSBackendBase.ENGINESPEAK
+			return base.SimpleTTSBackendBase.ENGINESPEAK
 		else:
-			return SimpleTTSBackendBase.WAVOUT
+			return base.SimpleTTSBackendBase.WAVOUT
 			
 	def stop(self):
 		if not self.process: return

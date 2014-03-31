@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from base import TTSBackendBase, SimpleTTSBackendBase, WavPlayer, UnixExternalPlayerHandler
+import audio
+import base
 import subprocess
 import ctypes
 import ctypes.util
@@ -19,7 +20,7 @@ class espeak_VOICE(ctypes.Structure):
 		('spare',ctypes.c_void_p),
 	]
 
-class ESpeakCtypesTTSBackend(TTSBackendBase):
+class ESpeakCtypesTTSBackend(base.TTSBackendBase):
 	provider = 'eSpeak-ctypes'
 	displayName = 'eSpeak (ctypes)'
 	interval = 100
@@ -71,15 +72,15 @@ class ESpeakCtypesTTSBackend(TTSBackendBase):
 			index+=1
 		return voiceList
 
-class ESpeakTTSBackend(SimpleTTSBackendBase):
+class ESpeakTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'eSpeak'
 	displayName = 'eSpeak'
 	interval = 100
 	extras = (('output_via_espeak',False),)
 	
 	def __init__(self):
-		player = WavPlayer(UnixExternalPlayerHandler)
-		SimpleTTSBackendBase.__init__(self,player,self.getMode())
+		player = audio.WavPlayer(audio.UnixExternalPlayerHandler)
+		base.SimpleTTSBackendBase.__init__(self,player,self.getMode())
 		self.voice = self.userVoice()
 		self.speed = self.userSpeed()
 		self.process = None
@@ -106,9 +107,9 @@ class ESpeakTTSBackend(SimpleTTSBackendBase):
 		
 	def getMode(self):
 		if self.userExtra('output_via_espeak',False):
-			return SimpleTTSBackendBase.ENGINESPEAK
+			return base.SimpleTTSBackendBase.ENGINESPEAK
 		else:
-			return SimpleTTSBackendBase.WAVOUT
+			return base.SimpleTTSBackendBase.WAVOUT
 
 	def stop(self):
 		if not self.process: return
