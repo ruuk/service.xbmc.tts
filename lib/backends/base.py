@@ -149,9 +149,24 @@ class ExternalPlayerHandler(PlayerHandler):
 			pass
 
 class UnixExternalPlayerHandler(ExternalPlayerHandler):
-	players = ('aplay','sox') #By priority (aplay seems more responsive than sox)
-	playerCommands = {		'aplay':{'available':('aplay','--version'), 	'play':('aplay',None), 		'speed':None},
-							'sox':{'available':('sox','--version'),			'play':('play','-q',None),	'speed':('tempo','-s',None),		'kill':True}
+	players = ('aplay','sox','mplayer') #By priority (aplay seems more responsive than sox)
+	playerCommands = {		'aplay':{		'available':	('aplay','--version'),
+											'play':			('aplay','-q',None),
+											'speed':		None
+							},
+							'paplay':{		'available':	('paplay','--version'),
+											'play':			('paplay',None),
+											'speed':		None
+							},
+							'sox':{			'available':	('sox','--version'),
+											'play':			('play','-q',None),
+											'speed':		('tempo','-s',None),
+											'kill':			True
+							},
+							'mplayer':{	'available':	('mplayer','--help'),
+											'play':			('mplayer','-really-quiet',None),
+											'speed':		('-af','scaletempo','-speed',None)
+							}
 	}
 	
 class WavPlayer:
