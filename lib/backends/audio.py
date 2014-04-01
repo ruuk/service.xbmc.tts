@@ -139,7 +139,7 @@ class ExternalPlayerHandler(PlayerHandler):
 		self.speed = 0
 		self.active = True
 		self.hasAdvancedPlayer = False
-		self.getAvailablePlayers()
+		self._getAvailablePlayers()
 		self.setPlayer(preferred,advanced)
 			
 	def getCommandInfoByID(self,ID):
@@ -153,15 +153,12 @@ class ExternalPlayerHandler(PlayerHandler):
 	def playerAvailable(self):
 		return bool(self.availablePlayers)
 	
-	def getAvailablePlayers(self):
-		self.availablePlayers = []
-		for p in self.players:
-			try:
-				subprocess.call(p.available)
-				self.availablePlayers.append(p)
-				if p._advanced: self.hasAdvancedPlayer = True
-			except:
-				pass
+	def _getAvailablePlayers(self):
+		self.availablePlayers = self.getAvailablePlayers()
+		for p in self.availablePlayers:
+			if p._advanced:
+				break
+				self.hasAdvancedPlayer = True
 			
 	def setPlayer(self,preferred=None,advanced=False):
 		old = self._player
@@ -216,6 +213,17 @@ class ExternalPlayerHandler(PlayerHandler):
 		except:
 			pass
 
+	@classmethod
+	def getAvailablePlayers(cls):
+		players = []
+		for p in cls.players:
+			try:
+				subprocess.call(p.available)
+				players.append(p)
+			except:
+				pass
+		return players
+
 class UnixExternalPlayerHandler(ExternalPlayerHandler):
 	players = (aplay,paplay,sox,mplayer)
 	
@@ -259,6 +267,10 @@ class WavPlayer:
 				return
 		self.initPlayer()
 	
+	def players(self):
+		if not self.externalHandler: return None
+		return self.externalHandler.getAvailablePlayers()
+		
 	def setSpeed(self,speed):
 		return self.handler.setSpeed(speed)
 		

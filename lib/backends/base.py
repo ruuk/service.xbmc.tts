@@ -274,6 +274,12 @@ class SimpleTTSBackendBase(ThreadedTTSBackend):
 	def isSpeaking(self):
 		return self._simpleIsSpeaking or self.player.isPlaying() or ThreadedTTSBackend.isSpeaking(self)
 		
+	def players(self):
+		ret = []
+		for p in self.player.players():
+			ret.append((p.ID,p.name))
+		return ret
+
 	def _stop(self):
 		self.player.stop()
 		ThreadedTTSBackend._stop(self)

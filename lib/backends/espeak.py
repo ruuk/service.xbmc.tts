@@ -79,23 +79,25 @@ class ESpeakTTSBackend(base.SimpleTTSBackendBase):
 	interval = 100
 	settings = {	'voice':'',
 					'speed':0,
-					'output_via_espeak':False
+					'output_via_espeak':False,
+					'player':None
 	}
-	
+
 	def __init__(self):
-		player = audio.WavPlayer(audio.UnixExternalPlayerHandler)
+		preferred = self.setting('player') or None
+		player = audio.WavPlayer(audio.UnixExternalPlayerHandler,preferred=preferred)
 		base.SimpleTTSBackendBase.__init__(self,player,self.getMode())
 		self.voice = self.setting('voice')
 		self.speed = self.setting('speed')
 		self.process = None
-		
+
 	def runCommand(self,text,outFile):
 		args = ['espeak','-w',outFile]
 		if self.voice: args += ['-v',self.voice]
 		if self.speed: args += ['-s',str(self.speed)]
 		args.append(text)
 		subprocess.call(args)
-			
+
 	def runCommandAndSpeak(self,text):
 		args = ['espeak']
 		if self.voice: args.extend(('-v',self.voice))
@@ -103,12 +105,13 @@ class ESpeakTTSBackend(base.SimpleTTSBackendBase):
 		args.append(text)
 		self.process = subprocess.Popen(args)
 		while self.process.poll() == None and self.active: xbmc.sleep(10)	
-		
+
 	def update(self):
 		self.voice = self.setting('voice')
 		self.speed = self.setting('speed')
 		self.setMode(self.getMode())
-		
+		self.setPlayer(self.setting('player'))
+
 	def getMode(self):
 		if self.setting('output_via_espeak'):
 			return base.SimpleTTSBackendBase.ENGINESPEAK

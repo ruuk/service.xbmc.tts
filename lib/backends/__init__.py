@@ -44,6 +44,25 @@ def selectLanguage(provider):
 	language = languages[idx]
 	util.LOG('Language for {0} set to: {1}'.format(b.provider,language))
 	util.setSetting('language.{0}'.format(b.provider),language)
+	
+def selectPlayer(provider):
+	import xbmcgui
+	players = None
+	bClass = getBackendByProvider(provider)
+	if bClass and hasattr(bClass,'players'):
+		b = bClass()
+		players = b.players()
+	if not players:
+		xbmcgui.Dialog().ok('Not Available','No players to select.')
+		return
+	players.insert(0,('','Auto'))
+	disp = []
+	for p in players: disp.append(p[1])
+	idx = xbmcgui.Dialog().select('Choose Player',disp)
+	if idx < 0: return
+	player = players[idx][0]
+	util.LOG('Player for {0} set to: {1}'.format(b.provider,player))
+	util.setSetting('player.{0}'.format(b.provider),player)
 		
 def getBackend():
 	provider = util.getSetting('backend') or 'auto'

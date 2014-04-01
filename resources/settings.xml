@@ -2,15 +2,26 @@
 <settings>
   <category label="Main">
     <setting label="Default TTS Engine" type="action" id="backend" action="RunScript(service.xbmc.tts,backend_dialog)"/>
-    <setting id="voice.Flite" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.Flite)" visible="eq(-1,Flite)" />
-    <setting id="voice.eSpeak" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.eSpeak)" visible="eq(-2,eSpeak)" />
-    <setting id="voice.eSpeak-ctypes" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.eSpeak-ctypes)" visible="eq(-3,eSpeak-ctypes)" />
-    <setting id="voice.SAPI" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.SAPI)" visible="eq(-4,SAPI)" />
-    <setting id="language.pico2wave" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,language_dialog.pico2wave)" visible="eq(-5,pico2wave)" />
-    <setting label="Speed (WPM)" type="slider" id="speed.eSpeak" subsetting="true" option="int" default="175" range="80,450" visible="eq(-6,eSpeak)" />
-	<setting label="Play Speech Directly Via eSpeak" type="bool" id="output_via_espeak.eSpeak" subsetting="true" default="false" visible="eq(-7,eSpeak)" />
-	<setting label="Play Speech Directly Via Flite" type="bool" id="output_via_flite.Flite" subsetting="true" default="false" visible="eq(-8,Flite)" />
-    <setting label="Speed % (If Available)" type="slider" id="speed.pico2wave" subsetting="true" option="int" default="100" range="20,200" visible="eq(-9,pico2wave)" />
+
+    <!-- Flite -->
+    <setting visible="eq(-1,Flite)" id="voice.Flite" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.Flite)" />
+    <setting visible="eq(-2,Flite)" id="output_via_flite.Flite" label="Play Speech Directly Via Flite" type="bool" subsetting="true" default="false" />
+
+    <!-- eSpeak -->
+    <setting visible="eq(-3,eSpeak-ctypes)" id="voice.eSpeak-ctypes" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.eSpeak-ctypes)" />
+
+    <setting visible="eq(-4,eSpeak)" id="voice.eSpeak" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.eSpeak)" />
+    <setting visible="eq(-5,eSpeak)" id="speed.eSpeak" label="Speed (WPM)" type="slider" subsetting="true" option="int" default="175" range="80,450" />
+    <setting visible="eq(-6,eSpeak)" id="output_via_espeak.eSpeak" label="Play Speech Directly Via eSpeak" type="bool" subsetting="true" default="false" />
+    <setting visible="eq(-7,eSpeak)" id="player.eSpeak" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog.eSpeak)" enable="eq(-1,false)" />
+
+    <!-- SAPI -->
+    <setting visible="eq(-8,SAPI)" id="voice.SAPI" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.SAPI)" />
+
+    <!-- pico2wave -->
+    <setting visible="eq(-9,pico2wave)"  id="language.pico2wave" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,language_dialog.pico2wave)" />
+    <setting visible="eq(-10,pico2wave)" id="speed.pico2wave" label="Speed % (If Available)" type="slider" subsetting="true" option="int" default="100" range="20,200" />
+
     <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>
   <category label="Advanced">
