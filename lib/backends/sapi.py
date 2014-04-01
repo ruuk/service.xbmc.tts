@@ -5,11 +5,12 @@ from base import ThreadedTTSBackend
 class SAPITTSBackend(ThreadedTTSBackend):
 	provider = 'SAPI'
 	displayName = 'SAPI (Windows Internal)'
+	settings = {'voice':''}
 	interval = 100
 	def __init__(self):
 		import comtypes.client
 		self.SpVoice = comtypes.client.CreateObject("SAPI.SpVoice")
-		self.update(self.userVoice(),None)
+		self.update()
 		self.threadedInit()
 		
 	def threadedSay(self,text):
@@ -26,7 +27,7 @@ class SAPITTSBackend(ThreadedTTSBackend):
 		for i in xrange(len(v)):
 			try:
 				name=v[i].GetDescription()
-			except COMError:
+			except COMError: #analysis:ignore
 				pass
 			voices.append(name)
 		return voices
@@ -34,7 +35,8 @@ class SAPITTSBackend(ThreadedTTSBackend):
 	def isSpeaking(self):
 		return ThreadedTTSBackend.isSpeaking(self) or None
 		
-	def update(self,voice_name,speed):
+	def update(self):
+		voice_name = self.setting('voice')
 		if voice_name:
 			v=self.SpVoice.getVoices()
 			for i in xrange(len(v)):

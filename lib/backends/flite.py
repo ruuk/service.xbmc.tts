@@ -7,7 +7,9 @@ import audio
 class FliteTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'Flite'
 	displayName = 'Flite'
-	extras = (('output_via_flite',False),)
+	settings = {	'voice':'kal16',
+					'output_via_flite':False
+	}
 	interval = 100
 	
 	def __init__(self):
@@ -15,7 +17,7 @@ class FliteTTSBackend(base.SimpleTTSBackendBase):
 		player = audio.WavPlayer(audio.UnixExternalPlayerHandler)
 		base.SimpleTTSBackendBase.__init__(self,player, self.getMode())
 		self.process = None
-		self.voice = self.userVoice() or 'kal16'
+		self.voice = self.setting('voice')
 		
 	def runCommand(self,text,outFile):
 		if self.onATV2:
@@ -31,12 +33,12 @@ class FliteTTSBackend(base.SimpleTTSBackendBase):
 		if self.onATV2: return None
 		return subprocess.check_output(['flite','-lv']).split(': ',1)[-1].strip().split(' ')
 		
-	def update(self,voice,speed):
-		if voice: self.voice = voice
+	def update(self):
+		self.voice = self.setting('voice')
 		self.setMode(self.getMode())
 
 	def getMode(self):
-		if not self.onATV2 and self.userExtra('output_via_flite',False):
+		if not self.onATV2 and self.setting('output_via_flite'):
 			return base.SimpleTTSBackendBase.ENGINESPEAK
 		else:
 			return base.SimpleTTSBackendBase.WAVOUT

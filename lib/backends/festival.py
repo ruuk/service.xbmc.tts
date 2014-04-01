@@ -5,8 +5,10 @@ from base import TTSBackendBase
 class FestivalTTSBackend(TTSBackendBase):
 	provider = 'festival'
 	displayName = 'Festival'
+	settings = {'voice':''}
+	
 	def __init__(self):
-		self.voice = self.userVoice()
+		self.voice = self.setting('voice')
 		self.startFestivalProcess()
 		self._isSpeaking = False
 		
@@ -36,8 +38,8 @@ class FestivalTTSBackend(TTSBackendBase):
 	def isSpeaking(self):
 		return self._isSpeaking
 		
-	def update(self,voice,speed):
-		if voice: self.voice = voice
+	def update(self):
+		self.voice = self.setting('voice')
 		
 	def close(self):
 		#if self.festivalProcess.poll() != None: return

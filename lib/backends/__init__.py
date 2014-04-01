@@ -28,6 +28,22 @@ def selectVoice(provider):
 	voice = voices[idx]
 	util.LOG('Voice for {0} set to: {1}'.format(b.provider,voice))
 	util.setSetting('voice.{0}'.format(b.provider),voice)
+	
+def selectLanguage(provider):
+	import xbmcgui
+	languages = None
+	bClass = getBackendByProvider(provider)
+	if bClass:
+		b = bClass()
+		languages = b.languages()
+	if not languages:
+		xbmcgui.Dialog().ok('Not Available','No languages to select.')
+		return
+	idx = xbmcgui.Dialog().select('Choose Language',languages)
+	if idx < 0: return
+	language = languages[idx]
+	util.LOG('Language for {0} set to: {1}'.format(b.provider,language))
+	util.setSetting('language.{0}'.format(b.provider),language)
 		
 def getBackend():
 	provider = util.getSetting('backend') or 'auto'

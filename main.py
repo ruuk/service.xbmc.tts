@@ -12,6 +12,10 @@ if __name__ == '__main__':
 		provider = arg[13:]
 		from lib import backends
 		backends.selectVoice(provider)
+	elif arg and arg.startswith('language_dialog.'):
+		provider = arg[16:]
+		from lib import backends
+		backends.selectLanguage(provider)
 	elif arg == 'backend_dialog':
 		#<setting id="default_tts" type="enum" label="Default TTS Engine" values="Auto|SAPI|Pico2Wave|Festival|Flite|eSpeak|OSX say|NVDA|Speech dispatcher|Flite (ATV2)|Log" default="0" />
 		from lib import util

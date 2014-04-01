@@ -24,13 +24,14 @@ class ESpeakCtypesTTSBackend(base.TTSBackendBase):
 	provider = 'eSpeak-ctypes'
 	displayName = 'eSpeak (ctypes)'
 	interval = 100
+	settings = {'voice':''}
 	broken = True
 	
 	def __init__(self):
 		libname = ctypes.util.find_library('espeak')
 		self.eSpeak = ctypes.cdll.LoadLibrary(libname)
 		self.eSpeak.espeak_Initialize(0,0,None,0)
-		self.voice = self.userVoice()
+		self.voice = self.setting('voice')
 		
 	def say(self,text,interrupt=False):
 		if not self.eSpeak: return
@@ -41,8 +42,8 @@ class ESpeakCtypesTTSBackend(base.TTSBackendBase):
 		size = ctypes.sizeof(sb_text)
 		self.eSpeak.espeak_Synth(sb_text,size,0,0,0,0x1000,None,None)
 
-	def update(self,voice,speed):
-		if voice: self.voice = voice
+	def update(self):
+		self.voice = self.setting('voice')
 	
 	def stop(self):
 		if not self.eSpeak: return
@@ -76,13 +77,16 @@ class ESpeakTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'eSpeak'
 	displayName = 'eSpeak'
 	interval = 100
-	extras = (('output_via_espeak',False),)
+	settings = {	'voice':'',
+					'speed':0,
+					'output_via_espeak':False
+	}
 	
 	def __init__(self):
 		player = audio.WavPlayer(audio.UnixExternalPlayerHandler)
 		base.SimpleTTSBackendBase.__init__(self,player,self.getMode())
-		self.voice = self.userVoice()
-		self.speed = self.userSpeed()
+		self.voice = self.setting('voice')
+		self.speed = self.setting('speed')
 		self.process = None
 		
 	def runCommand(self,text,outFile):
@@ -100,13 +104,13 @@ class ESpeakTTSBackend(base.SimpleTTSBackendBase):
 		self.process = subprocess.Popen(args)
 		while self.process.poll() == None and self.active: xbmc.sleep(10)	
 		
-	def update(self,voice,speed):
-		if voice: self.voice = voice
-		if speed: self.speed = speed
+	def update(self):
+		self.voice = self.setting('voice')
+		self.speed = self.setting('speed')
 		self.setMode(self.getMode())
 		
 	def getMode(self):
-		if self.userExtra('output_via_espeak',False):
+		if self.setting('output_via_espeak'):
 			return base.SimpleTTSBackendBase.ENGINESPEAK
 		else:
 			return base.SimpleTTSBackendBase.WAVOUT

@@ -12,10 +12,10 @@ class TTSBackendBase:
 	provider = 'auto'
 	displayName = 'Auto'
 	pauseInsert = u'...'
-	extras = None
+	settings = None
 	interval = 400
 	broken = False
-	
+
 	def say(self,text,interrupt=False):
 		"""Method accepting text to be spoken
 		
@@ -37,39 +37,35 @@ class TTSBackendBase:
 		for t in texts:
 			self.insertPause()
 			self.say(t)
-		
+
 	def voices(self):
 		"""Returns a list of voice string names
 		
 		May be overridden by subclasses. Default implementation returns None.
 		"""
 		return None
-	
-	def userVoice(self):
-		"""Returns a user saved voice name
-		"""
-		self._voice = util.getSetting('voice.{0}'.format(self.provider),'')
-		return self._voice
 		
-	def userSpeed(self):
-		"""Returns a user saved speed integer
+	def languages(self):
+		"""Returns a list of language string names
+		
+		May be overridden by subclasses. Default implementation returns None.
 		"""
-		self._speed = util.getSetting('speed.{0}'.format(self.provider),0)
-		return self._speed
+		return None
 
-	def userExtra(self,extra,default=None):
-		"""Returns a user saved extra setting named key, or default if not set
+	def setting(self,setting):
+		"""Returns a backend setting, or default if not set
 		"""
-		setattr(self,extra,util.getSetting('{0}.{1}'.format(extra,self.provider),default))
-		return getattr(self,extra)
-		
+		if not hasattr(self,'_loadedSettings'): self._loadedSettings = {}
+		self._loadedSettings[setting] = util.getSetting('{0}.{1}'.format(setting,self.provider),self.settings.get(setting))
+		return self._loadedSettings[setting]
+
 	def insertPause(self,ms=500):
 		"""Insert a pause of ms milliseconds
 		
 		May be overridden by sublcasses. Default implementation sleeps for ms.
 		"""
 		xbmc.sleep(ms)
-	
+
 	def isSpeaking(self):
 		"""Returns True if speech engine is currently speaking, False if not 
 		and None if unknown
@@ -77,16 +73,14 @@ class TTSBackendBase:
 		Subclasses should override this respond accordingly
 		"""
 		return None
+
+	def update(self):
+		"""Called when the user has changed a setting for this backend
 		
-	def update(self,voice_name,speed):
-		"""Called when the user has changed voice or speed
-		
-		Voice will be the new voice name or None if not changed.
-		Speed will be the speed integer on None if not changed.
 		Subclasses should override this to react to user changes.
 		"""
 		pass
-	
+
 	def stop(self):
 		"""Stop all speech, implicitly called when close() is called
 		
@@ -94,7 +88,7 @@ class TTSBackendBase:
 		Default implementation does nothing.
 		"""
 		pass
-	
+
 	def close(self):
 		"""Close the speech engine
 		
@@ -102,43 +96,24 @@ class TTSBackendBase:
 		Default implementation does nothing.
 		"""
 		pass
-	
+
 	def _update(self):
-		voice = self._updateVoice()
-		speed = self._updateSpeed()
-		extras = self._updateExtras()
-		if voice or speed or extras: self.update(voice,speed)
-		
-	def _updateVoice(self):
-		old = hasattr(self,'_voice') and self._voice or None
-		voice = self.userVoice()
-		if old != None:
-			if voice == old: return None
-		else:
-			return None
-		return voice
-		
-	def _updateSpeed(self):
-		old = hasattr(self,'_speed') and self._speed or None
-		speed = self.userSpeed()
-		if old != None:
-			if speed == old: return None
-		else:
-			return None
-		return speed
-			
-	def _updateExtras(self):
-		if not self.extras: return False
-		for (extra,default) in self.extras:
-			old = None
-			if hasattr(self, extra): old = getattr(self,extra)
-			new = self.userExtra(extra,default)
-			if old != None and new != old: return True
-		return False
-		
+		changed = self._updateSettings()
+		if changed: self.update()
+
+	def _updateSettings(self):
+		if not self.settings: return None
+		if not hasattr(self,'_loadedSettings'): self._loadedSettings = {}
+		changed = False
+		for s in self.settings:
+			old = self._loadedSettings.get(s)
+			new = self.setting(s)
+			if old != None and new != old: changed = True
+		return changed
+
 	def _stop(self):
 		self.stop()
-	
+
 	def _close(self):
 		self._stop()
 		self.close()
@@ -147,7 +122,7 @@ class TTSBackendBase:
 	def _available(cls):
 		if cls.broken and util.getSetting('disable_broken_backends',True): return False
 		return cls.available()
-		
+
 	@staticmethod
 	def available():
 		"""Static method representing the the speech engines availability

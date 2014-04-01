@@ -71,13 +71,7 @@ class CommandInfo:
 	name = 'Info'
 	available = None
 	play = None
-	speed = None
-	speedMultiplier = 1
 	kill = False
-	
-	@classmethod
-	def speedArg(cls,speed):
-		return str(speed * cls.speedMultiplier)
 		
 	@classmethod
 	def playArgs(cls,outFile,speed):
@@ -88,6 +82,13 @@ class CommandInfo:
 	
 class AdvancedCommandInfo(CommandInfo):
 	_advanced = True
+	speed = None
+	speedMultiplier = 1
+	
+	@classmethod
+	def speedArg(cls,speed):
+		return str(speed * cls.speedMultiplier)
+		
 	@classmethod
 	def playArgs(cls,outFile,speed):
 		args = []

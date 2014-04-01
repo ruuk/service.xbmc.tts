@@ -7,15 +7,18 @@ class Pico2WaveTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'pico2wave'
 	displayName = 'pico2wave'
 	interval = 100
-	extras = (('use_sox',False),)
-	
+	settings = {	'language':'',
+					'speed':0,
+					'use_sox':False
+	}
+
 	def __init__(self):
 		preferred = None
 		player = audio.WavPlayer(audio.UnixExternalPlayerHandler,preferred,True)
 		base.SimpleTTSBackendBase.__init__(self,player)
 
-		self.language = self.userVoice()
-		self.setSpeed(self.userSpeed())
+		self.language = self.setting('language')
+		self.setSpeed(self.setting('speed'))
 		
 	def runCommand(self,text,outFile):
 		args = ['pico2wave']
@@ -23,7 +26,7 @@ class Pico2WaveTTSBackend(base.SimpleTTSBackendBase):
 		args.extend(['-w', '{0}'.format(outFile), '{0}'.format(text)])
 		subprocess.call(args)
 		
-	def voices(self):
+	def languages(self):
 		try:
 			out = subprocess.check_output(['pico2wave','-l','NONE','-w','/dev/null','X'],stderr=subprocess.STDOUT)
 		except subprocess.CalledProcessError, e:
@@ -32,10 +35,9 @@ class Pico2WaveTTSBackend(base.SimpleTTSBackendBase):
 		
 		return out.split('languages:',1)[-1].split('\n\n')[0].strip('\n').split('\n')
 
-	def update(self,voice_name,speed):
-		if voice_name: self.language = voice_name
-		speed = speed or self.userSpeed()
-		self.setSpeed(speed)
+	def update(self):
+		self.language = self.setting('language')
+		self.setSpeed(self.setting('speed'))
 		
 	@staticmethod
 	def available():
