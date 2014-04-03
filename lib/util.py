@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, sys, xbmc, time, xbmcaddon
+import os, sys, xbmc, time, binascii, xbmcaddon
 
 def info(key):
 	return xbmcaddon.Addon().getAddonInfo(key)
@@ -35,7 +35,7 @@ def _processSetting(setting,default):
 	elif isinstance(default,int):
 		return int(float(setting or 0))
 	elif isinstance(default,list):
-		if setting: return setting.split(':!,!:')
+		if setting: return binascii.unhexlify(setting).split('\0')
 		else: return default
 	
 	return setting
@@ -46,7 +46,7 @@ def setSetting(key,value):
 	
 def _processSettingForWrite(value):
 	if isinstance(value,list):
-		value = ':!,!:'.join(value)
+		value = binascii.hexlify('\0'.join(value))
 	elif isinstance(value,bool):
 		value = value and 'true' or 'false'
 	return str(value)

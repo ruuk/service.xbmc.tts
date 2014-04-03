@@ -1,6 +1,7 @@
 import sys, re, difflib, time, xbmc, xbmcgui
 from lib import guitables
 from lib import skintables
+from lib import windowparser
 from lib import backends
 
 from lib import util
@@ -51,6 +52,8 @@ class TTSService(xbmc.Monitor):
 		self.lastProgressPercentUnixtime = 0
 		self.interval = 400
 		self.win = None
+		self.winParser = None
+		self.listIndex = None
 		
 	def initTTS(self):
 		provider = self.setBackend(backends.getBackend()())
@@ -153,6 +156,8 @@ class TTSService(xbmc.Monitor):
 		
 	def sayExtra(self):
 		texts = guitables.getExtraTexts(self.winID)
+		if not texts: texts = self.winParser.getWindowTexts()
+		print texts
 		self.sayTexts(texts)
 
 	def sayItemExtra(self):
@@ -162,6 +167,7 @@ class TTSService(xbmc.Monitor):
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Addon.Description)').decode('utf-8')
 		if not text: text = guitables.getSongInfo()
+		if not text: text = self.winParser.getListItemTexts(self.controlID)
 		if not text: return
 		if not isinstance(text,list): text = [text]
 		self.sayTexts(text)
@@ -185,6 +191,7 @@ class TTSService(xbmc.Monitor):
 		dialogID = xbmcgui.getCurrentWindowDialogId()
 		if dialogID != 9999: winID = dialogID
 		if winID == self.winID: return False
+		self.winParser = windowparser.getWindowParser()
 		self.winID = winID
 		del self.win
 		self.win = xbmcgui.Window(winID)
@@ -204,6 +211,7 @@ class TTSService(xbmc.Monitor):
 		return True
 		
 	def checkControl(self,newW):
+		if not self.win: return newW
 		controlID = self.win.getFocusId()
 		if controlID == self.controlID: return newW
 		if util.DEBUG:
@@ -234,6 +242,9 @@ class TTSService(xbmc.Monitor):
 		if not self.tts.isSpeaking(): self.sayText(text,interrupt=True)
 		
 	def getControlText(self,controlID):
+		idx = xbmc.getInfoLabel('Container({0}).Position'.format(controlID))
+		if idx and idx != self.listIndex:
+			self.listIndex = idx
 		if not controlID: return u''
 		text = xbmc.getInfoLabel('Container({0}).ListItem.Label'.format(controlID))
 		if not text: text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(controlID))
