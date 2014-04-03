@@ -21,6 +21,11 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.35 **
+
+Added the ability so select player in eSpeak
+Added support for playing via paplayer and MPlayer
+
 ** 0.0.34 **
 
 Enable wave output in Flite
