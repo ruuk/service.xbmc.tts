@@ -52,7 +52,6 @@ class TTSService(xbmc.Monitor):
 		self.lastProgressPercentUnixtime = 0
 		self.interval = 400
 		self.win = None
-		self.winParser = None
 		self.listIndex = None
 		
 	def initTTS(self):
@@ -156,7 +155,7 @@ class TTSService(xbmc.Monitor):
 		
 	def sayExtra(self):
 		texts = guitables.getExtraTexts(self.winID)
-		if not texts: texts = self.winParser.getWindowTexts()
+		if not texts: texts = windowparser.getWindowParser().getWindowTexts()
 		print texts
 		self.sayTexts(texts)
 
@@ -167,7 +166,7 @@ class TTSService(xbmc.Monitor):
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Addon.Description)').decode('utf-8')
 		if not text: text = guitables.getSongInfo()
-		if not text: text = self.winParser.getListItemTexts(self.controlID)
+		if not text: text = windowparser.getWindowParser().getListItemTexts(self.controlID)
 		if not text: return
 		if not isinstance(text,list): text = [text]
 		self.sayTexts(text)
@@ -191,7 +190,6 @@ class TTSService(xbmc.Monitor):
 		dialogID = xbmcgui.getCurrentWindowDialogId()
 		if dialogID != 9999: winID = dialogID
 		if winID == self.winID: return False
-		self.winParser = windowparser.getWindowParser()
 		self.winID = winID
 		del self.win
 		self.win = xbmcgui.Window(winID)

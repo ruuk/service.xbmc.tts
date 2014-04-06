@@ -5,13 +5,17 @@ import bs4
 def currentWindowXMLFile():
 	base = xbmc.getInfoLabel('Window.Property(xmlfile)')
 	if os.path.exists(base): return base
-	path = os.path.join(xbmc.translatePath('special://skin'),'720p',base)
-	if os.path.exists(path): return path
-	path = os.path.join(xbmc.translatePath('special://skin'),'1080i',base)
+	path = getXBMCSkinPath(base)
 	if os.path.exists(path): return path
 	return None
 
-
+def getXBMCSkinPath(fname):
+	path = os.path.join(xbmc.translatePath('special://skin'),'720p',fname)
+	if os.path.exists(path): return path
+	path = os.path.join(xbmc.translatePath('special://skin'),'1080i',fname)
+	if os.path.exists(path): return path
+	return ''
+	
 tagRE = re.compile(r'\[/?(?:B|I|COLOR|UPPERCASE|LOWERCASE)[^\]]*\](?i)')
 varRE = re.compile(r'\$VAR\[([^\]]*)\]')
 localizeRE = re.compile(r'\$LOCALIZE\[([^\]]*)\]')
@@ -54,12 +58,25 @@ class WindowParser:
 		self.soup = bs4.BeautifulSoup(open(xml_path),'xml')
 		self._listItemTexts = {}
 		self.currentControl = None
+		if 'skin.' in xml_path: self.processIncludes()
 		
+	def processIncludes(self):
+		includes = Includes()
+		for i in self.soup.findAll('include'):
+			matchingInclude = includes.getInclude(i.string)
+			if not matchingInclude:
+				print 'INCLUDE NOT FOUND: %s' % i.string
+				continue
+			print 'INCLUDE FOUND: %s' % i.string
+			new = bs4.BeautifulSoup(unicode(matchingInclude),'xml')
+			i.replace_with(new)
+			new.unwrap()
+			
 	def addonReplacer(self,m):
 		return xbmc.getInfoLabel(m.group(0))
 		
 	def localizeReplacer(self,m):
-		return xbmc.getLocalizedString(m.group(1))
+		return xbmc.getLocalizedString(int(m.group(1)))
 		
 	def infoReplacer(self,m):
 		info = m.group(1)
@@ -92,7 +109,10 @@ class WindowParser:
 		l = label.find('label')
 		text = None
 		if l: text = l.text
-		if not text:
+		if text:
+			print text
+			if text.isdigit(): text = '$LOCALIZE[{0}]'.format(text)
+		else:
 			i = label.find('info')
 			if i:
 				text = i.text
@@ -136,7 +156,40 @@ class WindowParser:
 				text = self.getLabelText(l)
 				if text and not text in texts: texts.append(text)
 		return self.processTextList(texts)
-			
+		
+class Includes:
+	def __init__(self):
+		path = getXBMCSkinPath('Includes.xml')
+		self.soup = bs4.BeautifulSoup(open(path),'xml')
+		self._includesFilesLoaded = False
+
+	def loadIncludesFiles(self):
+		if self._includesFilesLoaded: return
+		basePath = getXBMCSkinPath('')
+		for i in self.soup.find('includes').findAll('include',{'file': lambda x: x}):
+			xmlName = i.get('file')
+			if not xmlName: continue
+			p = os.path.join(basePath,xmlName)
+			if not os.path.exists(p): continue
+			soup =  bs4.BeautifulSoup(open(p),'xml')
+			includes = soup.find('includes')
+			i.replace_with(includes)
+			includes.unwrap()
+		self._includesFilesLoaded = True
+		import codecs
+		with codecs.open(os.path.join(getXBMCSkinPath(''),'Includes_Processed.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
+		
+	def getInclude(self,name):
+		self.loadIncludesFiles()
+		return self.soup.find('includes').find('include',{'name':name})
+		
+	def getVariable(self,name):
+		var = self.soup.find('includes').find('variable',{'name':name})
+		if not var: return None
+		val = var.find('value')
+		if not val: return None
+		return val.string
+		
 def getWindowParser():
 	path = currentWindowXMLFile()
 	if not path: return
