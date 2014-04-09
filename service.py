@@ -156,7 +156,6 @@ class TTSService(xbmc.Monitor):
 	def sayExtra(self):
 		texts = guitables.getExtraTexts(self.winID)
 		if not texts: texts = windowparser.getWindowParser().getWindowTexts()
-		print texts
 		self.sayTexts(texts)
 
 	def sayItemExtra(self):
