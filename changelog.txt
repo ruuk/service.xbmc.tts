@@ -25,6 +25,9 @@ EXTERNAL TODO:
 
 Added the ability so select player in eSpeak
 Added support for playing via paplayer and MPlayer
+Fix for encoding error in Pico2Wave
+Added generic speaking of window text on F2
+Added generic speaking of list item text on F3
 
 ** 0.0.34 **
 
