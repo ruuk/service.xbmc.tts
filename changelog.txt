@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.35
+Current version: 0.0.36
 -----------------------
 
 Authors: ruuk, pvagner
@@ -21,9 +21,13 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.36 **
+
+Improvements to speaking of list item text on F3
+
 ** 0.0.35 **
 
-Added the ability so select player in eSpeak
+Added the ability to select player in eSpeak
 Added support for playing via paplayer and MPlayer
 Fix for encoding error in Pico2Wave
 Added generic speaking of window text on F2

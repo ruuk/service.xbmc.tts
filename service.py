@@ -42,6 +42,9 @@ class TTSService(xbmc.Monitor):
 		elif command == 'STOP':
 			self.stopSpeech()
 
+#	def onNotification(self, sender, method, data):
+#		util.LOG('NOTIFY: {0} :: {1} :: {2}'.format(sender,method,data))
+		
 	def initState(self):
 		self.winID = None
 		self.controlID = None
@@ -220,7 +223,7 @@ class TTSService(xbmc.Monitor):
 			self.tts.insertPause()
 			return True
 		return newW
-		
+			
 	def newText(self,text,newC,secondary=None):
 		self.text = text
 		label2 = xbmc.getInfoLabel('Container({0}).ListItem.Label2'.format(self.controlID)).decode('utf-8')
@@ -239,9 +242,6 @@ class TTSService(xbmc.Monitor):
 		if not self.tts.isSpeaking(): self.sayText(text,interrupt=True)
 		
 	def getControlText(self,controlID):
-		idx = xbmc.getInfoLabel('Container({0}).Position'.format(controlID))
-		if idx and idx != self.listIndex:
-			self.listIndex = idx
 		if not controlID: return u''
 		text = xbmc.getInfoLabel('Container({0}).ListItem.Label'.format(controlID))
 		if not text: text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(controlID))

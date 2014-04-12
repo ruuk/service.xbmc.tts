@@ -35,7 +35,12 @@ localizeRE = re.compile(r'\$LOCALIZE\[([^\]]*)\]')
 addonRE = re.compile(r'\$ADDON\[[\w+\.]+ (\d+)\]')
 infoLableRE = re.compile(r'\$INFO\[([^\]]*)\]')
 
-def extractInfos(text):
+def getInfoLabel(info,container):
+	if container:
+		info = info.replace('ListItem.','Container({0}).ListItem.'.format(container))
+	return xbmc.getInfoLabel(info).decode('utf-8')
+	
+def extractInfos(text,container):
 	pos = 0
 	while pos > -1:
 		pos = text.find('$INFO[')
@@ -52,22 +57,22 @@ def extractInfos(text):
 			if depth < 1: break
 			i+=1
 		middle = text[lbracket:i]
-		
+
 		parts = middle.split(',')
 		if len(parts) > 2:
-			info = xbmc.getInfoLabel(parts[0]).decode('utf-8')
+			info = getInfoLabel(parts[0],container)
 			if info:
 				middle = parts[1] + info + parts[2]
 			else:
 				middle = ''
 		elif len(parts) > 1:
-			info = xbmc.getInfoLabel(parts[0]).decode('utf-8')
+			info = getInfoLabel(parts[0],container)
 			if info:
 				middle = parts[1] + info
 			else:
 				middle = ''
 		else:
-			middle = xbmc.getInfoLabel(middle).decode('utf-8')
+			middle = getInfoLabel(middle,container)
 			
 		if middle: middle += '... '
 		text = text[:pos] + middle + text[i+1:]
@@ -77,13 +82,12 @@ def extractInfos(text):
 class WindowParser:
 	def __init__(self,xml_path):
 		self.soup = bs4.BeautifulSoup(open(xml_path),'xml')
-		self._listItemTexts = {}
 		self.currentControl = None
 		self.includes = None
 		if not currentWindowIsAddon():
 			self.processIncludes()
-			import codecs
-			with codecs.open(os.path.join(getXBMCSkinPath(''),'TESTCurrent.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
+#			import codecs
+#			with codecs.open(os.path.join(getXBMCSkinPath(''),'TESTCurrent.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
 		
 	def processIncludes(self):
 		self.includes = Includes()
@@ -111,11 +115,11 @@ class WindowParser:
 		return xbmc.getLocalizedString(int(m.group(1)))
 	
 	def parseFormatting(self,text):
-		text = tagRE.sub('',text).replace('[CR]','... ').strip(' .')
 		text = varRE.sub(self.variableReplace,text)
 		text = localizeRE.sub(self.localizeReplacer,text)
 		text = addonRE.sub(self.addonReplacer,text)
-		text = extractInfos(text)
+		text = extractInfos(text,self.currentControl)
+		text = tagRE.sub('',text).replace('[CR]','... ').strip(' .')
 		#text = infoLableRE.sub(self.infoReplacer,text)
 		return text
 	
@@ -123,9 +127,6 @@ class WindowParser:
 		return self.soup.find('control',{'id':controlID})
 		
 	def getLabelText(self,label):
-		visible = label.find('visible',recursive=False)
-		if visible and visible.string and not xbmc.getCondVisibility(visible.string): return None
-		
 		l = label.find('label')
 		text = None
 		if l: text = l.text
@@ -159,20 +160,20 @@ class WindowParser:
 		
 	def getListItemTexts(self,controlID):
 		self.currentControl = controlID
-		if controlID in self._listItemTexts:
-			return self.processTextList(self._listItemTexts[controlID])
-		#print controlID
-		clist = self.getControl(controlID)
-		if not clist: return None
-		fl = clist.find("focusedlayout")
-		if not fl: return None
-		lt = fl.findAll('control',{'type':('label','textbox')})
-		texts = []
-		for l in lt:
-			text = self.getLabelText(l)
-			if text and not text in texts: texts.append(text)
-		self._listItemTexts[controlID] = texts
-		return self.processTextList(texts)
+		try:
+			clist = self.getControl(controlID)
+			if not clist: return None
+			fl = clist.find("focusedlayout")
+			if not fl: return None
+			lt = fl.findAll('control',{'type':('label','textbox')})
+			texts = []
+			for l in lt:
+				if not self.controlIsVisibleGlobally(l): continue
+				text = self.getLabelText(l)
+				if text and not text in texts: texts.append(text)
+			return self.processTextList(texts)
+		finally:
+			self.currentControl = None
 			
 	def getWindowTexts(self):
 		lt = self.soup.findAll('control',{'type':('label','textbox')})
@@ -187,11 +188,39 @@ class WindowParser:
 				if text and not text in texts: texts.append(text)
 		return self.processTextList(texts)
 		
+	def controlGlobalPosition(self,control):
+		x, y = self.controlPosition(control)
+		for p in control.parents:
+			if p.get('type') == 'group':
+				px,py = self.controlPosition(p)
+				x+=px
+				y+=py
+		return x, y
+		
+	def controlPosition(self,control):
+		posx = control.find('posx')
+		x = posx and posx.string or '0'
+		if 'r' in x:
+			x = int(x.strip('r')) * -1
+		else:
+			x = int(x)
+		posy = control.find('posy')
+		y = int(posy and posy.string or '0')
+		return x,y
+			
+	def controlIsVisibleGlobally(self,control):
+		for p in control.parents:
+			if not self.controlIsVisible(p): return False
+		return self.controlIsVisible(control)
+		
 	def controlIsVisible(self,control):
 		visible = control.find('visible',recursive=False)
 		if not visible: return True
 		if not visible.string: return True
-		if not xbmc.getCondVisibility(visible.string):
+		condition = visible.string
+		if self.currentControl:
+			condition = condition.replace('ListItem.Property','Container({0}).ListItem.Property'.format(self.currentControl))
+		if not xbmc.getCondVisibility(condition):
 			return False
 		else:
 			return True
@@ -220,8 +249,8 @@ class Includes:
 			else:
 				self.includesMap[i.get('name')] = i
 		self._includesFilesLoaded = True
-		import codecs
-		with codecs.open(os.path.join(getXBMCSkinPath(''),'Includes_Processed.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
+#		import codecs
+#		with codecs.open(os.path.join(getXBMCSkinPath(''),'Includes_Processed.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
 		
 	def getInclude(self,name):
 		self.loadIncludesFiles()
