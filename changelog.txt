@@ -21,6 +21,11 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.37 **
+
+Added support for playSFX without caching (xbmc git: 5579740e9881717c65518b81a9a2b4d9526c3307)
+Added the ability to output wavs to a tmpfs (/run/shm, /dev/shm)
+
 ** 0.0.36 **
 
 Improvements to speaking of list item text on F3

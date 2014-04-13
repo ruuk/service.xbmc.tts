@@ -25,6 +25,7 @@
     <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>
   <category label="Advanced">
+    <setting label="Use tmpfs" type="bool" id="use_tmpfs" default="false" />
     <setting label="Disable Broken TTS Engines" type="bool" id="disable_broken_backends" default="true" />
     <setting label="Enable Debug Logging" type="bool" id="debug_logging" default="true" />
     <setting label="Override Poll Interval" type="bool" id="override_poll_interval" default="false" />

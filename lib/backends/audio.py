@@ -16,20 +16,31 @@ class PlayerHandler:
 class PlaySFXHandler(PlayerHandler):
 	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
 	def __init__(self):
-		self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'playsfx_wavs')
+		tmpfs = self.get_tmpfs()
+		if util.getSetting('use_tmpfs',False) and tmpfs:
+			util.LOG('Using tmpfs at: {0}'.format(tmpfs))
+			self.outDir = os.path.join(tmpfs,'xbmc_speech')
+		else:
+			self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'xbmc_speech')
 		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
 		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
-		self.outFile = ''
+		self.outFile = self.outFileBase % ''
 		self._isPlaying = False 
 		self.event = threading.Event()
 		self.event.clear()
+		
+	def get_tmpfs(self):
+		for tmpfs in ('/run/shm','/dev/shm'):
+			if os.path.exists(tmpfs): return tmpfs
+		return None
 		
 	@staticmethod
 	def hasStopSFX():
 		return PlaySFXHandler._xbmcHasStopSFX
 		
 	def _nextOutFile(self):
-		self.outFile = self.outFileBase % time.time()
+		if not self._xbmcHasStopSFX:
+			self.outFile = self.outFileBase % time.time()
 		return self.outFile
 		
 	def player(self): return 'playSFX'
@@ -42,7 +53,7 @@ class PlaySFXHandler(PlayerHandler):
 			util.LOG('playSFXHandler.play() - Missing wav file')
 			return
 		self._isPlaying = True
-		xbmc.playSFX(self.outFile)
+		xbmc.playSFX(self.outFile,not self._xbmcHasStopSFX)
 		f = wave.open(self.outFile,'r')
 		frames = f.getnframes()
 		rate = f.getframerate()

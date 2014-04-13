@@ -6,6 +6,7 @@ from lib import backends
 
 from lib import util
 
+print 'TEST %s ' % xbmc.getInfoLabel('System.BuildVersion')
 util.LOG(util.xbmcaddon.Addon().getAddonInfo('version'))
 util.LOG('Platform: {0}'.format(sys.platform))
 
