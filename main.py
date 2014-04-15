@@ -21,7 +21,6 @@ if __name__ == '__main__':
 		from lib import backends
 		backends.selectPlayer(provider)
 	elif arg == 'backend_dialog':
-		#<setting id="default_tts" type="enum" label="Default TTS Engine" values="Auto|SAPI|Pico2Wave|Festival|Flite|eSpeak|OSX say|NVDA|Speech dispatcher|Flite (ATV2)|Log" default="0" />
 		from lib import util
 		util.selectBackend()
 	elif arg == 'install_keymap':

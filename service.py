@@ -6,7 +6,6 @@ from lib import backends
 
 from lib import util
 
-print 'TEST %s ' % xbmc.getInfoLabel('System.BuildVersion')
 util.LOG(util.xbmcaddon.Addon().getAddonInfo('version'))
 util.LOG('Platform: {0}'.format(sys.platform))
 
@@ -116,12 +115,15 @@ class TTSService(xbmc.Monitor):
 			self.newSecondaryText(secondary)
 		else:
 			if self.winID == 10103:
-				self.checkVirtualKeyboard()
+				self.checkVirtualKeyboard(310)
+			elif self.winID == 10109:
+				self.checkVirtualKeyboard(4)
 			elif self.winID == 10101:
 				self.checkProgressDialog()
 			
-	def checkVirtualKeyboard(self):
-		text = xbmc.getInfoLabel('Control.GetLabel(310)').decode('utf-8')
+	ip_re = re.compile('^[\d ]{3}\.[\d ]{3}\.[\d ]{3}.[\d ]{3}$')
+	def checkVirtualKeyboard(self,edit_id):
+		text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(edit_id)).decode('utf-8')
 		if (text != self.keyboardText):
 			out = ''
 			d = difflib.Differ()
@@ -129,7 +131,16 @@ class TTSService(xbmc.Monitor):
 				out = u'No text'
 			elif len(text) > len(self.keyboardText):
 				for c in d.compare(self.keyboardText,text):
-					if c.startswith('+'): out += u' ' + (c.strip(' +') or 'space')
+					if c.startswith('+'):
+						out += u' ' + (c.strip(' +') or 'space')
+			elif len(text) == len(self.keyboardText):
+				if len(text) == 15 and self.ip_re.match(text) and self.ip_re.match(self.keyboardText): #IP Address
+					oldip = self.keyboardText.replace(' ','').split('.')
+					newip = text.replace(' ','').split('.')
+					for old,new in zip(oldip,newip):
+						if old == new: continue
+						out = ' '.join(list(new))
+						break
 			else:
 				for c in d.compare(self.keyboardText,text):
 					if c.startswith('-'): out += u' ' + (c.strip(' -') or 'space')

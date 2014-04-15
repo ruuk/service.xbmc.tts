@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.36
+Current version: 0.0.37
 -----------------------
 
 Authors: ruuk, pvagner
@@ -24,7 +24,9 @@ EXTERNAL TODO:
 ** 0.0.37 **
 
 Added support for playSFX without caching (xbmc git: 5579740e9881717c65518b81a9a2b4d9526c3307)
-Added the ability to output wavs to a tmpfs (/run/shm, /dev/shm)
+Added the ability to output wavs to a tmpfs (/run/shm or /dev/shm with fallback to /tmp)
+Added speaking for typing in the numeric and IP address inputs
+Added backend for eckythump's HTTP speech wav server
 
 ** 0.0.36 **
 

@@ -12,27 +12,30 @@ class PlayerHandler:
 	def isPlaying(self): raise Exception('Not Implemented')
 	def stop(self): raise Exception('Not Implemented')
 	def close(self): raise Exception('Not Implemented')
+	
+	def get_tmpfs(self):
+		for tmpfs in ('/run/shm','/dev/shm','/tmp'):
+			if os.path.exists(tmpfs): return tmpfs
+		return None
 
-class PlaySFXHandler(PlayerHandler):
-	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
-	def __init__(self):
+	def setOutDir(self):
 		tmpfs = self.get_tmpfs()
-		if util.getSetting('use_tmpfs',False) and tmpfs:
+		if util.getSetting('use_tmpfs',True) and tmpfs:
 			util.LOG('Using tmpfs at: {0}'.format(tmpfs))
 			self.outDir = os.path.join(tmpfs,'xbmc_speech')
 		else:
 			self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'xbmc_speech')
 		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
+		
+class PlaySFXHandler(PlayerHandler):
+	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
+	def __init__(self):
+		self.setOutDir()
 		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
 		self.outFile = self.outFileBase % ''
 		self._isPlaying = False 
 		self.event = threading.Event()
 		self.event.clear()
-		
-	def get_tmpfs(self):
-		for tmpfs in ('/run/shm','/dev/shm'):
-			if os.path.exists(tmpfs): return tmpfs
-		return None
 		
 	@staticmethod
 	def hasStopSFX():
@@ -142,9 +145,8 @@ class mplayer(AdvancedCommandInfo):
 class ExternalPlayerHandler(PlayerHandler):
 	players = None
 	def __init__(self,preferred=None,advanced=False):
-		outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'playsfx_wavs')
-		if not os.path.exists(outDir): os.makedirs(outDir)
-		self.outFile = os.path.join(outDir,'speech.wav')
+		self.setOutDir()
+		self.outFile = os.path.join(self.outDir,'speech.wav')
 		self._wavProcess = None
 		self._player = False
 		self.speed = 0
