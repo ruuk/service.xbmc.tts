@@ -33,6 +33,7 @@
   </category>
   <category label="Advanced">
     <setting label="Output .wav files to tmpfs" type="bool" id="use_tmpfs" default="true" />
+    <setting label="Enable playSFX Memory Fix (Needs XBMC Restart)" type="bool" id="playsfx_memory_fix" default="false" />
     <setting label="Disable Broken TTS Engines" type="bool" id="disable_broken_backends" default="true" />
     <setting label="Enable Debug Logging" type="bool" id="debug_logging" default="true" />
     <setting label="Override Poll Interval" type="bool" id="override_poll_interval" default="false" />

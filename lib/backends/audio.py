@@ -29,6 +29,7 @@ class PlayerHandler:
 		
 class PlaySFXHandler(PlayerHandler):
 	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
+	_memoryFix = util.getSetting('playsfx_memory_fix',False)
 	def __init__(self):
 		self.setOutDir()
 		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
@@ -42,7 +43,7 @@ class PlaySFXHandler(PlayerHandler):
 		return PlaySFXHandler._xbmcHasStopSFX
 		
 	def _nextOutFile(self):
-		if not self._xbmcHasStopSFX:
+		if not self._memoryFix:
 			self.outFile = self.outFileBase % time.time()
 		return self.outFile
 		
@@ -56,7 +57,7 @@ class PlaySFXHandler(PlayerHandler):
 			util.LOG('playSFXHandler.play() - Missing wav file')
 			return
 		self._isPlaying = True
-		xbmc.playSFX(self.outFile,not self._xbmcHasStopSFX)
+		xbmc.playSFX(self.outFile,not self._memoryFix)
 		f = wave.open(self.outFile,'r')
 		frames = f.getnframes()
 		rate = f.getframerate()
@@ -65,6 +66,7 @@ class PlaySFXHandler(PlayerHandler):
 		self.event.clear()
 		self.event.wait(duration)
 		self._isPlaying = False
+		if not self._memoryFix: os.remove(self.outFile)
 		
 	def isPlaying(self):
 		return self._isPlaying
