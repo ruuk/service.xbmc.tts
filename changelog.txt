@@ -25,6 +25,7 @@ EXTERNAL TODO:
 
 Added the ability to disable/enable the addon with F12 (you'll need to update the keymap from settings)
 Added addon module dependency for script.library.xbmc.tts (for the enable/disable handling)
+Fix for encoiding errors with non-ascii characters in HTTP speech wav server backend
 
 ** 0.0.37 **
 
