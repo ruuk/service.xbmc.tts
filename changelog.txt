@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.37
+Current version: 0.0.38
 -----------------------
 
 Authors: ruuk, pvagner
@@ -20,6 +20,11 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.38 **
+
+Added the ability to disable/enable the addon with F12 (you'll need to update the keymap from settings)
+Added addon module dependency for script.library.xbmc.tts (for the enable/disable handling)
 
 ** 0.0.37 **
 

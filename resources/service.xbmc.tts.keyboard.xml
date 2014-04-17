@@ -6,6 +6,7 @@
       <f3>XBMC.RunScript(service.xbmc.tts,key.ITEM_EXTRA)</f3>
       <f4>XBMC.RunScript(service.xbmc.tts,key.STOP)</f4>
       <f6>XBMC.Addon.OpenSettings(service.xbmc.tts)</f6>
+      <f12>XBMC.RunScript(script.library.xbmc.tts,TOGGLE)</f12>
     </keyboard>
   </global>
   <FullscreenVideo>

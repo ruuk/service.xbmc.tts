@@ -59,17 +59,32 @@ def commandIsAvailable(command):
 		if os.path.isfile(os.path.join(p,command)): return True
 	return False
 
-def installKeymap():
-	import os, xbmcvfs, xbmcgui
-	targetPath = os.path.join(xbmc.translatePath('special://userdata').decode('utf-8'),'keymaps','service.xbmc.tts.keyboard.xml')
+def _keymapTarget():
+	return os.path.join(xbmc.translatePath('special://userdata').decode('utf-8'),'keymaps','service.xbmc.tts.keyboard.xml')
+	
+def _copyKeymap():
+	import xbmcvfs
+	targetPath = _keymapTarget()
 	sourcePath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','service.xbmc.tts.keyboard.xml')
 	if os.path.exists(targetPath): xbmcvfs.delete(targetPath)
-	success = xbmcvfs.copy(sourcePath,targetPath)
+	return xbmcvfs.copy(sourcePath,targetPath)
+	
+def installKeymap():
+	import xbmcgui
+	success = _copyKeymap()
 	if success:
 		xbmcgui.Dialog().ok('Installed','Keymap installed successfully!','','Restart XBMC to use.')
 	else:
 		xbmcgui.Dialog().ok('Failed','Keymap installation failure.')
 	
+def updateKeymap():
+	target = _keymapTarget()
+	if os.path.exists(target):
+		try:
+			_copyKeymap()
+		except:
+			ERROR('Failed to update keymap')
+
 def selectBackend():
 	import backends
 	import xbmcgui

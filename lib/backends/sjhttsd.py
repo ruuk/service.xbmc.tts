@@ -33,7 +33,7 @@ class SJHttsdTTSBackend(base.SimpleTTSBackendBase):
 			self.httphost = 'http://127.0.0.1:8256/'
 		
 	def runCommand(self,text,outFile):
-		postdata = {'voice': self.voice, 'rate': self.speed, 'text': text}
+		postdata = {'voice': self.voice, 'rate': self.speed, 'text': text.encode('utf-8')} #TODO: This fixes encoding errors for non ascii characters, but I'm not sure if it will work properly for other languages
 		req = urllib2.Request(self.httphost + 'speak.wav', urllib.urlencode(postdata))
 		with open(outFile, "w") as wav:
 			try:
