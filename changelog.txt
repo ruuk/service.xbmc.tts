@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.39
+Current version: 0.0.40
 -----------------------
 
 Authors: ruuk, pvagner
@@ -20,6 +20,10 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.40 **
+
+Fix for XBMC version detection
 
 ** 0.0.39 **
 

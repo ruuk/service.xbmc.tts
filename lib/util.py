@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, sys, xbmc, time, binascii, xbmcaddon
+import os, sys, re, xbmc, time, binascii, xbmcaddon
 
 def info(key):
 	return xbmcaddon.Addon().getAddonInfo(key)
@@ -50,7 +50,14 @@ def versionTagCompare(tag1,tag2):
 		return 1
 	return 0
 		
+def getXBMCVersionTag(tag):
+	versionInfo = xbmc.getInfoLabel('System.BuildVersion')
+	v_t_g = re.split('[- ]',versionInfo)
+	if not len(v_t_g) > 1: return tag
+	return v_t_g[1].lower()
+	
 def xbmcVersionGreaterOrEqual(major,minor=0,tag=None):
+	print getXBMCVersionTag('x')
 	version = getXBMCVersion()
 	if not version: return False
 	if major < version['major']:
@@ -62,7 +69,7 @@ def xbmcVersionGreaterOrEqual(major,minor=0,tag=None):
 	elif minor > version['minor']:
 		return False
 	if not tag: return True
-	vtag = version.get('tag')
+	vtag = getXBMCVersionTag(version.get('tag'))
 	if not vtag: return True
 	tagCmp = versionTagCompare(tag,vtag)
 	return tagCmp < 1
