@@ -27,6 +27,7 @@ Fix for XBMC version detection
 
 ** 0.0.39 **
 
+HTTP Speech Wav Server backend will no longer crash XBMC on server errors
 HTTP Speech Wav Server backend will now drop to a fallback backend on errors
 Using F12 key now requires Gotham or greater for disabling/enabling
 Removed the memory fix setting from Advanced - addon now checks XBMC version

@@ -57,7 +57,6 @@ def getXBMCVersionTag(tag):
 	return v_t_g[1].lower()
 	
 def xbmcVersionGreaterOrEqual(major,minor=0,tag=None):
-	print getXBMCVersionTag('x')
 	version = getXBMCVersion()
 	if not version: return False
 	if major < version['major']:
