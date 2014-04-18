@@ -24,6 +24,7 @@ class FliteTTSBackend(base.SimpleTTSBackendBase):
 			os.system('flite -t "{0}" -o "{1}"'.format(text,outFile))
 		else:
 			subprocess.call(['flite', '-voice', self.voice, '-t', text,'-o',outFile])
+		return True
 		
 	def runCommandAndSpeak(self,text):
 		self.process = subprocess.Popen(['flite', '-voice', self.voice, '-t', text])

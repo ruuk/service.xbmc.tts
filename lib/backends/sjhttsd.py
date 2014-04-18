@@ -6,7 +6,7 @@ from lib import util
 
 class SJHttsdTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'ttsd'
-	displayName = 'Local HTTP TTS Server'
+	displayName = 'HTTP TTS Server (Requires Running Server)'
 	interval = 100
 	settings = {	'voice':	None,
 					'speed':	0,
@@ -23,6 +23,7 @@ class SJHttsdTTSBackend(base.SimpleTTSBackendBase):
 		self.speed = self.setting('speed')
 		self.setHTTPURL()
 		self.process = None
+		self.failFlag = False
 
 	def setHTTPURL(self):
 		host = self.setting('host')
@@ -38,8 +39,13 @@ class SJHttsdTTSBackend(base.SimpleTTSBackendBase):
 		with open(outFile, "w") as wav:
 			try:
 				wav.write(urllib2.urlopen(req).read())
+				self.failFlag = False
 			except:
 				util.ERROR('SJHttsdTTSBackend: wav.write',hide_tb=True)
+				if self.failFlag: self.dead = True #This is the second fail in a row, mark dead
+				self.failFlag = True
+				return False
+		return True
 
 	def update(self):
 		self.voice = self.setting('voice')

@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.38
+Current version: 0.0.39
 -----------------------
 
 Authors: ruuk, pvagner
@@ -20,6 +20,12 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.39 **
+
+HTTP Speech Wav Server backend will now drop to a fallback backend on errors
+Using F12 key now requires Gotham or greater for disabling/enabling
+Removed the memory fix setting from Advanced - addon now checks XBMC version
 
 ** 0.0.38 **
 

@@ -14,6 +14,21 @@ from sjhttsd import SJHttsdTTSBackend
 
 backendsByPriority = [JAWSTTSBackend,NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,OSXSayTTSBackend,SJHttsdTTSBackend,ESpeakCtypesTTSBackend,LogOnlyTTSBackend]
 
+def getBackendFallback():
+	import sys
+	platform = sys.platform.lower()
+	if util.isATV2():
+		return FliteTTSBackend 
+	elif platform.startswith('win'):
+		return SAPITTSBackend
+	elif platform.startswith('darwin'):
+		return OSXSayTTSBackend
+	elif util.isOpenElec():
+		return ESpeakTTSBackend
+	for b in backendsByPriority:
+		if b._available(): return b
+	return None
+	
 def selectVoice(provider):
 	import xbmcgui
 	voices = None

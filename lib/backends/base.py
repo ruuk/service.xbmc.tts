@@ -15,6 +15,7 @@ class TTSBackendBase:
 	settings = None
 	interval = 400
 	broken = False
+	dead = False #Backend should flag this true if it's no longer usable
 
 	def say(self,text,interrupt=False):
 		"""Method accepting text to be spoken
@@ -248,7 +249,8 @@ class SimpleTTSBackendBase(ThreadedTTSBackend):
 		"""Convert text to speech and output to a .wav file
 		
 		If using WAVOUT mode, subclasses must override this method
-		and output a .wav file to outFile.
+		and output a .wav file to outFile, returning True if a file was
+		successfully written and False otherwise.
 		"""
 		raise Exception('Not Implemented')
 		
@@ -264,7 +266,7 @@ class SimpleTTSBackendBase(ThreadedTTSBackend):
 		if not text: return
 		if self.mode == self.WAVOUT:
 			outFile = self.player.getOutFile()
-			self.runCommand(text,outFile)
+			if not self.runCommand(text,outFile): return
 			self.player.play()
 		else:
 			self._simpleIsSpeaking = True

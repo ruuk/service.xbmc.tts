@@ -57,12 +57,19 @@ class TTSService(xbmc.Monitor):
 		self.win = None
 		self.listIndex = None
 		
-	def initTTS(self):
-		provider = self.setBackend(backends.getBackend()())
+	def initTTS(self,backendClass=None):
+		if not backendClass: backendClass = backends.getBackend()
+		provider = self.setBackend(backendClass())
 		self.backendProvider = provider
 		self.updateInterval()
 		util.LOG('Backend: %s' % provider)
 		
+	def fallbackTTS(self):
+		backend = backends.getBackendFallback()
+		util.LOG('Backend falling back to: {0}'.format(backend.provider))
+		self.initTTS(backend)
+		self.sayText(u'Notice... Speech engine falling back to {0}'.format(backend.displayName),interrupt=True)
+	
 	def start(self):
 		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
 		try:
@@ -187,10 +194,12 @@ class TTSService(xbmc.Monitor):
 			
 	def sayText(self,text,interrupt=False):
 		assert isinstance(text,unicode), "Not Unicode"
+		if self.tts.dead: return self.fallbackTTS()
 		self.tts.say(self.cleanText(text),interrupt)
 		
 	def sayTexts(self,texts,interrupt=True):
 		if not texts: return
+		if self.tts.dead: return self.fallbackTTS()
 		self.tts.sayList(texts,interrupt=interrupt)
 	
 	def insertPause(self):

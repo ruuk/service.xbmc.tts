@@ -25,6 +25,7 @@ class Pico2WaveTTSBackend(base.SimpleTTSBackendBase):
 		if self.language: args.extend(['-l',self.language])
 		args.extend(['-w', u'{0}'.format(outFile), u'{0}'.format(text)])
 		subprocess.call(args)
+		return True
 		
 	def languages(self):
 		try:

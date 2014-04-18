@@ -29,7 +29,7 @@ class PlayerHandler:
 		
 class PlaySFXHandler(PlayerHandler):
 	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
-	_memoryFix = util.getSetting('playsfx_memory_fix',False)
+	_memoryFix = util.xbmcVersionGreaterOrEqual(13,0,'beta4')
 	def __init__(self):
 		self.setOutDir()
 		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
@@ -37,6 +37,10 @@ class PlaySFXHandler(PlayerHandler):
 		self._isPlaying = False 
 		self.event = threading.Event()
 		self.event.clear()
+		if self._memoryFix:
+			util.LOG('XBMC version with playSFX() cache fix detected')
+		else:
+			util.LOG('XBMC version with playSFX() cache fix NOT detected')
 		
 	@staticmethod
 	def hasStopSFX():
@@ -66,7 +70,8 @@ class PlaySFXHandler(PlayerHandler):
 		self.event.clear()
 		self.event.wait(duration)
 		self._isPlaying = False
-		if not self._memoryFix: os.remove(self.outFile)
+		if not self._memoryFix:
+			if os.path.exists(self.outFile): os.remove(self.outFile)
 		
 	def isPlaying(self):
 		return self._isPlaying

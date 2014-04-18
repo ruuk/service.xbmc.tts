@@ -97,6 +97,7 @@ class ESpeakTTSBackend(base.SimpleTTSBackendBase):
 		if self.speed: args += ['-s',str(self.speed)]
 		args.append(text)
 		subprocess.call(args)
+		return True
 
 	def runCommandAndSpeak(self,text):
 		args = ['espeak']

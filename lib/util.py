@@ -24,6 +24,49 @@ def showNotification(message,time_ms=3000,icon_path=None,header='XBMC TTS'):
 	icon_path = icon_path or xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('icon')).decode('utf-8')
 	xbmc.executebuiltin('Notification({0},{1},{2},{3})'.format(header,message,time_ms,icon_path))
 	
+def getXBMCVersion():
+	import json
+	resp = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
+	data = json.loads(resp)
+	if not 'result' in data: return None
+	if not 'version' in data['result']: return None
+	return data['result']['version']
+	
+XBMC_VERSION_TAGS = ('prealpha','alpha','beta','releasecandidate','stable')
+
+def versionTagCompare(tag1,tag2):
+	t1 = -1
+	t2 = -1
+	for i in range(len(XBMC_VERSION_TAGS)):
+		if XBMC_VERSION_TAGS[i] in tag1: t1 = i
+		if XBMC_VERSION_TAGS[i] in tag2: t2 = i
+	if t1 < t2:
+		return -1
+	elif t1 > t2:
+		return 1
+	if tag1 < tag2:
+		return -1
+	elif tag1 > tag2:
+		return 1
+	return 0
+		
+def xbmcVersionGreaterOrEqual(major,minor=0,tag=None):
+	version = getXBMCVersion()
+	if not version: return False
+	if major < version['major']:
+		return True
+	elif major > version['major']:
+		return False
+	if minor < version['minor']:
+		return True
+	elif minor > version['minor']:
+		return False
+	if not tag: return True
+	vtag = version.get('tag')
+	if not vtag: return True
+	tagCmp = versionTagCompare(tag,vtag)
+	return tagCmp < 1
+	
 def getSetting(key,default=None):
 	setting = xbmcaddon.Addon().getSetting(key)
 	return _processSetting(setting,default)
@@ -53,6 +96,9 @@ def _processSettingForWrite(value):
 	
 def isATV2():
 	return xbmc.getCondVisibility('System.Platform.ATV2')
+	
+def isOpenElec():
+	return xbmc.getCondVisibility('System.HasAddon(os.openelec.tv)')
 	
 def commandIsAvailable(command):
 	for p in os.environ["PATH"].split(os.pathsep):
