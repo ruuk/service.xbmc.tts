@@ -4,6 +4,14 @@ import os, subprocess, wave, time, threading
 import xbmc
 from lib import util
 
+PLAYSFX_HAS_USECACHED = False
+try:
+	voidWav = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','void.wav')
+	xbmc.playSFX(voidWav,False)
+	PLAYSFX_HAS_USECACHED = True
+except:
+	pass
+	
 class PlayerHandler:
 	def setSpeed(self,speed): pass
 	def player(self): return None
@@ -29,7 +37,6 @@ class PlayerHandler:
 		
 class PlaySFXHandler(PlayerHandler):
 	_xbmcHasStopSFX = hasattr(xbmc,'stopSFX')
-	_memoryFix = util.xbmcVersionGreaterOrEqual(13,0,'beta4')
 	def __init__(self):
 		self.setOutDir()
 		self.outFileBase = os.path.join(self.outDir,'speech%s.wav')
@@ -37,17 +44,17 @@ class PlaySFXHandler(PlayerHandler):
 		self._isPlaying = False 
 		self.event = threading.Event()
 		self.event.clear()
-		if self._memoryFix:
-			util.LOG('XBMC version with playSFX() cache fix detected')
+		if PLAYSFX_HAS_USECACHED:
+			util.LOG('playSFX() has useCached')
 		else:
-			util.LOG('XBMC version with playSFX() cache fix NOT detected')
+			util.LOG('playSFX() does NOT have useCached')
 		
 	@staticmethod
 	def hasStopSFX():
 		return PlaySFXHandler._xbmcHasStopSFX
 		
 	def _nextOutFile(self):
-		if not self._memoryFix:
+		if not PLAYSFX_HAS_USECACHED:
 			self.outFile = self.outFileBase % time.time()
 		return self.outFile
 		
@@ -61,7 +68,10 @@ class PlaySFXHandler(PlayerHandler):
 			util.LOG('playSFXHandler.play() - Missing wav file')
 			return
 		self._isPlaying = True
-		xbmc.playSFX(self.outFile,not self._memoryFix)
+		if PLAYSFX_HAS_USECACHED:
+			xbmc.playSFX(self.outFile,False)
+		else:
+			xbmc.playSFX(self.outFile)
 		f = wave.open(self.outFile,'r')
 		frames = f.getnframes()
 		rate = f.getframerate()
@@ -70,7 +80,7 @@ class PlaySFXHandler(PlayerHandler):
 		self.event.clear()
 		self.event.wait(duration)
 		self._isPlaying = False
-		if not self._memoryFix:
+		if not PLAYSFX_HAS_USECACHED:
 			if os.path.exists(self.outFile): os.remove(self.outFile)
 		
 	def isPlaying(self):
