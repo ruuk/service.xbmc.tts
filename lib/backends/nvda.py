@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import os, xbmc, ctypes
+import os, ctypes
 from lib import util
 from base import TTSBackendBase
 
-DLL_PATH = os.path.join(xbmc.translatePath(util.info('path')).decode('utf-8'),'lib','backends','nvda','nvdaControllerClient32.dll')
+DLL_PATH = os.path.join(util.backendsDirectory(),'nvda','nvdaControllerClient32.dll')
 
 try:
 	from ctypes import windll

@@ -15,13 +15,11 @@ from sjhttsd import SJHttsdTTSBackend
 backendsByPriority = [JAWSTTSBackend,NVDATTSBackend,SAPITTSBackend,SpeechDispatcherTTSBackend,FliteTTSBackend,ESpeakTTSBackend,Pico2WaveTTSBackend,FestivalTTSBackend,OSXSayTTSBackend,SJHttsdTTSBackend,ESpeakCtypesTTSBackend,LogOnlyTTSBackend]
 
 def getBackendFallback():
-	import sys
-	platform = sys.platform.lower()
 	if util.isATV2():
 		return FliteTTSBackend 
-	elif platform.startswith('win'):
+	elif util.isWindows():
 		return SAPITTSBackend
-	elif platform.startswith('darwin'):
+	elif util.isOSX():
 		return OSXSayTTSBackend
 	elif util.isOpenElec():
 		return ESpeakTTSBackend
@@ -29,37 +27,45 @@ def getBackendFallback():
 		if b._available(): return b
 	return None
 	
-def selectVoice(provider):
-	import xbmcgui
+def getVoices(provider):
 	voices = None
 	bClass = getBackendByProvider(provider)
 	if bClass:
 		b = bClass()
 		voices = b.voices()
+	return voices
+		
+def selectVoice(provider):
+	import xbmcgui
+	voices = getVoices(provider)
 	if not voices:
 		xbmcgui.Dialog().ok('Not Available','No voices to select.')
 		return
 	idx = xbmcgui.Dialog().select('Choose Voice',voices)
 	if idx < 0: return
 	voice = voices[idx]
-	util.LOG('Voice for {0} set to: {1}'.format(b.provider,voice))
-	util.setSetting('voice.{0}'.format(b.provider),voice)
+	util.LOG('Voice for {0} set to: {1}'.format(provider,voice))
+	util.setSetting('voice.{0}'.format(provider),voice)
 	
-def selectLanguage(provider):
-	import xbmcgui
+def getLanguages(provider):
 	languages = None
 	bClass = getBackendByProvider(provider)
 	if bClass:
 		b = bClass()
 		languages = b.languages()
+	return languages
+
+def selectLanguage(provider):
+	import xbmcgui
+	languages = getLanguages(provider)
 	if not languages:
 		xbmcgui.Dialog().ok('Not Available','No languages to select.')
 		return
 	idx = xbmcgui.Dialog().select('Choose Language',languages)
 	if idx < 0: return
 	language = languages[idx]
-	util.LOG('Language for {0} set to: {1}'.format(b.provider,language))
-	util.setSetting('language.{0}'.format(b.provider),language)
+	util.LOG('Language for {0} set to: {1}'.format(provider,language))
+	util.setSetting('language.{0}'.format(provider),language)
 	
 def selectPlayer(provider):
 	import xbmcgui
@@ -80,14 +86,21 @@ def selectPlayer(provider):
 	util.LOG('Player for {0} set to: {1}'.format(b.provider,player))
 	util.setSetting('player.{0}'.format(b.provider),player)
 		
-def getBackend():
-	provider = util.getSetting('backend') or 'auto'
+def getBackend(provider='auto'):
+	provider = util.getSetting('backend') or provider
 	b = getBackendByProvider(provider)
 	if not b or not b._available():
  		for b in backendsByPriority:
 			if b._available(): break
 	return b
-			
+
+def getWavStreamBackend(provider='auto'):
+	b = getBackendByProvider(provider)
+	if not b or not b._available() or not b.canStreamWav:
+ 		for b in backendsByPriority:
+			if b._available() and b.canStreamWav: break
+	return b
+	
 def getBackendByProvider(name):
 	if name == 'auto': return None
 	for b in backendsByPriority:

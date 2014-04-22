@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, subprocess, xbmc
+import os, subprocess
 from lib import util
 import base
 import audio
@@ -28,7 +28,7 @@ class FliteTTSBackend(base.SimpleTTSBackendBase):
 		
 	def runCommandAndSpeak(self,text):
 		self.process = subprocess.Popen(['flite', '-voice', self.voice, '-t', text])
-		while self.process.poll() == None and self.active: xbmc.sleep(10)
+		while self.process.poll() == None and self.active: util.sleep(10)
 
 	def voices(self):
 		if self.onATV2: return None

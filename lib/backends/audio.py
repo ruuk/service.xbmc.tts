@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 import os, subprocess, wave, time, threading
 
-import xbmc
 from lib import util
 
+try:
+	import xbmc
+except:
+	xbmc = None
+	
 PLAYSFX_HAS_USECACHED = False
+
 try:
 	voidWav = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','void.wav')
 	xbmc.playSFX(voidWav,False)
@@ -20,19 +25,14 @@ class PlayerHandler:
 	def isPlaying(self): raise Exception('Not Implemented')
 	def stop(self): raise Exception('Not Implemented')
 	def close(self): raise Exception('Not Implemented')
-	
-	def get_tmpfs(self):
-		for tmpfs in ('/run/shm','/dev/shm','/tmp'):
-			if os.path.exists(tmpfs): return tmpfs
-		return None
 
 	def setOutDir(self):
-		tmpfs = self.get_tmpfs()
+		tmpfs = util.getTmpfs()
 		if util.getSetting('use_tmpfs',True) and tmpfs:
 			util.LOG('Using tmpfs at: {0}'.format(tmpfs))
 			self.outDir = os.path.join(tmpfs,'xbmc_speech')
 		else:
-			self.outDir = os.path.join(xbmc.translatePath(util.xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8'),'xbmc_speech')
+			self.outDir = os.path.join(util.profileDirectory(),'xbmc_speech')
 		if not os.path.exists(self.outDir): os.makedirs(self.outDir)
 		
 class PlaySFXHandler(PlayerHandler):
@@ -220,7 +220,7 @@ class ExternalPlayerHandler(PlayerHandler):
 	def play(self):
 		self._wavProcess = subprocess.Popen(self._player.playArgs(self.outFile,self.speed))
 		
-		while self._wavProcess.poll() == None and self.active: xbmc.sleep(10)
+		while self._wavProcess.poll() == None and self.active: util.sleep(10)
 		
 	def isPlaying(self):
 		return self._wavProcess and self._wavProcess.poll() == None

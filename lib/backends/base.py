@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import xbmc, time, threading, Queue
+import time, threading, Queue
 from lib import util
 import audio
 
@@ -13,6 +13,7 @@ class TTSBackendBase:
 	displayName = 'Auto'
 	pauseInsert = u'...'
 	settings = None
+	canStreamWav = False
 	interval = 400
 	broken = False
 	dead = False #Backend should flag this true if it's no longer usable
@@ -65,7 +66,7 @@ class TTSBackendBase:
 		
 		May be overridden by sublcasses. Default implementation sleeps for ms.
 		"""
-		xbmc.sleep(ms)
+		util.sleep(ms)
 
 	def isSpeaking(self):
 		"""Returns True if speech engine is currently speaking, False if not 
@@ -159,7 +160,7 @@ class ThreadedTTSBackend(TTSBackendBase):
 		
 	def _handleQueue(self):
 		util.LOG('Threaded TTS Started: {0}'.format(self.provider))
-		while self.active and not xbmc.abortRequested:
+		while self.active and not util.abortRequested():
 			try:
 				text = self.queue.get(timeout=0.5)
 				self.queue.task_done()

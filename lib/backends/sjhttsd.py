@@ -3,6 +3,7 @@ import audio
 import base
 import urllib, urllib2
 from lib import util
+import shutil
 
 class SJHttsdTTSBackend(base.SimpleTTSBackendBase):
 	provider = 'ttsd'
@@ -34,11 +35,13 @@ class SJHttsdTTSBackend(base.SimpleTTSBackendBase):
 			self.httphost = 'http://127.0.0.1:8256/'
 		
 	def runCommand(self,text,outFile):
-		postdata = {'voice': self.voice, 'rate': self.speed, 'text': text.encode('utf-8')} #TODO: This fixes encoding errors for non ascii characters, but I'm not sure if it will work properly for other languages
+		postdata = {'text': text.encode('utf-8')} #TODO: This fixes encoding errors for non ascii characters, but I'm not sure if it will work properly for other languages
+		if self.voice: postdata['voice'] = self.voice
+		if self.speed: postdata['rate'] = self.speed
 		req = urllib2.Request(self.httphost + 'speak.wav', urllib.urlencode(postdata))
 		with open(outFile, "w") as wav:
 			try:
-				wav.write(urllib2.urlopen(req).read())
+				shutil.copyfileobj(urllib2.urlopen(req),wav)
 				self.failFlag = False
 			except:
 				util.ERROR('SJHttsdTTSBackend: wav.write',hide_tb=True)
@@ -61,7 +64,7 @@ class SJHttsdTTSBackend(base.SimpleTTSBackendBase):
 			pass
 
 	def voices(self):
-		return urllib2.urlopen(self.httphost + 'voices').read().splitlines()
+		return urllib2.urlopen(self.httphost + 'voices',data='').read().splitlines()
 		
 	@staticmethod
 	def available():

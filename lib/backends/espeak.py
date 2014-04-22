@@ -5,7 +5,7 @@ import subprocess
 import ctypes
 import ctypes.util
 import os
-import xbmc
+from lib import util
 
 class espeak_VOICE(ctypes.Structure):
 	_fields_=[
@@ -105,7 +105,7 @@ class ESpeakTTSBackend(base.SimpleTTSBackendBase):
 		if self.speed: args.extend(('-s',str(self.speed)))
 		args.append(text)
 		self.process = subprocess.Popen(args)
-		while self.process.poll() == None and self.active: xbmc.sleep(10)	
+		while self.process.poll() == None and self.active: util.sleep(10)	
 
 	def update(self):
 		self.voice = self.setting('voice')
