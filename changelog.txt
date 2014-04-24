@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.42
+Current version: 0.0.43
 -----------------------
 
 Authors: ruuk, pvagner
@@ -21,9 +21,15 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.43 **
+
+Finish new xml parsing for F2 and F3
+Include comtypes and remove script.module.comtypes dependency
+Change F12 enable/disable method and removed script.library.xbmc.tts dependency
+
 ** 0.0.42 **
 
-Change XML parsing to remove module and pareser dependencies
+Change XML parsing to remove module and parser dependencies
 Remove bs4 import
 
 ** 0.0.41 **

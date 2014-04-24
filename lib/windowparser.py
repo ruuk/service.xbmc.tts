@@ -132,7 +132,7 @@ class WindowParser:
 		return text
 	
 	def getControl(self,controlID):
-		return self.soup.find('control',{'id':controlID})
+		return xpath.findnode("//control[attribute::id='{0}']".format(controlID),self.xml)
 		
 	def getLabelText(self,label):
 		l = xpath.findnode('label',label)
@@ -171,9 +171,9 @@ class WindowParser:
 		try:
 			clist = self.getControl(controlID)
 			if not clist: return None
-			fl = clist.find("focusedlayout")
+			fl = xpath.findnode("focusedlayout",clist)
 			if not fl: return None
-			lt = fl.findAll('control',{'type':('label','textbox')})
+			lt = xpath.find(".//control[attribute::type='label']",fl) + xpath.find(".//control[attribute::type='textbox']",fl)
 			texts = []
 			for l in lt:
 				if not self.controlIsVisibleGlobally(l): continue
@@ -254,7 +254,10 @@ class Includes:
 				xml = minidom.parse(p)
 				includes = xpath.findnode('includes',xml)
 				xpath.findnode('..',i).replaceChild(includes,i)
-				for sub_i in xpath.find('//include',includes): self.includesMap[sub_i.attributes.get('name').value] = sub_i
+				for sub_i in xpath.find('.//include',includes):
+					nameAttr = sub_i.attributes.get('name')
+					if nameAttr:
+						self.includesMap[nameAttr.value] = sub_i
 			else:
 				nameAttr = i.attributes.get('name')
 				if nameAttr: self.includesMap[nameAttr.value] = i.cloneNode(True)
@@ -268,9 +271,9 @@ class Includes:
 		#return self.soup.find('includes').find('include',{'name':name})
 		
 	def getVariable(self,name):
-		var = xpath.findnode("//variable[attribute::name='%s']" % name,xpath.findnode('includes',self.xml))
+		var = xpath.findnode(".//variable[attribute::name='{0}']".format(name),xpath.findnode('includes',self.xml))
 		if not var: return ''
-		for val in xpath.find('//value',var):
+		for val in xpath.find('.//value',var):
 			conditionAttr = val.attributes.get('condition')
 			if not conditionAttr:
 				return val.childNodes[0].data or ''
