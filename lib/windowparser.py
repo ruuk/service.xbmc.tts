@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import xbmc, os, re
-import bs4
+import xml.dom.minidom as minidom
+import xpath
 
 def currentWindowXMLFile():
 	base = xbmc.getInfoLabel('Window.Property(xmlfile)')
@@ -39,6 +40,14 @@ def getInfoLabel(info,container):
 	if container:
 		info = info.replace('ListItem.','Container({0}).ListItem.'.format(container))
 	return xbmc.getInfoLabel(info).decode('utf-8')
+	
+def nodeParents(dom,node):
+	parents = []
+	parent = xpath.findnode('..',node)
+	while parent and not isinstance(parent,minidom.Document):
+		parents.append(parent)
+		parent = xpath.findnode('..',parent)
+	return parents
 	
 def extractInfos(text,container):
 	pos = 0
@@ -81,7 +90,7 @@ def extractInfos(text,container):
 
 class WindowParser:
 	def __init__(self,xml_path):
-		self.soup = bs4.BeautifulSoup(open(xml_path),'xml')
+		self.xml = minidom.parse(xml_path)
 		self.currentControl = None
 		self.includes = None
 		if not currentWindowIsAddon():
@@ -91,19 +100,18 @@ class WindowParser:
 		
 	def processIncludes(self):
 		self.includes = Includes()
-		for i in self.soup.findAll('include'):
-			condition = i.get('condition')
-			if condition and not xbmc.getCondVisibility(condition):
-				i.extract()
+		for i in xpath.find('//include',self.xml):
+			conditionAttr = i.attributes.get('condition')
+			if conditionAttr and not xbmc.getCondVisibility(conditionAttr.value):
+				xpath.findnode('..',i).removeChild(i)
 				continue
-			matchingInclude = self.includes.getInclude(i.string)
+			matchingInclude = self.includes.getInclude(i.childNodes[0].data)
 			if not matchingInclude:
 				#print 'INCLUDE NOT FOUND: %s' % i.string
 				continue
 			#print 'INCLUDE FOUND: %s' % i.string
-			new = bs4.BeautifulSoup(unicode(matchingInclude),'xml').find('include')
-			i.replace_with(new)
-			new.unwrap()
+			new = matchingInclude.cloneNode(True)
+			xpath.findnode('..',i).replaceChild(new,i)
 			
 	def addonReplacer(self,m):
 		return xbmc.getInfoLabel(m.group(0)).decode('utf-8')
@@ -127,24 +135,24 @@ class WindowParser:
 		return self.soup.find('control',{'id':controlID})
 		
 	def getLabelText(self,label):
-		l = label.find('label')
+		l = xpath.findnode('label',label)
 		text = None
-		if l: text = l.text
+		if l and l.childNodes: text = l.childNodes[0].data
 		if text:
 			if text.isdigit(): text = '$LOCALIZE[{0}]'.format(text)
 		else:
-			i = label.find('info')
-			if i:
-				text = i.text
+			i = xpath.findnode('info',label)
+			if i and i.childNodes:
+				text = i.childNodes[0].data
 				if text.isdigit():
 					text = '$LOCALIZE[{0}]'.format(text)
 				else:
 					text = '$INFO[{0}]'.format(text)
 		if not text or text == '-':
 			text = None
-			if label.get('id'):
+			if label.attributes.get('id'):
 				#Nothing set for label. Try getting programatically set label.
-				text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(label.get('id'))).decode('utf-8')
+				text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(label.attributes.get('id').value)).decode('utf-8')
 		if not text: return None
 		return tagRE.sub('',text).replace('[CR]','... ').strip(' .')
 
@@ -176,13 +184,14 @@ class WindowParser:
 			self.currentControl = None
 			
 	def getWindowTexts(self):
-		lt = self.soup.findAll('control',{'type':('label','textbox')})
+		lt = xpath.find("//control[attribute::type='label']",self.xml) + xpath.find("//control[attribute::type='textbox']",self.xml)
 		texts = []
 		for l in lt:
 			if not self.controlIsVisible(l): continue
-			for p in l.parents:
+			for p in nodeParents(self.xml,l):
 				if not self.controlIsVisible(p): break
-				if p.get('type') in ('list','fixedlist','wraplist','panel'): break
+				typeAttr = p.attributes.get('type')
+				if typeAttr and typeAttr.value in ('list','fixedlist','wraplist','panel'): break
 			else:
 				text = self.getLabelText(l)
 				if text and not text in texts: texts.append(text)
@@ -190,7 +199,7 @@ class WindowParser:
 		
 	def controlGlobalPosition(self,control):
 		x, y = self.controlPosition(control)
-		for p in control.parents:
+		for p in nodeParents(self.xml,control):
 			if p.get('type') == 'group':
 				px,py = self.controlPosition(p)
 				x+=px
@@ -209,15 +218,15 @@ class WindowParser:
 		return x,y
 			
 	def controlIsVisibleGlobally(self,control):
-		for p in control.parents:
+		for p in nodeParents(self.xml,control):
 			if not self.controlIsVisible(p): return False
 		return self.controlIsVisible(control)
 		
 	def controlIsVisible(self,control):
-		visible = control.find('visible',recursive=False)
+		visible = xpath.findnode('visible',control)
 		if not visible: return True
-		if not visible.string: return True
-		condition = visible.string
+		if not visible.childNodes: return True
+		condition = visible.childNodes[0].data
 		if self.currentControl:
 			condition = condition.replace('ListItem.Property','Container({0}).ListItem.Property'.format(self.currentControl))
 		if not xbmc.getCondVisibility(condition):
@@ -228,26 +237,27 @@ class WindowParser:
 class Includes:
 	def __init__(self):
 		path = getXBMCSkinPath('Includes.xml')
-		self.soup = bs4.BeautifulSoup(open(path),'xml')
+		self.xml = minidom.parse(path)
 		self._includesFilesLoaded = False
 		self.includesMap = {}
 
 	def loadIncludesFiles(self):
 		if self._includesFilesLoaded: return
 		basePath = getXBMCSkinPath('')
-		for i in self.soup.find('includes').findAll('include'):
-			xmlName = xbmc.validatePath(i.get('file'))
-			if xmlName:
+		for i in xpath.find('//include',xpath.findnode('//includes',self.xml)):
+			fileAttr = i.attributes.get('file')
+			if fileAttr:
+				xmlName = xbmc.validatePath(fileAttr.value)
 				p = os.path.join(basePath,xmlName)
 				if not os.path.exists(p):
 					continue
-				soup =  bs4.BeautifulSoup(open(p),'xml')
-				includes = soup.find('includes')
-				i.replace_with(includes)
-				for sub_i in includes.findAll('include'): self.includesMap[sub_i.get('name')] = sub_i
-				includes.unwrap()
+				xml = minidom.parse(p)
+				includes = xpath.findnode('includes',xml)
+				xpath.findnode('..',i).replaceChild(includes,i)
+				for sub_i in xpath.find('//include',includes): self.includesMap[sub_i.attributes.get('name').value] = sub_i
 			else:
-				self.includesMap[i.get('name')] = i
+				nameAttr = i.attributes.get('name')
+				if nameAttr: self.includesMap[nameAttr.value] = i.cloneNode(True)
 		self._includesFilesLoaded = True
 #		import codecs
 #		with codecs.open(os.path.join(getXBMCSkinPath(''),'Includes_Processed.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
@@ -258,17 +268,17 @@ class Includes:
 		#return self.soup.find('includes').find('include',{'name':name})
 		
 	def getVariable(self,name):
-		var = self.soup.find('includes').find('variable',{'name':name})
+		var = xpath.findnode("//variable[attribute::name='%s']" % name,xpath.findnode('includes',self.xml))
 		if not var: return ''
-		for val in var.findAll('value'):
-			condition = val.get('condition')
-			if not condition:
-				return val.string or ''
+		for val in xpath.find('//value',var):
+			conditionAttr = val.attributes.get('condition')
+			if not conditionAttr:
+				return val.childNodes[0].data or ''
 			else:
-				if xbmc.getCondVisibility(condition):
+				if xbmc.getCondVisibility(conditionAttr.value):
 					#print condition
 					#print repr(val.string)
-					return val.string or ''
+					return val.childNodes[0].data or ''
 		return ''
 		
 def getWindowParser():
