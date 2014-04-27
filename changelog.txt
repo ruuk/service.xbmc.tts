@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.43
+Current version: 0.0.44
 -----------------------
 
 Authors: ruuk, pvagner
@@ -20,6 +20,14 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.44 **
+
+Added Cepstral backend
+Added speaking number of items for lists
+Divided settings into 'Engine', 'Options' and 'Advanced' sections
+Added 'Speak Number Of Items For Lists' to Settings::Options
+Fix HTTP wav server backend to work properly with perl server again
 
 ** 0.0.43 **
 

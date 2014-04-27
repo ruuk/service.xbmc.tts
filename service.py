@@ -29,6 +29,7 @@ class TTSService(xbmc.Monitor):
 		self.tts._update()
 		self.checkBackend()
 		util.DEBUG = util.getSetting('debug_logging',True)
+		self.speakListCount = util.getSetting('speak_list_count',True)
 		self.updateInterval()
 		command = util.getCommand()
 		if not command: return
@@ -56,6 +57,7 @@ class TTSService(xbmc.Monitor):
 		self.interval = 400
 		self.win = None
 		self.listIndex = None
+		self.speakListCount = util.getSetting('speak_list_count',True)
 		
 	def initTTS(self,backendClass=None):
 		if not backendClass: backendClass = backends.getBackend()
@@ -238,9 +240,10 @@ class TTSService(xbmc.Monitor):
 		if util.DEBUG:
 			util.LOG('Control: %s' % controlID)
 		self.controlID = controlID
-		text = skintables.getControlText(self.skinTable,self.winID,self.controlID)
-		if text:
-			self.sayText(text,interrupt=not newW)
+		post = self.getControlPostfix()
+		text = skintables.getControlText(self.skinTable,self.winID,self.controlID) or u''
+		if text or post:
+			self.sayText(text + post,interrupt=not newW)
 			self.tts.insertPause()
 			return True
 		return newW
@@ -255,6 +258,12 @@ class TTSService(xbmc.Monitor):
 			self.secondaryText = secondary
 			text += self.tts.pauseInsert + u' ' + secondary
 		self.sayText(text,interrupt=not newC)
+		
+	def getControlPostfix(self):
+		if not self.speakListCount: return u''
+		numItems = xbmc.getInfoLabel('Container({0}).NumItems'.format(self.controlID)).decode('utf-8')
+		if numItems: return u'... {0} item{1}'.format(numItems,numItems != '1' and 's' or '')
+		return u''
 		
 	def newSecondaryText(self, text):
 		if not text: return
