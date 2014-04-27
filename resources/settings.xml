@@ -23,11 +23,15 @@
     <setting visible="eq(-10,pico2wave)" id="speed.pico2wave" label="Speed % (If Available)" type="slider" subsetting="true" option="int" default="100" range="20,200" />
 
     <!-- SJHtts -->
-    <setting visible="eq(-11,ttsd)" id="voice.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.ttsd)" />
-    <setting visible="eq(-12,ttsd)" id="speed.ttsd" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-10,10" />
-    <setting visible="eq(-13,ttsd)" id="player.ttsd" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog.ttsd)" />
-    <setting visible="eq(-14,ttsd)" id="host.ttsd" subsetting="true" label="IP Address" type="ipaddress" default="127.0.0.1" />
-    <setting visible="eq(-15,ttsd)" id="port.ttsd" subsetting="true" label="Port" type="number" default="8256" />
+    <setting visible="eq(-11,ttsd)" id="engine.ttsd" subsetting="true" label="Engine" type="action" action="RunScript(service.xbmc.tts,settings_dialog.ttsd,engine)" />
+    <setting visible="eq(-12,ttsd)" id="voice.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.ttsd)" />
+    <setting visible="eq(-13,ttsd)" id="speed.ttsd" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-10,10" />
+    <setting visible="eq(-14,ttsd)" id="player.ttsd" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog.ttsd)" />
+    <setting visible="eq(-15,ttsd)" id="host.ttsd" subsetting="true" label="IP Address" type="ipaddress" default="127.0.0.1" />
+    <setting visible="eq(-16,ttsd)" id="port.ttsd" subsetting="true" label="Port" type="number" default="8256" />
+
+    <!-- Cepstral -->
+    <setting visible="eq(-17,Cepstral)" id="voice.Cepstral" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog.Cepstral)" />
 
     <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>

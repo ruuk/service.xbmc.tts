@@ -10,16 +10,21 @@ if __name__ == '__main__':
 		util.sendCommand(command)
 	elif arg and arg.startswith('voice_dialog.'):
 		provider = arg[13:]
-		from lib import backends
-		backends.selectVoice(provider)
+		from lib import util
+		util.selectVoice(provider)
 	elif arg and arg.startswith('language_dialog.'):
 		provider = arg[16:]
-		from lib import backends
-		backends.selectLanguage(provider)
+		from lib import util
+		util.selectLanguage(provider)
+	elif arg and arg.startswith('settings_dialog.'):
+		provider = arg[16:]
+		from lib import util
+		setting = sys.argv[2]
+		util.selectSetting(provider,setting)
 	elif arg and arg.startswith('player_dialog.'):
 		provider = arg[14:]
-		from lib import backends
-		backends.selectPlayer(provider)
+		from lib import util
+		util.selectPlayer(provider)
 	elif arg == 'backend_dialog':
 		from lib import util
 		util.selectBackend()

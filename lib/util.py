@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os, sys, re, xbmc, time, binascii, xbmcaddon
 
+ADDON_ID = 'service.xbmc.tts'
+
 def ERROR(txt,hide_tb=False,notify=False):
 	if isinstance (txt,str): txt = txt.decode("utf-8")
 	short = str(sys.exc_info()[1])
@@ -14,7 +16,7 @@ def ERROR(txt,hide_tb=False,notify=False):
 	return short
 
 def LOG(message):
-	message = 'service.xbmc.tts: ' + message
+	message = '{0}: {1}'.format(ADDON_ID,message)
 	xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGNOTICE)
 
 def sleep(ms):
@@ -38,7 +40,7 @@ def getTmpfs():
 	return None
 
 def showNotification(message,time_ms=3000,icon_path=None,header='XBMC TTS'):
-	icon_path = icon_path or xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('icon')).decode('utf-8')
+	icon_path = icon_path or xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('icon')).decode('utf-8')
 	xbmc.executebuiltin('Notification({0},{1},{2},{3})'.format(header,message,time_ms,icon_path))
 
 def getXBMCVersion():
@@ -165,14 +167,74 @@ def selectBackend():
 	import xbmcgui
 	choices = ['auto']
 	display = ['Auto']
-	for b in backends.backendsByPriority:
-		if b._available():
-			choices.append(b.provider)
-			display.append(b.displayName)
+	available = backends.getAvailableBackends()
+	for b in available:
+		choices.append(b.provider)
+		display.append(b.displayName)
 	idx = xbmcgui.Dialog().select('Choose Backend',display)
 	if idx < 0: return
 	setSetting('backend',choices[idx])
 
+def selectVoice(provider):
+	import xbmcgui
+	import backends
+	voices = backends.getVoices(provider)
+	if not voices:
+		xbmcgui.Dialog().ok('Not Available','No voices to select.')
+		return
+	idx = xbmcgui.Dialog().select('Choose Voice',voices)
+	if idx < 0: return
+	voice = voices[idx]
+	LOG('Voice for {0} set to: {1}'.format(provider,voice))
+	setSetting('voice.{0}'.format(provider),voice)
+
+def selectLanguage(provider):
+	import xbmcgui
+	import backends
+	languages = backends.getLanguages(provider)
+	if not languages:
+		xbmcgui.Dialog().ok('Not Available','No languages to select.')
+		return
+	idx = xbmcgui.Dialog().select('Choose Language',languages)
+	if idx < 0: return
+	language = languages[idx]
+	LOG('Language for {0} set to: {1}'.format(provider,language))
+	setSetting('language.{0}'.format(provider),language)
+	
+def selectPlayer(provider):
+	import xbmcgui
+	import backends
+	players = backends.getPlayers(provider)
+	if not players:
+		xbmcgui.Dialog().ok('Not Available','No players to select.')
+		return
+	players.insert(0,('','Auto'))
+	disp = []
+	for p in players: disp.append(p[1])
+	idx = xbmcgui.Dialog().select('Choose Player',disp)
+	if idx < 0: return
+	player = players[idx][0]
+	LOG('Player for {0} set to: {1}'.format(provider,player))
+	setSetting('player.{0}'.format(provider),player)
+	
+def selectSetting(provider,setting):
+	import xbmcgui
+	import backends
+	settingsList = backends.getSettingsList(provider,setting)
+	if not settingsList:
+		xbmcgui.Dialog().ok('Not Available','No options to select.')
+		return
+	ids = []
+	displays = []
+	for ID,display in settingsList:
+		ids.append(ID)
+		displays.append(display)
+	idx = xbmcgui.Dialog().select('Choose Option',displays)
+	if idx < 0: return
+	choice = ids[idx]
+	LOG('Setting {0} for {1} set to: {2}'.format(setting,provider,choice))
+	setSetting('{0}.{1}'.format(setting,provider),choice)
+	
 LAST_COMMAND_DATA = ''
 
 def initCommands():
