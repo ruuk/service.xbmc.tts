@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.44
+Current version: 0.0.45
 -----------------------
 
 Authors: ruuk, pvagner
@@ -20,6 +20,14 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.45 **
+
+Add setting 'Use aoss' to Cepstral
+Fix for Cepstral showing terminal on windows
+Add google HTTP speech server backend
+Add setting 'Speak On Server' to SJHtts
+Add remote speaking to sjhttsd backend
 
 ** 0.0.44 **
 
