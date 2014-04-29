@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.45
+Current version: 0.0.46
 -----------------------
 
 Authors: ruuk, pvagner
@@ -21,7 +21,7 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
-** 0.0.45 **
+** 0.0.46 **
 
 Add setting 'Use aoss' to Cepstral
 Fix for Cepstral showing terminal on windows
