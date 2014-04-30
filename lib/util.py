@@ -40,8 +40,11 @@ def getTmpfs():
 	return None
 
 def showNotification(message,time_ms=3000,icon_path=None,header='XBMC TTS'):
-	icon_path = icon_path or xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('icon')).decode('utf-8')
-	xbmc.executebuiltin('Notification({0},{1},{2},{3})'.format(header,message,time_ms,icon_path))
+	try:
+		icon_path = icon_path or xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('icon')).decode('utf-8')
+		xbmc.executebuiltin('Notification({0},{1},{2},{3})'.format(header,message,time_ms,icon_path))
+	except RuntimeError: #Happens when disabling the addon
+		LOG(message)
 
 def getXBMCVersion():
 	import json

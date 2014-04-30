@@ -23,6 +23,11 @@ EXTERNAL TODO:
 
 ** 0.0.46 **
 
+Fix for aoss usage
+Google now only shows available when mplayer is available
+
+** 0.0.45 **
+
 Add setting 'Use aoss' to Cepstral
 Fix for Cepstral showing terminal on windows
 Add google HTTP speech server backend
