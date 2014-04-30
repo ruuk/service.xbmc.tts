@@ -220,10 +220,10 @@ def selectPlayer(provider):
 	LOG('Player for {0} set to: {1}'.format(provider,player))
 	setSetting('player.{0}'.format(provider),player)
 	
-def selectSetting(provider,setting):
+def selectSetting(provider,setting,*args):
 	import xbmcgui
 	import backends
-	settingsList = backends.getSettingsList(provider,setting)
+	settingsList = backends.getSettingsList(provider,setting,*args)
 	if not settingsList:
 		xbmcgui.Dialog().ok('Not Available','No options to select.')
 		return
