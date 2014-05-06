@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.49
+Current version: 0.0.50
 -----------------------
 
 Authors: ruuk, pvagner
@@ -20,6 +20,12 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.50 **
+
+Fixes for Cepstral showing a terminal on windows (again)
+Added some code to reset SAPI on error and LOG the occurance
+Disable speed setting on ttsd for engines that don't use it
 
 ** 0.0.49 **
 
