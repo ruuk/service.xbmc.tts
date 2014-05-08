@@ -50,6 +50,7 @@ class TTSService(xbmc.Monitor):
 		self.winID = None
 		self.controlID = None
 		self.text = None
+		self.textCompare = None
 		self.secondaryText = None
 		self.keyboardText = u''
 		self.progressPercent = u''
@@ -116,10 +117,10 @@ class TTSService(xbmc.Monitor):
 	def checkForText(self):
 		newW = self.checkWindow()
 		newC = self.checkControl(newW)
-		text = self.getControlText(self.controlID)
+		text, compare = self.getControlText(self.controlID)
 		secondary = guitables.getListItemProperty(self.winID)
-		if (text != self.text) or newC:
-			self.newText(text,newC,secondary)
+		if (compare != self.textCompare) or newC:
+			self.newText(compare,text,newC,secondary)
 		elif secondary != self.secondaryText:
 			self.newSecondaryText(secondary)
 		else:
@@ -183,7 +184,8 @@ class TTSService(xbmc.Monitor):
 		self.sayTexts(texts)
 
 	def sayItemExtra(self):
-		text = xbmc.getInfoLabel('ListItem.Plot').decode('utf-8')
+		text = guitables.getItemExtraTexts(self.winID)
+		if not text: text = xbmc.getInfoLabel('ListItem.Plot').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('Container.ShowPlot').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Artist_Description)').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)').decode('utf-8')
@@ -248,8 +250,8 @@ class TTSService(xbmc.Monitor):
 			return True
 		return newW
 			
-	def newText(self,text,newC,secondary=None):
-		self.text = text
+	def newText(self,compare,text,newC,secondary=None):
+		self.textCompare = compare
 		label2 = xbmc.getInfoLabel('Container({0}).ListItem.Label2'.format(self.controlID)).decode('utf-8')
 		seasEp = xbmc.getInfoLabel('Container({0}).ListItem.Property(SeasonEpisode)'.format(self.controlID)).decode('utf-8') or u''
 		if label2 and seasEp:
@@ -272,12 +274,14 @@ class TTSService(xbmc.Monitor):
 		if not self.tts.isSpeaking(): self.sayText(text,interrupt=True)
 		
 	def getControlText(self,controlID):
-		if not controlID: return u''
-		text = xbmc.getInfoLabel('Container({0}).ListItem.Label'.format(controlID))
+		if not controlID: return (u'',u'')
+		text = xbmc.getInfoLabel('ListItem.Title')
+		if not text: text = xbmc.getInfoLabel('Container({0}).ListItem.Label'.format(controlID))
 		if not text: text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(controlID))
 		if not text: text = xbmc.getInfoLabel('System.CurrentControl')
-		if not text: return u''
-		return text.decode('utf-8')
+		if not text: return (u'',u'')
+		compare = text + xbmc.getInfoLabel('ListItem.StartTime'.format(controlID)) + xbmc.getInfoLabel('ListItem.EndTime'.format(controlID))
+		return (text.decode('utf-8'),compare)
 		
 	def formatSeasonEp(self,seasEp):
 		if not seasEp: return u''

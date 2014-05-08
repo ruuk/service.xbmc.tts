@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, re, codecs, xbmc
+import util
 
 '''
 Table data format:
@@ -122,6 +123,17 @@ winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]'
 					
 }
 
+itemExtraTexts = {		10601:(		'Channel', #PVR
+									'$INFO[ListItem.ChannelNumber]',
+									'$INFO[ListItem.ChannelName]',
+									'$INFO[ListItem.StartTime]',
+									19160,
+									'$INFO[ListItem.EndTime]',
+									'$INFO[ListItem.Plot]'
+						)
+					
+}
+
 winListItemProperties = {		10040:('$INFO[ListItem.Property(Addon.Status)]',)
 
 }
@@ -160,6 +172,7 @@ def getWindowName(winID):
 	
 def getWindowTexts(winID,table=winTexts):
 	if not winID in table: return None
+	if util.DEBUG: util.LOG('Window ID: {0}'.format(winID))
 	ret = []
 	for sid in table[winID]:
 		if isinstance(sid,int):
@@ -177,7 +190,12 @@ def getWindowTexts(winID,table=winTexts):
 	return ret or None
 	
 def getExtraTexts(winID):
+	if util.DEBUG: util.LOG('Window ID: {0}'.format(winID))
 	return getWindowTexts(winID,table=winExtraTexts)
+	
+def getItemExtraTexts(winID):
+	if util.DEBUG: util.LOG('Window ID: {0}'.format(winID))
+	return getWindowTexts(winID,table=itemExtraTexts)
 
 def getListItemProperty(winID):
 	texts = getWindowTexts(winID,table=winListItemProperties)

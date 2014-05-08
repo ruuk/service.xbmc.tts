@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.50
+Current version: 0.0.51
 -----------------------
 
 Authors: ruuk, pvagner
@@ -21,10 +21,16 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.51 **
+
+Fix for SAPI errors on '<'
+PVR EPG now speaks each show when navigating grid
+F3 on PVR EPG now speaks the channel number, name, show start time, show end time and plot summary
+
 ** 0.0.50 **
 
 Fixes for Cepstral showing a terminal on windows (again)
-Added some code to reset SAPI on error and LOG the occurance
+Added some code to reset SAPI on error and LOG the occurrence
 Disable speed setting on ttsd for engines that don't use it
 
 ** 0.0.49 **
