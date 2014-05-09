@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import xbmc, os, re
 import xml.dom.minidom as minidom
-import xpath
+from lib import xpath
 
 def currentWindowXMLFile():
 	base = xbmc.getInfoLabel('Window.Property(xmlfile)')

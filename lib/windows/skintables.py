@@ -17,7 +17,10 @@ quartz = {	10000:
 skins = {	'quartz': quartz
 }
 
-def getControlText(table,winID,controlID):
+CURRENT_SKIN_TABLE = None
+
+def getControlText(winID,controlID):
+	table = CURRENT_SKIN_TABLE
 	if not table: return 
 	if not  winID in table: return
 	if not controlID in table[winID]: return
@@ -34,3 +37,9 @@ def getSkinTable():
 	skinName = os.path.basename(skinPath.rstrip('\/')).split('skin.',1)[-1]
 	print 'service.xbmc.tts: SKIN: %s' % skinName
 	return skins.get(skinName)
+
+def updateSkinTable():
+	global CURRENT_SKIN_TABLE
+	CURRENT_SKIN_TABLE = getSkinTable()
+	
+updateSkinTable()

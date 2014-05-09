@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os, re, codecs, xbmc
-import util
 
 '''
 Table data format:
@@ -104,12 +103,8 @@ winNames = {	10000: 10000, #Home
 				12999: 512 #startup
 }
 
-winTexts = {	10100:('2','3','4'), #Yes/No Dialog
-				10101:('2','3','4'), #Progress Dialog
-				12002:('2','3','4'), #OK Dialog
-				10103:('311',) #Virtual Keyboard
-				
-
+winTexts = {	10100:('2','3','4','9'), #Yes/No Dialog - 1,2,3=Older Skins 9=Newer Skins
+				12002:('2','3','4','9') #OK Dialog - 1,2,3=Older Skins 9=Newer Skins
 }
 
 winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]','$INFO[Weather.Conditions]'), #Home
@@ -123,7 +118,7 @@ winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]'
 					
 }
 
-itemExtraTexts = {		10601:(		'Channel', #PVR
+itemExtraTexts = {		10601:(		u'Channel', #PVR
 									'$INFO[ListItem.ChannelNumber]',
 									'$INFO[ListItem.ChannelName]',
 									'$INFO[ListItem.StartTime]',
@@ -170,31 +165,32 @@ def getWindowName(winID):
 	if not name: return u''
 	return name or xbmc.getInfoLabel('System.CurrentWindow').decode('utf-8') or u'unknown'
 	
-def getWindowTexts(winID,table=winTexts):
-	if not winID in table: return None
-	if util.DEBUG: util.LOG('Window ID: {0}'.format(winID))
+def convertTexts(winID,data_list):
 	ret = []
-	for sid in table[winID]:
+	for sid in data_list:
 		if isinstance(sid,int):
-			ret.append(xbmc.getLocalizedString(sid))
+			sid = xbmc.getLocalizedString(sid)
 		elif sid.isdigit():
-			ret.append(xbmc.getInfoLabel('Control.GetLabel({0})'.format(sid)).decode('utf-8'))
+			sid = xbmc.getInfoLabel('Control.GetLabel({0})'.format(sid)).decode('utf-8')
 		elif sid == 'textbox':
 			texts = getTextBoxTexts(winID)
-			if texts: ret += texts
+			if texts:
+				ret += texts
+				continue
 		elif sid.startswith('$INFO['):
 			info = sid[6:-1]
-			ret.append(xbmc.getInfoLabel(info).decode('utf-8'))
-		else:
-			ret.append(sid)
-	return ret or None
+			sid = xbmc.getInfoLabel(info).decode('utf-8')
+		if sid: ret.append(sid)
+	return ret
+			
+def getWindowTexts(winID,table=winTexts):
+	if not winID in table: return None
+	return convertTexts(winID,table[winID]) or None
 	
 def getExtraTexts(winID):
-	if util.DEBUG: util.LOG('Window ID: {0}'.format(winID))
 	return getWindowTexts(winID,table=winExtraTexts)
 	
 def getItemExtraTexts(winID):
-	if util.DEBUG: util.LOG('Window ID: {0}'.format(winID))
 	return getWindowTexts(winID,table=itemExtraTexts)
 
 def getListItemProperty(winID):

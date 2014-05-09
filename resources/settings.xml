@@ -45,11 +45,12 @@
 
   </category>
   <category label="Options">
+	<setting label="Speak Extra Item Information Automatically" type="bool" id="auto_item_extra" default="false" />
     <setting label="Speak Number Of Items For Lists" type="bool" id="speak_list_count" default="true" />
     <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>
   <category label="Advanced">
-    <setting label="Output .wav files to tmpfs" type="bool" id="use_tmpfs" default="true" />
+    <setting label="Output .wav Files To tmpfs" type="bool" id="use_tmpfs" default="true" />
     <setting label="Disable Broken TTS Engines" type="bool" id="disable_broken_backends" default="true" />
     <setting label="Enable Debug Logging" type="bool" id="debug_logging" default="true" />
     <setting label="Override Poll Interval" type="bool" id="override_poll_interval" default="false" />
