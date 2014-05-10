@@ -1,4 +1,4 @@
-import sys, re, xbmc, xbmcgui
+import sys, re, xbmc, xbmcgui, time
 from lib import backends
 from lib import util
 from lib import windows
@@ -59,6 +59,7 @@ class TTSService(xbmc.Monitor):
 		self.lastProgressPercentUnixtime = 0
 		self.interval = 400
 		self.listIndex = None
+		self.waitingToReadItemExtra = None
 		self.reloadSettings()
 		
 	def initTTS(self,backendClass=None):
@@ -116,6 +117,7 @@ class TTSService(xbmc.Monitor):
 		self.initTTS()
 		
 	def checkForText(self):
+		self.checkAutoRead()
 		newW = self.checkWindow()
 		newC = self.checkControl(newW)
 		text, compare = self.windowReader.getControlText(self.controlID)
@@ -128,6 +130,16 @@ class TTSService(xbmc.Monitor):
 			monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
 			if monitored: self.sayText(monitored,interrupt=True)
 		
+	def checkAutoRead(self):
+		if not self.waitingToReadItemExtra:
+			return
+		if self.tts.isSpeaking():
+			self.waitingToReadItemExtra = time.time()
+			return
+		if time.time() - self.waitingToReadItemExtra > 2:
+			self.waitingToReadItemExtra = None
+			self.sayItemExtra(interrupt=False)
+
 	def repeatText(self):
 		self.winID = None
 		self.controlID = None
@@ -200,7 +212,7 @@ class TTSService(xbmc.Monitor):
 			util.LOG('Control: %s' % controlID)
 		self.controlID = controlID
 		post = self.getControlPostfix()
-		description = self.windowReader.getControlDescription(self.controlID)
+		description = self.windowReader.getControlDescription(self.controlID) or ''
 		if description or post:
 			self.sayText(description + post,interrupt=not newW)
 			self.tts.insertPause()
@@ -218,8 +230,7 @@ class TTSService(xbmc.Monitor):
 			text += self.tts.pauseInsert + u' ' + secondary
 		self.sayText(text,interrupt=not newC)
 		if self.autoItemExtra:
-			self.insertPause(ms=1000)
-			self.sayItemExtra(interrupt=False)
+			self.waitingToReadItemExtra = time.time()
 		
 	def getControlPostfix(self):
 		if not self.speakListCount: return u''
