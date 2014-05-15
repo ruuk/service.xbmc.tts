@@ -28,6 +28,7 @@ Added mpg321 to available players
 Fix for addon crashing on non-ascii characters for most backends on some platforms
 Made enabling/disabling addon safer and more reliable
 Added enable and disable sound effects
+Workaround Google tts limit of 100 characters by speaking separate portions
 
 ** 0.0.53 **
 
