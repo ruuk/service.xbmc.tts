@@ -26,10 +26,10 @@ def abortRequested():
 	return xbmc.abortRequested
 
 def info(key):
-	return xbmcaddon.Addon().getAddonInfo(key)
+	return xbmcaddon.Addon(ADDON_ID).getAddonInfo(key)
 
 def profileDirectory():
-	return xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')).decode('utf-8')
+	return xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('profile')).decode('utf-8')
 
 def backendsDirectory():
 	return os.path.join(xbmc.translatePath(info('path')).decode('utf-8'),'lib','backends')
@@ -38,6 +38,11 @@ def getTmpfs():
 	for tmpfs in ('/run/shm','/dev/shm','/tmp'):
 		if os.path.exists(tmpfs): return tmpfs
 	return None
+
+def playSound(name):
+	wavPath = os.path.join(xbmc.translatePath('special://home').decode('utf-8'),'addons','service.xbmc.tts','resources','wavs','{0}.wav'.format(name))
+	#wavPath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','wavs','{0}.wav'.format(name))
+	xbmc.playSFX(wavPath)
 
 def showNotification(message,time_ms=3000,icon_path=None,header='XBMC TTS'):
 	try:
@@ -96,7 +101,7 @@ def xbmcVersionGreaterOrEqual(major,minor=0,tag=None):
 	return tagCmp < 1
 
 def getSetting(key,default=None):
-	setting = xbmcaddon.Addon().getSetting(key)
+	setting = xbmcaddon.Addon(ADDON_ID).getSetting(key)
 	return _processSetting(setting,default)
 
 def _processSetting(setting,default):
@@ -113,7 +118,7 @@ def _processSetting(setting,default):
 
 def setSetting(key,value):
 	value = _processSettingForWrite(value)
-	xbmcaddon.Addon().setSetting(key,value)
+	xbmcaddon.Addon(ADDON_ID).setSetting(key,value)
 
 def _processSettingForWrite(value):
 	if isinstance(value,list):
@@ -145,7 +150,7 @@ def _keymapTarget():
 def _copyKeymap():
 	import xbmcvfs
 	targetPath = _keymapTarget()
-	sourcePath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','service.xbmc.tts.keyboard.xml')
+	sourcePath = os.path.join(xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('path')).decode('utf-8'),'resources','service.xbmc.tts.keyboard.xml')
 	if os.path.exists(targetPath): xbmcvfs.delete(targetPath)
 	return xbmcvfs.copy(sourcePath,targetPath)
 

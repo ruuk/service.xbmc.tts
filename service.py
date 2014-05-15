@@ -8,19 +8,29 @@ util.LOG('Platform: {0}'.format(sys.platform))
 
 util.initCommands()
 
+class TTSClosedException(Exception): pass
+
 class TTSService(xbmc.Monitor):
 	def __init__(self):
 		self.stop = False
-		self.enabled = True
+		self.disable = False
 		self.initState()
-		self.tts = None
+		self._tts = None
 		self.backendProvider = None
 		self.initTTS()
 	
 	def onAbortRequested(self):
 		self.stop = True
-		if self.tts: self.tts._close()
+		try:
+			self.tts._close()
+		except TTSClosedException:
+			pass
 		
+	@property
+	def tts(self):
+		if self._tts._closed: raise TTSClosedException()
+		return self._tts
+
 	def onSettingsChanged(self):
 		self.tts._update()
 		self.checkBackend()
@@ -37,6 +47,8 @@ class TTSService(xbmc.Monitor):
 			self.sayItemExtra()
 		elif command == 'STOP':
 			self.stopSpeech()
+		elif command == 'SHUTDOWN':
+			self.shutdown()
 
 	def reloadSettings(self):
 		util.DEBUG = util.getSetting('debug_logging',True)
@@ -47,7 +59,7 @@ class TTSService(xbmc.Monitor):
 #		util.LOG('NOTIFY: {0} :: {1} :: {2}'.format(sender,method,data))
 		
 	def initState(self):
-		if not self.enabled or xbmc.abortRequested or self.stop: return
+		if xbmc.abortRequested or self.stop: return
 		self.winID = None
 		self.windowReader = None
 		self.controlID = None
@@ -77,20 +89,33 @@ class TTSService(xbmc.Monitor):
 	
 	def start(self):
 		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
+		util.playSound('on')
 		try:
-			while self.enabled and (not xbmc.abortRequested) and (not self.stop):
+			while (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.interval)
 				try:
 					self.checkForText()
 				except RuntimeError:
 					util.ERROR('start()',hide_tb=True)
+				except SystemExit:
+					if util.DEBUG:
+						util.ERROR('SystemExit: Quitting')
+					else:
+						util.LOG('SystemExit: Quitting')
+					break
+				except TTSClosedException:
+					util.LOG('TTSCLOSED')
 				except: #Because we don't want to kill speech on an error
 					util.ERROR('start()',notify=True)
 					self.initState() #To help keep errors from repeating on the loop
 		finally:
-			self.tts._close()
+			self._tts._close()
 			self.end()
+			util.playSound('off')
 			util.LOG('SERVICE STOPPED')
+			if self.disable:
+				import enabler
+				enabler.disableAddon()
 		
 	def end(self):
 		if util.DEBUG:
@@ -100,6 +125,10 @@ class TTSService(xbmc.Monitor):
 			for t in threading.enumerate():
 				util.LOG('  {0}'.format(t.name))
 			
+	def shutdown(self):
+		self.stop = True
+		self.disable = True
+		
 	def updateInterval(self):
 		if util.getSetting('override_poll_interval',False):
 			self.interval = util.getSetting('poll_interval',self.tts.interval)
@@ -107,8 +136,8 @@ class TTSService(xbmc.Monitor):
 			self.interval = self.tts.interval
 
 	def setBackend(self,backend):
-		if self.tts: self.tts._close()
-		self.tts = backend
+		if self._tts: self._tts._close()
+		self._tts = backend
 		return backend.provider
 		
 	def checkBackend(self):

@@ -1,0 +1,5 @@
+TODO
+
+Traker1001:
+  Couple things that would be cool in the PVR Guide. Is if it read the date of the selection, even better if the reading was limited to day/month, Even cooler if it recognized the date of current selection and only read the date if it didn't = current date. And if it read the at least the Time and date even if extra info item wasn't selected.
+  Another neat item, would be ability to enable/disable the automatic read extra info via keystroke. I find there are some areas where it is handy and others where it isn't.
