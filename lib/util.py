@@ -28,6 +28,9 @@ def abortRequested():
 def info(key):
 	return xbmcaddon.Addon(ADDON_ID).getAddonInfo(key)
 
+def configDirectory():
+	return profileDirectory()
+
 def profileDirectory():
 	return xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('profile')).decode('utf-8')
 
@@ -182,32 +185,6 @@ def selectBackend():
 	idx = xbmcgui.Dialog().select('Choose Backend',display)
 	if idx < 0: return
 	setSetting('backend',choices[idx])
-
-def selectVoice(provider):
-	import xbmcgui
-	import backends
-	voices = backends.getVoices(provider)
-	if not voices:
-		xbmcgui.Dialog().ok('Not Available','No voices to select.')
-		return
-	idx = xbmcgui.Dialog().select('Choose Voice',voices)
-	if idx < 0: return
-	voice = voices[idx]
-	LOG('Voice for {0} set to: {1}'.format(provider,voice))
-	setSetting('voice.{0}'.format(provider),voice)
-
-def selectLanguage(provider):
-	import xbmcgui
-	import backends
-	languages = backends.getLanguages(provider)
-	if not languages:
-		xbmcgui.Dialog().ok('Not Available','No languages to select.')
-		return
-	idx = xbmcgui.Dialog().select('Choose Language',languages)
-	if idx < 0: return
-	language = languages[idx]
-	LOG('Language for {0} set to: {1}'.format(provider,language))
-	setSetting('language.{0}'.format(provider),language)
 	
 def selectPlayer(provider):
 	import xbmcgui

@@ -1,13 +1,14 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.54
+Current version: 0.0.56
 -----------------------
 
 Authors: ruuk, pvagner
 
 TODO:
 -----
+ Volume for the backends
  Android backend
  Speech for more window types that isn't automatically handled
  Add speed and voices to other backends
@@ -20,6 +21,22 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.56 **
+
+Added support for playing MP3 based backends on windows internally
+Google backend now works on windows
+Added speechutil.com backend (Very slow but should work on all platforms)
+OSXSay backend now accesses speech library directly instead of via subprocess 
+Added voice selection to OSXSay backend
+Added language selection to Google backend
+Added player selection to Google backend
+Added volume selection to Google backend
+Added player selection to pico2wave
+
+** 0.0.55 **
+
+Internal testing
 
 ** 0.0.54 **
 

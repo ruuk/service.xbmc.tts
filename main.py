@@ -9,12 +9,6 @@ if __name__ == '__main__':
 		command = arg[4:]
 		from lib import util
 		util.sendCommand(command)
-	elif arg == 'voice_dialog':
-		from lib import util
-		util.selectVoice(*extra)
-	elif arg == 'language_dialog.':
-		from lib import util
-		util.selectLanguage(*extra)
 	elif arg == 'settings_dialog':
 		from lib import util
 		util.selectSetting(*extra)
