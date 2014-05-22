@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.57
+Current version: 0.0.58
 -----------------------
 
 Authors: ruuk, pvagner
@@ -21,6 +21,10 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.58 **
+
+Fix for possible SAPI error on older windows versions
 
 ** 0.0.57 **
 
