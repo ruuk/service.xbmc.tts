@@ -42,11 +42,22 @@ def getTmpfs():
 		if os.path.exists(tmpfs): return tmpfs
 	return None
 
-def playSound(name):
+def playSound(name,return_duration=False):
 	wavPath = os.path.join(xbmc.translatePath('special://home').decode('utf-8'),'addons','service.xbmc.tts','resources','wavs','{0}.wav'.format(name))
 	#wavPath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','wavs','{0}.wav'.format(name))
 	xbmc.playSFX(wavPath)
+	if return_duration:
+		import wave
+		w = wave.open(wavPath,'rb')
+		frames = w.getnframes()
+		rate = w.getframerate()
+		w.close()
+		duration = frames / float(rate)
+		return duration
 
+def stopSounds():
+	if hasattr(xbmc,'stopSFX'): xbmc.stopSFX()
+	
 def showNotification(message,time_ms=3000,icon_path=None,header='XBMC TTS'):
 	try:
 		icon_path = icon_path or xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('icon')).decode('utf-8')

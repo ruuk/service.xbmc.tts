@@ -202,9 +202,11 @@ class TTSService(xbmc.Monitor):
 		
 	def updateWindowReader(self):
 		readerClass = windows.getWindowReader(self.winID)
-		if self.windowReader and readerClass.ID == self.windowReader.ID:
-			self.windowReader._reset(self.winID)
-			return
+		if self.windowReader:
+			self.windowReader.close()
+			if readerClass.ID == self.windowReader.ID:
+				self.windowReader._reset(self.winID)
+				return
 		self.windowReader = readerClass(self.winID)
 		
 	def window(self):
@@ -268,8 +270,8 @@ class TTSService(xbmc.Monitor):
 		return u''
 		
 	def newSecondaryText(self, text):
-		if not text: return
 		self.secondaryText = text
+		if not text: return
 		if text.endswith('%'): text = text.rsplit(u' ',1)[-1] #Get just the percent part, so we don't keep saying downloading
 		if not self.tts.isSpeaking(): self.sayText(text,interrupt=True)
 		

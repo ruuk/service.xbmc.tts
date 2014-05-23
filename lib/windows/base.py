@@ -37,6 +37,8 @@ class WindowReaderBase:
 		return texts or None
 	
 	def getMonitoredText(self,isSpeaking=False): return None
+	
+	def close(self): pass
 
 class DefaultWindowReader(WindowReaderBase):
 	ID = 'default'
