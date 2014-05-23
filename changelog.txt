@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.58
+Current version: 0.0.59
 -----------------------
 
 Authors: ruuk, pvagner
@@ -21,6 +21,17 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.59 **
+
+Added ability to set volume with paplay
+Added volume to pico2wave
+Added volume to eSpeak
+Added rate, pitch and volume to Cepstral
+Added speed and volume to Festival
+Added rate and volume to OSXSay
+Added module, voice, speed, pitch and volume to Speech-Dispatcher
+Added player, speed and volume to Flite
 
 ** 0.0.58 **
 

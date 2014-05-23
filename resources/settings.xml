@@ -6,57 +6,76 @@
     <!-- Flite -->
     <setting visible="eq(-1,Flite)" id="voice.Flite" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Flite,voice)" />
     <setting visible="eq(-2,Flite)" id="output_via_flite.Flite" label="Play Speech Directly Via Flite" type="bool" subsetting="true" default="false" />
+    <setting visible="eq(-3,Flite)" id="player.Flite" enable="eq(-1,false)" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,Flite)" />
+    <setting visible="eq(-4,Flite) + eq(-2,false)" id="speed.Flite" enable="eq(-1,sox) | eq(-1,mplayer)" label="Speed % (Needs SOX or MPlayer)" type="slider" subsetting="true" option="int" default="100" range="20,200" />
+    <setting visible="eq(-5,Flite) + eq(-3,false)" id="volume.Flite" enable="eq(-2,sox) | eq(-2,mplayer) | eq(-2,paplay)" label="Volume dB (Needs paplay, SOX or MPlayer)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
 
     <!-- eSpeak -->
-    <setting visible="eq(-3,eSpeak-ctypes)" id="voice.eSpeak-ctypes" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,eSpeak-ctypes,voice)" />
+    <setting visible="eq(-6,eSpeak-ctypes)" id="voice.eSpeak-ctypes" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,eSpeak-ctypes,voice)" />
 
-    <setting visible="eq(-4,eSpeak)" id="voice.eSpeak" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,eSpeak,voice)" />
-    <setting visible="eq(-5,eSpeak)" id="speed.eSpeak" label="Speed (WPM)" type="slider" subsetting="true" option="int" default="175" range="80,450" />
-    <setting visible="eq(-6,eSpeak)" id="output_via_espeak.eSpeak" label="Play Speech Directly Via eSpeak" type="bool" subsetting="true" default="false" />
-    <setting visible="eq(-7,eSpeak)" id="player.eSpeak" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,eSpeak)" enable="eq(-1,false)" />
+    <setting visible="eq(-7,eSpeak)" id="voice.eSpeak" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,eSpeak,voice)" />
+    <setting visible="eq(-8,eSpeak)" id="speed.eSpeak" label="Rate (WPM)" type="slider" subsetting="true" option="int" default="175" range="80,450" />
+    <setting visible="eq(-9,eSpeak)" id="output_via_espeak.eSpeak" label="Play Speech Directly Via eSpeak" type="bool" subsetting="true" default="false" />
+    <setting visible="eq(-10,eSpeak)" id="player.eSpeak" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,eSpeak)" enable="eq(-1,false)" />
+    <setting visible="eq(-11,eSpeak)" id="volume.eSpeak" enable="eq(-1,sox) | eq(-1,mplayer) | eq(-1,paplay) | eq(-2,true)" label="Volume dB (Via eSpeak Or Supported Player)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
 
     <!-- SAPI -->
-    <setting visible="eq(-8,SAPI)" id="voice.SAPI" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,SAPI,voice)" />
-    <setting visible="eq(-9,SAPI)" id="speed.SAPI" label="Rate" type="slider" subsetting="true" option="int" default="0" range="-10,10" />
-	<setting visible="eq(-10,SAPI)" id="volume.SAPI" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
+    <setting visible="eq(-12,SAPI)" id="voice.SAPI" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,SAPI,voice)" />
+    <setting visible="eq(-13,SAPI)" id="speed.SAPI" label="Rate" type="slider" subsetting="true" option="int" default="0" range="-10,10" />
+	<setting visible="eq(-14,SAPI)" id="volume.SAPI" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
 
     <!-- pico2wave -->
-    <setting visible="eq(-11,pico2wave)" id="language.pico2wave" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,settings_dialog,pico2wave,language)" />
-    <setting visible="eq(-12,pico2wave)" id="player.pico2wave" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,pico2wave)" />
-    <setting visible="eq(-13,pico2wave)" id="speed.pico2wave" enable="eq(-1,sox) | eq(-1,mplayer)" label="Speed % (Needs SOX or MPlayer)" type="slider" subsetting="true" option="int" default="100" range="20,200" />
+    <setting visible="eq(-15,pico2wave)" id="language.pico2wave" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,settings_dialog,pico2wave,language)" />
+    <setting visible="eq(-16,pico2wave)" id="player.pico2wave" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,pico2wave)" />
+    <setting visible="eq(-17,pico2wave)" id="speed.pico2wave" enable="eq(-1,sox) | eq(-1,mplayer)" label="Speed % (Needs SOX or MPlayer)" type="slider" subsetting="true" option="int" default="100" range="20,200" />
+    <setting visible="eq(-18,pico2wave)" id="volume.pico2wave" enable="eq(-2,sox) | eq(-2,mplayer) | eq(-2,paplay)" label="Volume dB (Needs paplay, SOX or MPlayer)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
 
 	<!-- Cepstral -->
-    <setting visible="eq(-14,Cepstral)" id="voice.Cepstral" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Cepstral,voice)" />
-    <setting visible="eq(-15,Cepstral)" id="use_aoss.Cepstral" subsetting="true" label="Use aoss" type="bool" default="false" />
+    <setting visible="eq(-19,Cepstral)" id="voice.Cepstral" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Cepstral,voice)" />
+    <setting visible="eq(-20,Cepstral)" id="use_aoss.Cepstral" subsetting="true" label="Use aoss" type="bool" default="false" />
+    <setting visible="eq(-21,Cepstral)" id="speed.Cepstral" label="Rate (WPM)" type="slider" subsetting="true" option="int" default="170" range="80,450" />
+    <setting visible="eq(-22,Cepstral)" id="pitch.Cepstral" label="Pitch" type="slider" subsetting="true" option="int" default="0" range="-6,14" />
+    <setting visible="eq(-23,Cepstral)" id="volume.Cepstral" label="Volume dB" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
 
     <!-- OSX Say -->
-    <setting visible="eq(-16,OSXSay)" id="voice.OSXSay" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,OSXSay,voice)" />
+    <setting visible="eq(-24,OSXSay)" id="voice.OSXSay" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,OSXSay,voice)" />
+    <setting visible="eq(-25,OSXSay)" id="speed.OSXSay" label="Rate (WPM)" type="slider" subsetting="true" option="int" default="200" range="80,450" />
+    <setting visible="eq(-26,OSXSay)" id="volume.OSXSay" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
 
     <!-- Festival -->
-    <setting visible="eq(-17,Festival)" id="voice.Festival" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Festival,voice)" />
+    <setting visible="eq(-27,Festival)" id="voice.Festival" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Festival,voice)" />
+    <setting visible="eq(-28,Festival)" id="speed.Festival" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-16,12" />
+    <setting visible="eq(-29,Festival)" id="volume.Festival" label="Volume dB" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
 
     <!-- Google -->
-    <setting visible="eq(-18,Google)" id="language.Google" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Google,language)" />
-    <setting visible="eq(-19,Google)" id="player.Google" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,Google)" />
-    <setting visible="eq(-20,Google)" enable="eq(-1,sox) | eq(-1,mplayer)" id="volume.Google" label="Volume dB (Needs SOX or MPlayer)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
+    <setting visible="eq(-30,Google)" id="language.Google" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Google,language)" />
+    <setting visible="eq(-31,Google)" id="player.Google" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,Google)" />
+    <setting visible="eq(-32,Google)" enable="eq(-1,sox) | eq(-1,mplayer)" id="volume.Google" label="Volume dB (Needs SOX or MPlayer)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
+
+    <!-- Speech Dispatcher -->
+    <setting visible="eq(-33,Speech-dispatcher)" id="module.Speech-dispatcher" subsetting="true" label="Module" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-dispatcher,module)" />
+    <setting visible="eq(-34,Speech-dispatcher)" id="voice.Speech-dispatcher" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-dispatcher,voice)" />
+    <setting visible="eq(-35,Speech-dispatcher)" id="speed.Speech-dispatcher" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
+    <setting visible="eq(-36,Speech-dispatcher)" id="pitch.Speech-dispatcher" label="Pitch" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
+    <setting visible="eq(-37,Speech-dispatcher)" id="volume.Speech-dispatcher" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
 
     <!-- SJHtts -->
-    <setting visible="eq(-21,ttsd)" id="perl_server.ttsd" subsetting="true" label="Perl Server" type="bool" default="true" />
-    <setting visible="eq(-22,ttsd)" id="speak_on_server.ttsd" subsetting="true" label="Speak On Server" type="bool" default="false" enable="eq(-1,false)" />
-    <setting visible="eq(-23,ttsd)" id="engine.ttsd" subsetting="true" label="Engine" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,engine)" enable="eq(-2,false)" />
+    <setting visible="eq(-38,ttsd)" id="perl_server.ttsd" subsetting="true" label="Perl Server" type="bool" default="true" />
+    <setting visible="eq(-39,ttsd)" id="speak_on_server.ttsd" subsetting="true" label="Speak On Server" type="bool" default="false" enable="eq(-1,false)" />
+    <setting visible="eq(-40,ttsd)" id="engine.ttsd" subsetting="true" label="Engine" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,engine)" enable="eq(-2,false)" />
 
-    <setting visible="eq(-24,ttsd) + eq(-3,false) + eq(-1,Flite)" id="voice.Flite.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,voice.Flite,Flite)" />
-    <setting visible="eq(-25,ttsd) + eq(-4,false) + eq(-2,eSpeak)" id="voice.eSpeak.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,voice.eSpeak,eSpeak)" />
-    <setting visible="eq(-26,ttsd) + eq(-5,false) + eq(-3,SAPI)" id="voice.SAPI.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,voice.SAPI,SAPI)" />
-    <setting visible="eq(-27,ttsd) + eq(-6,false) + eq(-4,Cepstral)" id="voice.Cepstral.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,voice.Cepstral,Cepstral)" />
-    <setting visible="eq(-28,ttsd) + eq(-7,false) + eq(-5,OSXSay)" id="voice.OSXSay.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,voice.OSXSay,OSXSay)" />
-    <setting visible="eq(-29,ttsd) + eq(-8,false) + eq(-6,Festival)" id="voice.Festival.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,voice.Festival,Festival)" />
-    <setting visible="eq(-30,ttsd) + eq(-9,true)" id="voice.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog,ttsd)" />
+    <setting visible="eq(-41,ttsd) + eq(-3,false) + eq(-1,Flite)" id="voice.Flite.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,voice.Flite,Flite)" />
+    <setting visible="eq(-42,ttsd) + eq(-4,false) + eq(-2,eSpeak)" id="voice.eSpeak.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,voice.eSpeak,eSpeak)" />
+    <setting visible="eq(-43,ttsd) + eq(-5,false) + eq(-3,SAPI)" id="voice.SAPI.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,ttsd,voice.SAPI,SAPI)" />
+    <setting visible="eq(-44,ttsd) + eq(-6,false) + eq(-4,Cepstral)" id="voice.Cepstral.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,voice.Cepstral,Cepstral)" />
+    <setting visible="eq(-45,ttsd) + eq(-7,false) + eq(-5,OSXSay)" id="voice.OSXSay.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,voice.OSXSay,OSXSay)" />
+    <setting visible="eq(-46,ttsd) + eq(-8,false) + eq(-6,Festival)" id="voice.Festival.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,voice.Festival,Festival)" />
+    <setting visible="eq(-47,ttsd) + eq(-9,true)" id="voice.ttsd" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,voice_dialog,ttsd)" />
 
-    <setting visible="eq(-31,ttsd)" enable="eq(-8,eSpeak) | eq(-8,SAPI) | eq(-8,pico2wave)" id="speed.ttsd" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-20,20" />
-    <setting visible="eq(-32,ttsd)" enable="eq(-10,false)" id="player.ttsd" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,ttsd)" />
-    <setting visible="eq(-33,ttsd)" id="host.ttsd" subsetting="true" label="IP Address" type="ipaddress" default="127.0.0.1" />
-    <setting visible="eq(-34,ttsd)" id="port.ttsd" subsetting="true" label="Port" type="number" default="8256" />
+    <setting visible="eq(-48,ttsd)" enable="eq(-8,eSpeak) | eq(-8,SAPI) | eq(-8,pico2wave)" id="speed.ttsd" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-20,20" />
+    <setting visible="eq(-49,ttsd)" enable="eq(-10,false)" id="player.ttsd" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,ttsd)" />
+    <setting visible="eq(-50,ttsd)" id="host.ttsd" subsetting="true" label="IP Address" type="ipaddress" default="127.0.0.1" />
+    <setting visible="eq(-51,ttsd)" id="port.ttsd" subsetting="true" label="Port" type="number" default="8256" />
 
   </category>
   <category label="Options">
