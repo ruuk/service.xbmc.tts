@@ -53,11 +53,11 @@
     <setting visible="eq(-32,Google)" enable="eq(-1,sox) | eq(-1,mplayer)" id="volume.Google" label="Volume dB (Needs SOX or MPlayer)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
 
     <!-- Speech Dispatcher -->
-    <setting visible="eq(-33,Speech-dispatcher)" id="module.Speech-dispatcher" subsetting="true" label="Module" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-dispatcher,module)" />
-    <setting visible="eq(-34,Speech-dispatcher)" id="voice.Speech-dispatcher" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-dispatcher,voice)" />
-    <setting visible="eq(-35,Speech-dispatcher)" id="speed.Speech-dispatcher" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
-    <setting visible="eq(-36,Speech-dispatcher)" id="pitch.Speech-dispatcher" label="Pitch" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
-    <setting visible="eq(-37,Speech-dispatcher)" id="volume.Speech-dispatcher" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
+    <setting visible="eq(-33,Speech-Dispatcher)" id="module.Speech-Dispatcher" subsetting="true" label="Module" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-Dispatcher,module)" />
+    <setting visible="eq(-34,Speech-Dispatcher)" id="voice.Speech-Dispatcher" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-Dispatcher,voice)" />
+    <setting visible="eq(-35,Speech-Dispatcher)" id="speed.Speech-Dispatcher" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
+    <setting visible="eq(-36,Speech-Dispatcher)" id="pitch.Speech-Dispatcher" label="Pitch" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
+    <setting visible="eq(-37,Speech-Dispatcher)" id="volume.Speech-Dispatcher" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
 
     <!-- SJHtts -->
     <setting visible="eq(-38,ttsd)" id="perl_server.ttsd" subsetting="true" label="Perl Server" type="bool" default="true" />
