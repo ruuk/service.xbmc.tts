@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.62
+Current version: 0.0.63
 -----------------------
 
 Authors: ruuk, pvagner
@@ -18,6 +18,12 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.63 **
+
+Fixed context menu speaking extra texts for underlying window
+Fixed View Options menu speaking the view texts rather that the selected item text
+TV and Radio channel views now speak the number, channel name and then title for the selected item
 
 ** 0.0.62 **
 

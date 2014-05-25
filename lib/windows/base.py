@@ -79,5 +79,5 @@ class DefaultWindowReader(WindowReaderBase):
 				while current in text: text.pop(text.index(current))
 				
 		if not text: return None
-		if not isinstance(text,list): text = [text]
+		if not isinstance(text,(list,tuple)): text = [text]
 		return text
