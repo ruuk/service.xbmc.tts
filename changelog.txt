@@ -1,18 +1,15 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.61
+Current version: 0.0.62
 -----------------------
 
 Authors: ruuk, pvagner
 
 TODO:
 -----
- Volume for the backends
  Android backend
  Speech for more window types that isn't automatically handled
- Add speed and voices to other backends
- Add xbmc audio option to more backends
  Pageination for large texts?
  Subtitle speech? Maybe only possible with something like pysrt and a subtitle file. https://pypi.python.org/pypi/pysrt
 
@@ -21,6 +18,12 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.62 **
+
+Re-structure audio player backend in a more intelligent manner
+Fix Windows audio player
+Fix broken on and off sound effect wavs
 
 ** 0.0.61 **
 
