@@ -38,6 +38,7 @@ def backendsDirectory():
 	return os.path.join(xbmc.translatePath(info('path')).decode('utf-8'),'lib','backends')
 
 def getTmpfs():
+	if sys.platform.startswith('win'): return None
 	for tmpfs in ('/run/shm','/dev/shm','/tmp'):
 		if os.path.exists(tmpfs): return tmpfs
 	return None
