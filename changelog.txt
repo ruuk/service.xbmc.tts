@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.64
+Current version: 0.0.65
 -----------------------
 
 Authors: ruuk, pvagner
@@ -18,6 +18,10 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.65 **
+
+Fix for PVR window being handled generically
 
 ** 0.0.64 **
 

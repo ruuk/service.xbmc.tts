@@ -193,7 +193,7 @@ class TTSService(xbmc.Monitor):
 		assert all(isinstance(t,unicode) for t in texts), "Not Unicode"
 		if self.tts.dead: return self.fallbackTTS()
 		self.tts.sayList(texts,interrupt=interrupt)
-	
+
 	def insertPause(self,ms=500):
 		self.tts.insertPause(ms=ms)
 		

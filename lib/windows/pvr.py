@@ -4,7 +4,7 @@ import guitables
 from base import WindowReaderBase
 
 class PVRWindowReader(WindowReaderBase):
-	ID = 'default'
+	ID = 'pvr'
 	timelineInfo = (	u'Channel', #PVR
 						'$INFO[ListItem.ChannelNumber]',
 						'$INFO[ListItem.ChannelName]',
@@ -21,7 +21,7 @@ class PVRWindowReader(WindowReaderBase):
 	)
 	
 	def init(self):
-		self.mode = None
+		self.mode = False
 		
 	def controlIsOnView(self,controlID):
 		return controlID > 9 and controlID < 18
