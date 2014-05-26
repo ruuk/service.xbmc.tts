@@ -50,7 +50,7 @@
     <!-- Google -->
     <setting visible="eq(-30,Google)" id="language.Google" subsetting="true" label="Language" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Google,language)" />
     <setting visible="eq(-31,Google)" id="player.Google" subsetting="true" label="Player" type="action" action="RunScript(service.xbmc.tts,player_dialog,Google)" />
-    <setting visible="eq(-32,Google)" enable="eq(-1,sox) | eq(-1,mplayer)" id="volume.Google" label="Volume dB (Needs SOX or MPlayer)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
+    <setting visible="eq(-32,Google)" enable="eq(-1,sox) | eq(-1,mplayer) | eq(-1,afplay)" id="volume.Google" label="Volume dB (Needs SOX, MPlayer or afplay)" type="slider" subsetting="true" option="int" default="0" range="-12,12" />
 
     <!-- Speech Dispatcher -->
     <setting visible="eq(-33,Speech-Dispatcher)" id="module.Speech-Dispatcher" subsetting="true" label="Module" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-Dispatcher,module)" />
