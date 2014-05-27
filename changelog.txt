@@ -8,6 +8,7 @@ Authors: ruuk, pvagner
 
 TODO:
 -----
+ Speak version change when addon starts after update
  Android backend
  Speech for more window types that isn't automatically handled
  Pageination for large texts?

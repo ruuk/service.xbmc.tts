@@ -5,7 +5,11 @@ from lib import windows
 
 util.LOG(util.xbmcaddon.Addon().getAddonInfo('version'))
 util.LOG('Platform: {0}'.format(sys.platform))
-
+if backends.audio.PLAYSFX_HAS_USECACHED:
+	util.LOG('playSFX() has useCached')
+else:
+	util.LOG('playSFX() does NOT have useCached')
+	
 util.initCommands()
 
 class TTSClosedException(Exception): pass
@@ -89,6 +93,7 @@ class TTSService(xbmc.Monitor):
 	
 	def start(self):
 		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
+		util.stopSounds() #To kill sounds we may have started before an update
 		util.playSound('on')
 		try:
 			while (not xbmc.abortRequested) and (not self.stop):
