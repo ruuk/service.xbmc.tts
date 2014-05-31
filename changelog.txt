@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.65
+Current version: 0.0.66
 -----------------------
 
 Authors: ruuk, pvagner
@@ -19,6 +19,16 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.66 **
+
+Added pitch to SAPI
+Added pitch to eSpeak
+Improvements to Festival that should improve responsiveness
+Festival now outputs wavs and can be used on the speech server
+Added pitch and player settings to Festival
+Changed Speed to Server Speed on HTTP TTS
+Added Server Pitch, Server Volume, Player Speed, Player Volume to HTTP TTS
 
 ** 0.0.65 **
 
