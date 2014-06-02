@@ -9,7 +9,7 @@ $INFO[<infolabel>]: infolabel
 string: normal string
 '''
 
-winNames = {	10000: 10000, #Home
+winNames = {		10000: 10000, #Home
 				10001: 10001, #programs
 				10002: 10002, #pictures
 				10003: 10003, #filemanager
@@ -118,16 +118,7 @@ winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]'
 					
 }
 
-itemExtraTexts = {		10601:(		u'Channel', #PVR
-									'$INFO[ListItem.ChannelNumber]',
-									'$INFO[ListItem.ChannelName]',
-									'$INFO[ListItem.StartTime]',
-									19160,
-									'$INFO[ListItem.EndTime]',
-									'$INFO[ListItem.Plot]'
-						)
-					
-}
+itemExtraTexts = {	}
 
 winListItemProperties = {		10040:('$INFO[ListItem.Property(Addon.Status)]',)
 

@@ -85,11 +85,12 @@ class TTSService(xbmc.Monitor):
 		self.updateInterval()
 		util.LOG('Backend: %s' % provider)
 		
-	def fallbackTTS(self):
+	def fallbackTTS(self,reason=None):
 		backend = backends.getBackendFallback()
 		util.LOG('Backend falling back to: {0}'.format(backend.provider))
 		self.initTTS(backend)
 		self.sayText(u'Notice... Speech engine falling back to {0}'.format(backend.displayName),interrupt=True)
+		if reason: self.sayText(u'Reason: {0}'.format(reason),interrupt=False)
 	
 	def start(self):
 		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
@@ -154,10 +155,11 @@ class TTSService(xbmc.Monitor):
 		self.checkAutoRead()
 		newW = self.checkWindow()
 		newC = self.checkControl(newW)
+		newD = newC and self.checkControlDescription(newW) or False
 		text, compare = self.windowReader.getControlText(self.controlID)
 		secondary = self.windowReader.getSecondaryText()
 		if (compare != self.textCompare) or newC:
-			self.newText(compare,text,newC,secondary)
+			self.newText(compare,text,newD,secondary)
 		elif secondary != self.secondaryText:
 			self.newSecondaryText(secondary)
 		else:
@@ -190,13 +192,13 @@ class TTSService(xbmc.Monitor):
 			
 	def sayText(self,text,interrupt=False):
 		assert isinstance(text,unicode), "Not Unicode"
-		if self.tts.dead: return self.fallbackTTS()
+		if self.tts.dead: return self.fallbackTTS(self.tts.deadReason)
 		self.tts.say(self.cleanText(text),interrupt)
 		
 	def sayTexts(self,texts,interrupt=True):
 		if not texts: return
 		assert all(isinstance(t,unicode) for t in texts), "Not Unicode"
-		if self.tts.dead: return self.fallbackTTS()
+		if self.tts.dead: return self.fallbackTTS(self.tts.deadReason)
 		self.tts.sayList(texts,interrupt=interrupt)
 
 	def insertPause(self,ms=500):
@@ -222,9 +224,9 @@ class TTSService(xbmc.Monitor):
 		dialogID = xbmcgui.getCurrentWindowDialogId()
 		if dialogID != 9999: winID = dialogID
 		if winID == self.winID: return False
-		if util.DEBUG: util.LOG('WindowID: {0}'.format(winID))
 		self.winID = winID
 		self.updateWindowReader()
+		if util.DEBUG: util.LOG('Window ID: {0} Handler: {1}'.format(winID,self.windowReader.ID))
 		name = self.windowReader.getName()
 		heading = self.windowReader.getHeading()
 		self.sayText(u'Window: {0}'.format(name),interrupt=True)
@@ -247,6 +249,9 @@ class TTSService(xbmc.Monitor):
 		if util.DEBUG:
 			util.LOG('Control: %s' % controlID)
 		self.controlID = controlID
+		return True
+		
+	def checkControlDescription(self,newW):
 		post = self.getControlPostfix()
 		description = self.windowReader.getControlDescription(self.controlID) or ''
 		if description or post:
@@ -255,7 +260,7 @@ class TTSService(xbmc.Monitor):
 			return True
 		return newW
 			
-	def newText(self,compare,text,newC,secondary=None):
+	def newText(self,compare,text,newD,secondary=None):
 		self.textCompare = compare
 		label2 = xbmc.getInfoLabel('Container({0}).ListItem.Label2'.format(self.controlID)).decode('utf-8')
 		seasEp = xbmc.getInfoLabel('Container({0}).ListItem.Property(SeasonEpisode)'.format(self.controlID)).decode('utf-8') or u''
@@ -264,7 +269,7 @@ class TTSService(xbmc.Monitor):
 		if secondary:
 			self.secondaryText = secondary
 			text += self.tts.pauseInsert + u' ' + secondary
-		self.sayText(text,interrupt=not newC)
+		self.sayText(text,interrupt=not newD)
 		if self.autoItemExtra:
 			self.waitingToReadItemExtra = time.time()
 		

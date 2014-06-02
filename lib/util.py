@@ -3,6 +3,9 @@ import os, sys, re, xbmc, time, binascii, xbmcaddon
 
 ADDON_ID = 'service.xbmc.tts'
 
+T = xbmcaddon.Addon(ADDON_ID).getLocalizedString
+XT = xbmc.getLocalizedString
+
 def ERROR(txt,hide_tb=False,notify=False):
 	if isinstance (txt,str): txt = txt.decode("utf-8")
 	short = str(sys.exc_info()[1])

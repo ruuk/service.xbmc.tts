@@ -4,6 +4,12 @@ import guitables
 import windowparser
 import skintables
 
+def parseItemExtra(controlID,current=None):
+	texts = windowparser.getWindowParser().getListItemTexts(controlID)
+	if current and texts:
+		while current in texts: texts.pop(texts.index(current))
+	return texts
+
 class WindowReaderBase:
 	ID = None
 	def __init__(self,win_id=None):
@@ -72,12 +78,7 @@ class DefaultWindowReader(WindowReaderBase):
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Album_Description)').decode('utf-8')
 		if not text: text = xbmc.getInfoLabel('ListItem.Property(Addon.Description)').decode('utf-8')
 		if not text: text = guitables.getSongInfo()
-		if not text:
-			text = windowparser.getWindowParser().getListItemTexts(controlID)
-			current = self.getControlText(controlID)[0]
-			if text:
-				while current in text: text.pop(text.index(current))
-				
+		if not text: text = parseItemExtra(controlID,self.getControlText(controlID)[0])
 		if not text: return None
 		if not isinstance(text,(list,tuple)): text = [text]
 		return text
