@@ -51,6 +51,7 @@ def playSound(name,return_duration=False):
 	#wavPath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','wavs','{0}.wav'.format(name))
 	xbmc.playSFX(wavPath)
 	if return_duration:
+		if not os.path.exists(wavPath): return 0
 		import wave
 		w = wave.open(wavPath,'rb')
 		frames = w.getnframes()
