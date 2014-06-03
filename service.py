@@ -2,7 +2,7 @@ import sys, re, xbmc, xbmcgui, time
 from lib import backends
 from lib import util
 from lib import windows
-
+from lib.windows import playerstatus
 util.LOG(util.xbmcaddon.Addon().getAddonInfo('version'))
 util.LOG('Platform: {0}'.format(sys.platform))
 if backends.audio.PLAYSFX_HAS_USECACHED:
@@ -21,6 +21,7 @@ class TTSService(xbmc.Monitor):
 		self.initState()
 		self._tts = None
 		self.backendProvider = None
+		self.playerStatus = playerstatus.PlayerStatus().init()
 		self.initTTS()
 	
 	def onAbortRequested(self):
@@ -163,7 +164,10 @@ class TTSService(xbmc.Monitor):
 		elif secondary != self.secondaryText:
 			self.newSecondaryText(secondary)
 		else:
-			monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
+			if xbmc.getCondVisibility('Window.IsVisible(10115)'): 
+				monitored = self.playerStatus.getMonitoredText(self.tts.isSpeaking())
+			else:
+				monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
 			if monitored: self.sayText(monitored,interrupt=True)
 		
 	def checkAutoRead(self):

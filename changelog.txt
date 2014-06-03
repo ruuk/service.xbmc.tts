@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.67
+Current version: 0.0.68
 -----------------------
 
 Authors: ruuk, pvagner
@@ -19,6 +19,11 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.68 **
+
+Playing status now speaks on all views when media is playing
+Playing status now speaks fast forward and rewind with 2x, 4x, 8x, 16x and 32x levels
 
 ** 0.0.67 **
 
