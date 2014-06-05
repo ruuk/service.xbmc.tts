@@ -8,7 +8,6 @@ Authors: ruuk, pvagner
 
 TODO:
 -----
- Speak version change when addon starts after update
  Android backend
  Speech for more window types that isn't automatically handled
  Pageination for large texts?
@@ -19,6 +18,14 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.69 **
+
+Startup beeps now happen before speech
+Now speaks the new version on update
+Fix for Flite player not changing when changed in settings
+Fix for aplay not interrupting properly
+Now enables alsa for aplay when aplay is selected as a player on on Raspberry Pi OpenElec
 
 ** 0.0.68 **
 

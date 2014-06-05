@@ -1,10 +1,15 @@
 import sys, re, xbmc, xbmcgui, time
-from lib import backends
+
 from lib import util
+
+__version__ = util.xbmcaddon.Addon().getAddonInfo('version')
+util.LOG(__version__)
+util.LOG('Platform: {0}'.format(sys.platform))
+
+from lib import backends
 from lib import windows
 from lib.windows import playerstatus
-util.LOG(util.xbmcaddon.Addon().getAddonInfo('version'))
-util.LOG('Platform: {0}'.format(sys.platform))
+
 if backends.audio.PLAYSFX_HAS_USECACHED:
 	util.LOG('playSFX() has useCached')
 else:
@@ -21,8 +26,11 @@ class TTSService(xbmc.Monitor):
 		self.initState()
 		self._tts = None
 		self.backendProvider = None
+		util.stopSounds() #To kill sounds we may have started before an update
+		util.playSound('on')
 		self.playerStatus = playerstatus.PlayerStatus().init()
 		self.initTTS()
+		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
 	
 	def onAbortRequested(self):
 		self.stop = True
@@ -93,10 +101,18 @@ class TTSService(xbmc.Monitor):
 		self.sayText(u'Notice... Speech engine falling back to {0}'.format(backend.displayName),interrupt=True)
 		if reason: self.sayText(u'Reason: {0}'.format(reason),interrupt=False)
 	
-	def start(self):
-		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
-		util.stopSounds() #To kill sounds we may have started before an update
-		util.playSound('on')
+	def checkNewVersion(self):
+		from distutils.version import StrictVersion
+		lastVersion = util.getSetting('version','0.0.0')
+		if StrictVersion(lastVersion) < StrictVersion(__version__):
+			util.setSetting('version',__version__)
+			self.sayText(u'New T T S Version... {0}'.format(__version__))
+			return True
+		return False
+		
+	def start(self):	
+		self.checkNewVersion()
+		self.checkForText(False)
 		try:
 			while (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.interval)
@@ -152,9 +168,9 @@ class TTSService(xbmc.Monitor):
 		if provider == self.backendProvider: return
 		self.initTTS()
 		
-	def checkForText(self):
+	def checkForText(self,interrupt=True):
 		self.checkAutoRead()
-		newW = self.checkWindow()
+		newW = self.checkWindow(interrupt)
 		newC = self.checkControl(newW)
 		newD = newC and self.checkControlDescription(newW) or False
 		text, compare = self.windowReader.getControlText(self.controlID)
@@ -223,7 +239,7 @@ class TTSService(xbmc.Monitor):
 	def window(self):
 		return xbmcgui.Window(self.winID)
 		
-	def checkWindow(self):
+	def checkWindow(self,interrupt):
 		winID = xbmcgui.getCurrentWindowId()
 		dialogID = xbmcgui.getCurrentWindowDialogId()
 		if dialogID != 9999: winID = dialogID
@@ -233,7 +249,7 @@ class TTSService(xbmc.Monitor):
 		if util.DEBUG: util.LOG('Window ID: {0} Handler: {1}'.format(winID,self.windowReader.ID))
 		name = self.windowReader.getName()
 		heading = self.windowReader.getHeading()
-		self.sayText(u'Window: {0}'.format(name),interrupt=True)
+		self.sayText(u'Window: {0}'.format(name),interrupt=interrupt)
 		self.insertPause()
 		if heading:
 			self.sayText(heading)
