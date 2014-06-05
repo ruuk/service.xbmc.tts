@@ -26,8 +26,8 @@ Now speaks the new version on update
 Fix for Flite player not changing when changed in settings
 Fix for aplay not interrupting properly
 Now enables alsa for aplay when aplay is selected as a player on on Raspberry Pi OpenElec
-Added ability to pipe audio directly from engine to player - currently only works with espeak and aplay
-Added setting to eSpeak: 'Pipe Audio To Player'
+Added ability to pipe audio directly from engine to player
+Added setting to eSpeak, Google and HTTP TTS Server: 'Pipe Audio To Player'
 Updated comtypes to 1.1.0
 
 ** 0.0.68 **
