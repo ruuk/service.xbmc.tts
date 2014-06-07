@@ -1,5 +1,4 @@
-import sys, re, xbmc, xbmcgui, time
-
+import sys, re, xbmc, xbmcgui, time, Queue
 from lib import util
 
 __version__ = util.xbmcaddon.Addon().getAddonInfo('version')
@@ -23,6 +22,7 @@ class TTSService(xbmc.Monitor):
 	def __init__(self):
 		self.stop = False
 		self.disable = False
+		self.noticeQueue = Queue.Queue()
 		self.initState()
 		self._tts = None
 		self.backendProvider = None
@@ -68,8 +68,37 @@ class TTSService(xbmc.Monitor):
 		self.speakListCount = util.getSetting('speak_list_count',True)
 		self.autoItemExtra = util.getSetting('auto_item_extra',False)
 
+	def onDatabaseScanStarted(self,database):
+		util.LOG('DB SCAN STARTED: {0} - Notifying...'.format(database))
+		self.queueNotice(u'{0} database scan started.'.format(database))
+		
+	def onDatabaseUpdated(self,database):
+		util.LOG('DB SCAN UPDATED: {0} - Notifying...'.format(database))
+		self.queueNotice(u'{0} database scan finished.'.format(database))
+		
 #	def onNotification(self, sender, method, data):
 #		util.LOG('NOTIFY: {0} :: {1} :: {2}'.format(sender,method,data))
+#		#xbmc :: VideoLibrary.OnUpdate :: {"item":{"id":1418,"type":"episode"}}		
+		
+	def queueNotice(self,text):
+		assert isinstance(text,unicode), "Not Unicode"
+		self.noticeQueue.put(text)
+
+	def clearNoticeQueue(self):
+		try:
+			while not self.noticeQueue.empty():
+				self.noticeQueue.get()
+				self.noticeQueue.task_done()
+		except Queue.Empty:
+			return
+		
+	def checkNoticeQueue(self):
+		if self.noticeQueue.empty(): return False
+		while not self.noticeQueue.empty():
+			text = self.noticeQueue.get()
+			self.sayText(text)
+			self.noticeQueue.task_done()
+		return True
 		
 	def initState(self):
 		if xbmc.abortRequested or self.stop: return
@@ -106,13 +135,12 @@ class TTSService(xbmc.Monitor):
 		lastVersion = util.getSetting('version','0.0.0')
 		if StrictVersion(lastVersion) < StrictVersion(__version__):
 			util.setSetting('version',__version__)
-			self.sayText(u'New T T S Version... {0}'.format(__version__))
+			self.queueNotice(u'New T T S Version... {0}'.format(__version__))
 			return True
 		return False
 		
 	def start(self):	
 		self.checkNewVersion()
-		self.checkForText(False)
 		try:
 			while (not xbmc.abortRequested) and (not self.stop):
 				xbmc.sleep(self.interval)
@@ -168,9 +196,10 @@ class TTSService(xbmc.Monitor):
 		if provider == self.backendProvider: return
 		self.initTTS()
 		
-	def checkForText(self,interrupt=True):
+	def checkForText(self):
 		self.checkAutoRead()
-		newW = self.checkWindow(interrupt)
+		newN = self.checkNoticeQueue()
+		newW = self.checkWindow(newN)
 		newC = self.checkControl(newW)
 		newD = newC and self.checkControlDescription(newW) or False
 		text, compare = self.windowReader.getControlText(self.controlID)
@@ -239,17 +268,17 @@ class TTSService(xbmc.Monitor):
 	def window(self):
 		return xbmcgui.Window(self.winID)
 		
-	def checkWindow(self,interrupt):
+	def checkWindow(self,newN):
 		winID = xbmcgui.getCurrentWindowId()
 		dialogID = xbmcgui.getCurrentWindowDialogId()
 		if dialogID != 9999: winID = dialogID
-		if winID == self.winID: return False
+		if winID == self.winID: return newN
 		self.winID = winID
 		self.updateWindowReader()
 		if util.DEBUG: util.LOG('Window ID: {0} Handler: {1}'.format(winID,self.windowReader.ID))
 		name = self.windowReader.getName()
 		heading = self.windowReader.getHeading()
-		self.sayText(u'Window: {0}'.format(name),interrupt=interrupt)
+		self.sayText(u'Window: {0}'.format(name),interrupt=not newN)
 		self.insertPause()
 		if heading:
 			self.sayText(heading)

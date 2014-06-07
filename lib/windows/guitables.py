@@ -149,11 +149,22 @@ def getTextBoxTexts(winID):
 		return info['function'](winID)
 	return None
 	
+def getWindowAddonID(winID):
+	path = xbmc.getInfoLabel('Window({0}).Property(xmlfile)'.format(winID)).decode('utf-8')
+	addonID = path.split('/addons/',1)[-1].split('/',1)[0]
+	return addonID
+
+def getWindowAddonName(winID):
+	addonID = getWindowAddonID(winID)
+	return xbmc.getInfoLabel('System.AddonTitle({0})'.format(addonID)) or addonID
+
 def getWindowName(winID):
-	if not winID in winNames: return u''
-	name = winNames[winID]
-	if isinstance(name,int): name = xbmc.getLocalizedString(name)
-	if not name: return u''
+	name = None
+	if winID in winNames:
+		name = winNames[winID]
+		if isinstance(name,int): name = xbmc.getLocalizedString(name)
+	elif winID > 12999:
+		return getWindowAddonName(winID)
 	return name or xbmc.getInfoLabel('System.CurrentWindow').decode('utf-8') or u'unknown'
 	
 def convertTexts(winID,data_list):

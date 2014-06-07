@@ -157,6 +157,22 @@ def isOSX():
 def isATV2():
 	return xbmc.getCondVisibility('System.Platform.ATV2')
 
+def isRaspberryPi():
+	return xbmc.getCondVisibility('System.Platform.Linux.RaspberryPi')
+	
+def raspberryPiDistro():
+	if not isRaspberryPi(): return None
+	if isOpenElec(): return 'OPENELEC'
+	uname = None
+	import subprocess
+	try:
+		uname = subprocess.check_output(['uname','-a'])
+	except:
+		ERROR('raspberryPiDistro() - Failed to get uname output',hide_tb=True)
+	if uname and 'raspbmc' in uname: return 'RASPBMC'
+	return 'UNKNOWN'
+	
+		
 def isOpenElec():
 	return xbmc.getCondVisibility('System.HasAddon(os.openelec.tv)')
 
