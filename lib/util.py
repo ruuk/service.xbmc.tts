@@ -47,10 +47,11 @@ def getTmpfs():
 	return None
 
 def playSound(name,return_duration=False):
-	wavPath = os.path.join(xbmc.translatePath('special://home').decode('utf-8'),'addons','service.xbmc.tts','resources','wavs','{0}.wav'.format(name))
+	wavPath = os.path.join(xbmc.translatePath('special://home'),'addons','service.xbmc.tts','resources','wavs','{0}.wav'.format(name))
 	#wavPath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','wavs','{0}.wav'.format(name))
 	xbmc.playSFX(wavPath)
 	if return_duration:
+		wavPath = wavPath.decode('utf-8')
 		if not os.path.exists(wavPath): return 0
 		import wave
 		w = wave.open(wavPath,'rb')
