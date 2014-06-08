@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.70
+Current version: 0.0.71
 -----------------------
 
 Authors: ruuk, pvagner
@@ -22,6 +22,7 @@ EXTERNAL TODO:
 ** 0.0.71 **
 
 Now shows the busy dialog when waiting for the engines, voices or players list to display (useful on the Raspberry Pi, which can be slow to display)
+Fixed a bug where changing from a player that could pipe to one that could not would cause speech to stop
 
 ** 0.0.70 **
 
