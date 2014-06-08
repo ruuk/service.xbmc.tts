@@ -25,6 +25,7 @@ Now speaks when video or music database scan has started or finished
 Improved speaking of window names including speaking the addon name for addon windows
 Added code to load snd-bcm2835 module for other Raspberry Pi distributions
 Will now check for and load snd-bcm2835 module for all players/engines if needed
+Fix for sound icons failing due to file paths with non-ascii characters
 
 ** 0.0.69 **
 
