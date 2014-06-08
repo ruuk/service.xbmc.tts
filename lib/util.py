@@ -208,6 +208,16 @@ def updateKeymap():
 		except:
 			ERROR('Failed to update keymap')
 
+def busyDialog(func):
+	def inner(*args,**kwargs):
+		try:
+			xbmc.executebuiltin("ActivateWindow(10138)")
+			func(*args,**kwargs)
+		finally:
+			xbmc.executebuiltin("Dialog.Close(10138)")
+	return inner
+	
+@busyDialog	
 def selectBackend():
 	import backends
 	import xbmcgui
@@ -221,6 +231,7 @@ def selectBackend():
 	if idx < 0: return
 	setSetting('backend',choices[idx])
 	
+@busyDialog	
 def selectPlayer(provider):
 	import xbmcgui
 	import backends
@@ -236,7 +247,8 @@ def selectPlayer(provider):
 	player = players[idx][0]
 	LOG('Player for {0} set to: {1}'.format(provider,player))
 	setSetting('player.{0}'.format(provider),player)
-	
+
+@busyDialog	
 def selectSetting(provider,setting,*args):
 	import xbmcgui
 	import backends

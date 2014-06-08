@@ -19,6 +19,10 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.71 **
+
+Now shows the busy dialog when waiting for the engines, voices or players list to display (useful on the Raspberry Pi, which can be slow to display)
+
 ** 0.0.70 **
 
 Now speaks when video or music database scan has started or finished
