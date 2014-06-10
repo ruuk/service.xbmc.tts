@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.71
+Current version: 0.0.72
 -----------------------
 
 Authors: ruuk, pvagner
@@ -18,6 +18,12 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.72 **
+
+Update Comtypes to dev version to remove NumPy dependency
+SAPI can now speak with XBMC audio which is now the default
+Added SAPI setting 'Play Speech Via XBMC'
 
 ** 0.0.71 **
 
