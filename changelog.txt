@@ -19,6 +19,9 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.73 **
+
+
 ** 0.0.72 **
 
 Update Comtypes to dev version to remove NumPy dependency
