@@ -113,9 +113,7 @@ winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]'
 							19114,
 							'$INFO[ListItem.Property(Addon.Version)]',
 							21821,'$INFO[ListItem.Property(Addon.Description)]'
-					),
-					10147:('textbox',) #Text Viewer
-					
+					)
 }
 
 itemExtraTexts = {	}
@@ -123,31 +121,7 @@ itemExtraTexts = {	}
 winListItemProperties = {		10040:('$INFO[ListItem.Property(Addon.Status)]',)
 
 }
-	
-def textviewerText(winID):
-	folderPath = xbmc.getInfoLabel('Container.FolderPath')
-	if folderPath.startswith('addons://'):
-		changelog = os.path.join(xbmc.getInfoLabel('ListItem.Property(Addon.Path)'),'changelog.txt')
-		if not os.path.exists(changelog): return None
-		ret = []
-		with codecs.open(changelog,'r','utf-8') as f:
-			lines = f.readlines()
-		for l in lines:
-			if not re.search('\w',l): continue
-			ret.append(l.strip())
-		return ret
-	return None
 
-textboxTexts = { 10147:{'type':'function','function':textviewerText}
-
-}
-
-def getTextBoxTexts(winID):
-	if not winID in textboxTexts: return None
-	info = textboxTexts[winID]
-	if info['type'] == 'function':
-		return info['function'](winID)
-	return None
 	
 def getWindowAddonID(winID):
 	path = xbmc.getInfoLabel('Window({0}).Property(xmlfile)'.format(winID)).decode('utf-8')
@@ -174,11 +148,6 @@ def convertTexts(winID,data_list):
 			sid = xbmc.getLocalizedString(sid)
 		elif sid.isdigit():
 			sid = xbmc.getInfoLabel('Control.GetLabel({0})'.format(sid)).decode('utf-8')
-		elif sid == 'textbox':
-			texts = getTextBoxTexts(winID)
-			if texts:
-				ret += texts
-				continue
 		elif sid.startswith('$INFO['):
 			info = sid[6:-1]
 			sid = xbmc.getInfoLabel(info).decode('utf-8')

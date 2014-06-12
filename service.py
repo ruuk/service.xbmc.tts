@@ -209,12 +209,19 @@ class TTSService(xbmc.Monitor):
 		elif secondary != self.secondaryText:
 			self.newSecondaryText(secondary)
 		else:
-			if xbmc.getCondVisibility('Window.IsVisible(10115)'): 
-				monitored = self.playerStatus.getMonitoredText(self.tts.isSpeaking())
-			else:
-				monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
-			if monitored: self.sayText(monitored,interrupt=True)
+			self.checkMonitored()
 		
+	def checkMonitored(self):
+		if xbmc.getCondVisibility('Window.IsVisible(10115)'):
+			monitored = self.playerStatus.getMonitoredText(self.tts.isSpeaking())
+		else:
+			monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
+		if monitored:
+			if isinstance(monitored,basestring):
+				self.sayText(monitored,interrupt=True)
+			else:
+				self.sayTexts(monitored,interrupt=True)
+
 	def checkAutoRead(self):
 		if not self.waitingToReadItemExtra:
 			return
@@ -248,7 +255,7 @@ class TTSService(xbmc.Monitor):
 		if not texts: return
 		assert all(isinstance(t,unicode) for t in texts), "Not Unicode"
 		if self.tts.dead: return self.fallbackTTS(self.tts.deadReason)
-		self.tts.sayList(texts,interrupt=interrupt)
+		self.tts.sayList(self.cleanText(texts),interrupt=interrupt)
 
 	def insertPause(self,ms=500):
 		self.tts.insertPause(ms=ms)
@@ -298,6 +305,7 @@ class TTSService(xbmc.Monitor):
 		if util.DEBUG:
 			util.LOG('Control: %s' % controlID)
 		self.controlID = controlID
+		if not controlID: return newW
 		return True
 		
 	def checkControlDescription(self,newW):
@@ -337,13 +345,11 @@ class TTSService(xbmc.Monitor):
 	def formatSeasonEp(self,seasEp):
 		if not seasEp: return u''
 		return seasEp.replace(u'S',u'season ').replace(u'E',u'episode ')
-		
+
 	_formatTagRE = re.compile(r'\[/?(?:CR|B|I|UPPERCASE|LOWERCASE)\](?i)')
 	_colorTagRE = re.compile(r'\[/?COLOR[^\]\[]*?\](?i)')
 	_okTagRE = re.compile(r'(^|\W|\s)OK($|\s|\W)') #Prevents saying Oklahoma
-	def cleanText(self,text):
-		if text.endswith(')'): #Skip this most of the time
-			text = text.replace('( )','{0} no'.format(self.tts.pauseInsert)).replace('(*)','{0} yes'.format(self.tts.pauseInsert)) #For boolean settings
+	def _cleanText(self,text):
 		text = self._formatTagRE.sub('',text)
 		text = self._colorTagRE.sub('',text)
 		text = self._okTagRE.sub(r'\1O K\2', text) #Some speech engines say OK as Oklahoma
@@ -351,6 +357,15 @@ class TTSService(xbmc.Monitor):
 		text = text.replace('XBMC','X B M C')
 		if text == '..': text = u'Parent Directory'
 		return text
+
+	def cleanText(self,text):
+		if isinstance(text,basestring):
+			if text.endswith(')'): #Skip this most of the time
+				text = text.replace('( )','{0} no'.format(self.tts.pauseInsert)).replace('(*)','{0} yes'.format(self.tts.pauseInsert)) #For boolean settings
+			return self._cleanText(text)
+		else:
+			return [self._cleanText(t) for t in text]
+		
 	
 if __name__ == '__main__':
 	if len(sys.argv) > 1 and sys.argv[1] == 'voice_dialog':

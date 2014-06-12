@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.72
+Current version: 0.0.73
 -----------------------
 
 Authors: ruuk, pvagner
@@ -21,6 +21,9 @@ EXTERNAL TODO:
 
 ** 0.0.73 **
 
+JAWS and NVDA will now fallback to SAPI if not running
+Added ability to speak text in the text viewer window using the future xbmc ability to get textbox text directly
+Fix for some multiline texts not having formatting codes removed before being spoken
 
 ** 0.0.72 **
 
