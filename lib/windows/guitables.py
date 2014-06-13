@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, re, codecs, xbmc
+import xbmc
 
 '''
 Table data format:

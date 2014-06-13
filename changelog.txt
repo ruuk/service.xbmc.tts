@@ -19,6 +19,10 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.74 **
+
+Fix for window xml parser failing on skins with non-standard folder paths
+
 ** 0.0.73 **
 
 JAWS and NVDA will now fallback to SAPI if not running
