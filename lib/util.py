@@ -285,4 +285,9 @@ def getCommand():
 	LAST_COMMAND_DATA = commandData
 	return commandData.split(':',1)[-1]
 
+def init():
+	pd = profileDirectory()
+	if not os.path.exists(pd): os.makedirs(pd)
+
 DEBUG = getSetting('debug_logging',True)
+init()
