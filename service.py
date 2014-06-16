@@ -1,5 +1,5 @@
 import sys, re, xbmc, xbmcgui, time, Queue
-from lib import util
+from lib import util, addoninfo
 
 __version__ = util.xbmcaddon.Addon().getAddonInfo('version')
 util.LOG(__version__)
@@ -7,7 +7,7 @@ util.LOG('Platform: {0}'.format(sys.platform))
 
 from lib import backends
 from lib import windows
-from lib.windows import playerstatus
+from lib.windows import playerstatus, notice
 
 if backends.audio.PLAYSFX_HAS_USECACHED:
 	util.LOG('playSFX() has useCached')
@@ -15,6 +15,7 @@ else:
 	util.LOG('playSFX() does NOT have useCached')
 	
 util.initCommands()
+addoninfo.initAddonsData()
 
 class TTSClosedException(Exception): pass
 
@@ -28,7 +29,8 @@ class TTSService(xbmc.Monitor):
 		self.backendProvider = None
 		util.stopSounds() #To kill sounds we may have started before an update
 		util.playSound('on')
-		self.playerStatus = playerstatus.PlayerStatus().init()
+		self.playerStatus = playerstatus.PlayerStatus(10115).init()
+		self.noticeDialog = notice.NoticeDialog(10107).init()
 		self.initTTS()
 		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
 	
@@ -58,6 +60,10 @@ class TTSService(xbmc.Monitor):
 			self.sayExtra()
 		elif command == 'ITEM_EXTRA':
 			self.sayItemExtra()
+		elif command == 'VOL_UP':
+			self.volumeUp()
+		elif command == 'VOL_DOWN':
+			self.volumeDown()
 		elif command == 'STOP':
 			self.stopSpeech()
 		elif command == 'SHUTDOWN':
@@ -66,7 +72,9 @@ class TTSService(xbmc.Monitor):
 	def reloadSettings(self):
 		util.DEBUG = util.getSetting('debug_logging',True)
 		self.speakListCount = util.getSetting('speak_list_count',True)
-		self.autoItemExtra = util.getSetting('auto_item_extra',False)
+		self.autoItemExtra = False
+		if util.getSetting('auto_item_extra',False):
+			self.autoItemExtra = util.getSetting('auto_item_extra_delay',2)
 
 	def onDatabaseScanStarted(self,database):
 		util.LOG('DB SCAN STARTED: {0} - Notifying...'.format(database))
@@ -212,10 +220,12 @@ class TTSService(xbmc.Monitor):
 			self.checkMonitored()
 		
 	def checkMonitored(self):
-		if xbmc.getCondVisibility('Window.IsVisible(10115)'):
+		monitored = None
+		if self.playerStatus.visible():
 			monitored = self.playerStatus.getMonitoredText(self.tts.isSpeaking())
-		else:
-			monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
+		if self.noticeDialog.visible():
+			monitored = self.noticeDialog.getMonitoredText(self.tts.isSpeaking())
+		if not monitored: monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
 		if monitored:
 			if isinstance(monitored,basestring):
 				self.sayText(monitored,interrupt=True)
@@ -228,7 +238,7 @@ class TTSService(xbmc.Monitor):
 		if self.tts.isSpeaking():
 			self.waitingToReadItemExtra = time.time()
 			return
-		if time.time() - self.waitingToReadItemExtra > 2:
+		if time.time() - self.waitingToReadItemExtra > self.autoItemExtra:
 			self.waitingToReadItemExtra = None
 			self.sayItemExtra(interrupt=False)
 
@@ -260,6 +270,16 @@ class TTSService(xbmc.Monitor):
 	def insertPause(self,ms=500):
 		self.tts.insertPause(ms=ms)
 		
+	def volumeUp(self):
+		msg = self.tts.volumeUp()
+		if not msg: return
+		self.sayText(msg,interrupt=True)
+
+	def volumeDown(self):
+		msg = self.tts.volumeDown()
+		if not msg: return
+		self.sayText(msg,interrupt=True)
+
 	def stopSpeech(self):
 		self.tts._stop()
 		
@@ -270,7 +290,7 @@ class TTSService(xbmc.Monitor):
 			if readerClass.ID == self.windowReader.ID:
 				self.windowReader._reset(self.winID)
 				return
-		self.windowReader = readerClass(self.winID)
+		self.windowReader = readerClass(self.winID,self)
 		
 	def window(self):
 		return xbmcgui.Window(self.winID)
@@ -360,8 +380,6 @@ class TTSService(xbmc.Monitor):
 
 	def cleanText(self,text):
 		if isinstance(text,basestring):
-			if text.endswith(')'): #Skip this most of the time
-				text = text.replace('( )','{0} no'.format(self.tts.pauseInsert)).replace('(*)','{0} yes'.format(self.tts.pauseInsert)) #For boolean settings
 			return self._cleanText(text)
 		else:
 			return [self._cleanText(t) for t in text]

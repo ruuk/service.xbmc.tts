@@ -94,6 +94,7 @@
   </category>
   <category label="Options">
 	<setting label="Speak Extra Item Information Automatically" type="bool" id="auto_item_extra" default="false" />
+	<setting label="Delay (seconds)" type="slider" id="auto_item_extra_delay" subsetting="true" option="int" default="2" range="1,60" enable="eq(-1,true)" />
     <setting label="Speak Number Of Items For Lists" type="bool" id="speak_list_count" default="true" />
     <setting label="Install Keymap" type="action" action="RunScript(service.xbmc.tts,install_keymap)"/>
   </category>

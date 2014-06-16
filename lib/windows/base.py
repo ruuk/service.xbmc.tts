@@ -10,17 +10,26 @@ def parseItemExtra(controlID,current=None):
 		while current in texts: texts.pop(texts.index(current))
 	return texts
 
-class WindowReaderBase:
+class WindowHandlerBase:
 	ID = None
-	def __init__(self,win_id=None):
+	def __init__(self,win_id=None,service=None):
+		self.service = service
 		self._reset(win_id)
 
 	def _reset(self,win_id):
 		self.winID = win_id
 		self.init()
 		
+	def visible(self):
+		return xbmc.getCondVisibility('Window.IsVisible({0})'.format(self.winID))
+
 	def init(self): pass
 
+	def getMonitoredText(self,isSpeaking=False): return None
+	
+	def close(self): pass
+
+class WindowReaderBase(WindowHandlerBase):
 	def getName(self): return guitables.getWindowName(self.winID)
 
 	def getHeading(self): return None
@@ -41,10 +50,6 @@ class WindowReaderBase:
 		texts = guitables.getExtraTexts(self.winID)
 		if not texts: texts = windowparser.getWindowParser().getWindowTexts()
 		return texts or None
-	
-	def getMonitoredText(self,isSpeaking=False): return None
-	
-	def close(self): pass
 
 class DefaultWindowReader(WindowReaderBase):
 	ID = 'default'

@@ -27,6 +27,7 @@ winNames = {		10000: 10000, #Home
 				10018: 10018, #servicesettings
 				10019: 10019, #appearancesettings
 				10020: 10020, #scripts
+				10021: u'Live TV Settings',
 				10024: 10024, #videofiles: Removed in Gotham
 				10025: 10025, #videolibrary
 				10028: 10028, #videoplaylist
@@ -100,7 +101,8 @@ winNames = {		10000: 10000, #Home
 				12900: 12900, #screensaver
 				12901: 12901, #videoosd
 				12902: u'video menu',
-				12999: 512 #startup
+				12999: 512 ,#startup
+				14000: u'PVR Client Specific Settings'
 }
 
 winTexts = {	10100:('2','3','4','9'), #Yes/No Dialog - 1,2,3=Older Skins 9=Newer Skins

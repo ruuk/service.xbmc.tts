@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.73
+Current version: 0.0.74
 -----------------------
 
 Authors: ruuk, pvagner
@@ -22,6 +22,11 @@ EXTERNAL TODO:
 ** 0.0.74 **
 
 Fix for window xml parser failing on skins with non-standard folder paths
+Now speaks new versions for all addon updates
+Added the sub-setting 'Delay (seconds)' to the 'Speak Extra Item Information Automatically' setting
+Now says 'sub-setting' before speaking a sub-setting's name
+Now speaks the category description as extra info on the settings category selection window
+Added the ability to change backend speech volume with ctrl-plus and ctrl-minus
 
 ** 0.0.73 **
 

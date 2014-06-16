@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from base import WindowReaderBase
+from base import WindowReaderBase, WindowHandlerBase
 from lib import util
 import xbmc
 
-class PlayerStatus():
+class PlayerStatus(WindowHandlerBase):
 	ID = 'fullscreenvideo'
 	
 	def init(self):

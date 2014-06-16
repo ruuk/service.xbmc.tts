@@ -15,7 +15,7 @@ def saveAddonsMD5(md5):
 def loadAddonsMD5():
 	return util.getSetting('addons_MD5')	
 
-def initAddonsMD5():
+def initAddonsData():
 	md5 = getAddonsMD5()
 	saveAddonsMD5(md5)
 	jsonString = xbmc.executeJSONRPC(BASE)
@@ -29,9 +29,10 @@ def getAddonsDetails():
 
 def loadAddonsDetails(as_dict=False):
 	if not os.path.exists(DATAPATH): return None
-	data = json.loads(xbmc.executeJSONRPC(BASE))
+	with open(DATAPATH,'r') as f:
+		data = json.load(f)
 	detailsList = data[u'result'][u'addons']
-	if as_dict:  return dict((d['id'],d) for d in detailsList)
+	if as_dict:  return dict((d['addonid'],d) for d in detailsList)
 	return detailsList
 
 def checkForNewVersions():
@@ -44,13 +45,16 @@ def checkForNewVersions():
 
 def getUpdatedAddons():
 	details = loadAddonsDetails(as_dict=True)
+	if not details: return None
 	new = getAddonsDetails()
 	ret = []
 	for n in new:
 		nid = n['addonid']
 		if nid in details:
+			#print '{0} {1} {2}'.format(nid,n['version'],details[nid]['version'])
 			if not n['version'] == details[nid]['version']:
 				ret.append(n)
 		else:
 			ret.append(n)
+	initAddonsData()
 	return ret
