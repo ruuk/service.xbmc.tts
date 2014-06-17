@@ -19,6 +19,11 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.75 **
+
+Fix for speech-dispatcher eventually hanging on volume up/down
+Change speech-dispatcher volume range in settings to 0-200% (was 0-100%, but 50% actually represented the real 100%)
+
 ** 0.0.74 **
 
 Fix for window xml parser failing on skins with non-standard folder paths

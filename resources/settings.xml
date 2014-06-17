@@ -63,7 +63,7 @@
     <setting visible="eq(-41,Speech-Dispatcher)" id="voice.Speech-Dispatcher" subsetting="true" label="Voice" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Speech-Dispatcher,voice)" />
     <setting visible="eq(-42,Speech-Dispatcher)" id="speed.Speech-Dispatcher" label="Speed" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
     <setting visible="eq(-43,Speech-Dispatcher)" id="pitch.Speech-Dispatcher" label="Pitch" type="slider" subsetting="true" option="int" default="0" range="-100,100" />
-    <setting visible="eq(-44,Speech-Dispatcher)" id="volume.Speech-Dispatcher" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
+    <setting visible="eq(-44,Speech-Dispatcher)" id="volume.Speech-Dispatcher" label="Volume" type="slider" subsetting="true" option="percent" default="100" range="0,200" />
 
     <!-- ttsd -->
     <setting visible="eq(-45,ttsd)" label="Server" type="lsep"/> <!-- SERVER -->
