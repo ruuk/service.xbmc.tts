@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.74
+Current version: 0.0.75
 -----------------------
 
 Authors: ruuk, pvagner
@@ -23,6 +23,7 @@ EXTERNAL TODO:
 
 Fix for speech-dispatcher eventually hanging on volume up/down
 Change speech-dispatcher volume range in settings to 0-200% (was 0-100%, but 50% actually represented the real 100%)
+Fix for sapi pitch, volume and rate not working on Windows 8
 
 ** 0.0.74 **
 
