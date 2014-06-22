@@ -4,6 +4,8 @@ import guitables
 import windowparser
 import skintables
 
+CURRENT_SKIN = skintables.CURRENT_SKIN
+
 def parseItemExtra(controlID,current=None):
 	texts = windowparser.getWindowParser().getListItemTexts(controlID)
 	if current and texts:
@@ -87,3 +89,15 @@ class DefaultWindowReader(WindowReaderBase):
 		if not text: return None
 		if not isinstance(text,(list,tuple)): text = [text]
 		return text
+
+class NullReader(WindowReaderBase):
+	ID = 'null'
+	def getName(self): return None
+
+	def getControlText(self,controlID): return (u'',u'')
+	
+	def getWindowExtraTexts(self): return None
+	
+class KeymapKeyInputReader(NullReader):
+	ID = 'keymapkeyinput'
+	def getWindowTexts(self): return [u'Press the key you want to assign now.']

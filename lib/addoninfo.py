@@ -5,6 +5,7 @@ import util
 
 DATAPATH = os.path.join(util.profileDirectory(),'addon_data.json')
 BASE = '{ "jsonrpc": "2.0", "id": 1, "method": "Addons.GetAddons", "params": {"enabled": true,"properties": ["name","version"]}}'
+NEW_VERSIONS = False
 
 def getAddonsMD5():
 	return hashlib.md5(xbmc.executeJSONRPC(BASE)).hexdigest()
@@ -15,7 +16,8 @@ def saveAddonsMD5(md5):
 def loadAddonsMD5():
 	return util.getSetting('addons_MD5')	
 
-def initAddonsData():
+def initAddonsData(force=False):
+	if not force and loadAddonsMD5() and os.path.exists(DATAPATH): return
 	md5 = getAddonsMD5()
 	saveAddonsMD5(md5)
 	jsonString = xbmc.executeJSONRPC(BASE)
@@ -56,5 +58,5 @@ def getUpdatedAddons():
 				ret.append(n)
 		else:
 			ret.append(n)
-	initAddonsData()
+	initAddonsData(force=True)
 	return ret

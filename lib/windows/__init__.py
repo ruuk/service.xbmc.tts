@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from base import DefaultWindowReader
+import xbmc
+
+from base import DefaultWindowReader, NullReader, KeymapKeyInputReader
 from progressdialog import ProgressDialogReader
 from virtualkeyboard import VirtualKeyboardReader
 from pvrguideinfo import PVRGuideInfoReader
@@ -10,8 +12,26 @@ from pvr import PVRWindowReader
 from weather import WeatherReader
 from playerstatus import PlayerStatusReader
 from settings import SettingsReader
+from selectdialog import SelectDialogReader
 
-READERS = {
+READERS = (
+	KeymapKeyInputReader,
+	DefaultWindowReader,
+	NullReader,
+	ProgressDialogReader,
+	VirtualKeyboardReader,
+	PVRGuideInfoReader,
+	TextViewerReader,
+	BusyDialogReader,
+	ContextMenuReader,
+	PVRWindowReader,
+	WeatherReader,
+	PlayerStatusReader,
+	SettingsReader,
+	SelectDialogReader
+)
+
+READERS_WINID_MAP = {
 				10004: SettingsReader, #settings
 				10012: SettingsReader, #picturesettings
 				10013: SettingsReader, #programsettings
@@ -39,11 +59,18 @@ READERS = {
 				10150: SettingsReader, #peripheralsettings
 				10601: PVRWindowReader,
 				10602: PVRGuideInfoReader,
+				12000: SelectDialogReader,
 				12005: PlayerStatusReader, #fullscreenvideo
 				12006: PlayerStatusReader, #visualization
 				12600: WeatherReader,
 				12901: SettingsReader, #videoosd
 }
-			
+
+READERS_MAP = {}
+for r in READERS: READERS_MAP[r.ID] = r
+
 def getWindowReader(winID):
-	return READERS.get(winID,DefaultWindowReader)
+	reader = xbmc.getInfoLabel('Window({0}).Property(TTS.READER)'.format(winID))
+	if reader and reader in READERS_MAP:
+		return READERS_MAP[reader]
+	return READERS_WINID_MAP.get(winID,DefaultWindowReader)

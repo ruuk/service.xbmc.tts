@@ -10,7 +10,7 @@ class NoticeDialog(WindowHandlerBase):
 	
 	def init(self):
 		self.notices = []
-		self._visible = False
+		self._visible = True #Pretend notice was show so we check stuff on startup
 		self.lastHeading = '' #401
 		self.lastMessage = '' #402
 		self.setWindow()

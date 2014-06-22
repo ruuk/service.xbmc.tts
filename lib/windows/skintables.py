@@ -18,6 +18,7 @@ skins = {	'quartz': quartz
 }
 
 CURRENT_SKIN_TABLE = None
+CURRENT_SKIN = None
 
 def getControlText(winID,controlID):
 	table = CURRENT_SKIN_TABLE
@@ -32,9 +33,11 @@ def getControlText(winID,controlID):
 
 
 def getSkinTable():
+	global CURRENT_SKIN
 	import os, xbmc
 	skinPath = xbmc.translatePath('special://skin')
 	skinName = os.path.basename(skinPath.rstrip('\/')).split('skin.',1)[-1]
+	CURRENT_SKIN = skinName
 	print 'service.xbmc.tts: SKIN: %s' % skinName
 	return skins.get(skinName)
 

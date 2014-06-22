@@ -182,32 +182,6 @@ def commandIsAvailable(command):
 		if os.path.isfile(os.path.join(p,command)): return True
 	return False
 
-def _keymapTarget():
-	return os.path.join(xbmc.translatePath('special://userdata').decode('utf-8'),'keymaps','service.xbmc.tts.keyboard.xml')
-
-def _copyKeymap():
-	import xbmcvfs
-	targetPath = _keymapTarget()
-	sourcePath = os.path.join(xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('path')).decode('utf-8'),'resources','service.xbmc.tts.keyboard.xml')
-	if os.path.exists(targetPath): xbmcvfs.delete(targetPath)
-	return xbmcvfs.copy(sourcePath,targetPath)
-
-def installKeymap():
-	import xbmcgui
-	success = _copyKeymap()
-	if success:
-		xbmcgui.Dialog().ok('Installed','Keymap installed successfully!','','Restart XBMC to use.')
-	else:
-		xbmcgui.Dialog().ok('Failed','Keymap installation failure.')
-
-def updateKeymap():
-	target = _keymapTarget()
-	if os.path.exists(target):
-		try:
-			_copyKeymap()
-		except:
-			ERROR('Failed to update keymap')
-
 def busyDialog(func):
 	def inner(*args,**kwargs):
 		try:
@@ -266,7 +240,9 @@ def selectSetting(provider,setting,*args):
 	choice = ids[idx]
 	LOG('Setting {0} for {1} set to: {2}'.format(setting,provider,choice))
 	setSetting('{0}.{1}'.format(setting,provider),choice)
-	
+
+################################################################		
+#Deprecated in Gotham - now using NotifyAll
 LAST_COMMAND_DATA = ''
 
 def initCommands():
@@ -284,6 +260,13 @@ def getCommand():
 	if commandData == LAST_COMMAND_DATA: return None
 	LAST_COMMAND_DATA = commandData
 	return commandData.split(':',1)[-1]
+#End deprecated
+################################################################
+
+def notifySayText(text,interrupt=False):
+	command ='XBMC.NotifyAll(service.xbmc.tts,SAY,"{{\\"text\\":\\"{0}\\",\\"interrupt\\":{1}}}")'.format(text,repr(interrupt).lower())
+	#print command
+	xbmc.executebuiltin(command)
 
 def init():
 	pd = profileDirectory()

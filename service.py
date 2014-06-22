@@ -1,4 +1,5 @@
 import sys, re, xbmc, xbmcgui, time, Queue
+import json
 from lib import util, addoninfo
 
 __version__ = util.xbmcaddon.Addon().getAddonInfo('version')
@@ -51,8 +52,12 @@ class TTSService(xbmc.Monitor):
 		self.checkBackend()
 		self.reloadSettings()
 		self.updateInterval()
+		#Deprecated in Gotham - now using NotifyAll
 		command = util.getCommand()
 		if not command: return
+		self.processCommand(command)
+		
+	def processCommand(self,command,data=None):
 		util.LOG(command)
 		if command == 'REPEAT':
 			self.repeatText()
@@ -68,6 +73,13 @@ class TTSService(xbmc.Monitor):
 			self.stopSpeech()
 		elif command == 'SHUTDOWN':
 			self.shutdown()
+		elif command == 'SAY':
+			if not data: return
+			args = json.loads(data)
+			if not args: return
+			text = args.get('text')
+			if text:
+				self.queueNotice(text,args.get('interrupt'))
 
 	def reloadSettings(self):
 		util.DEBUG = util.getSetting('debug_logging',True)
@@ -84,13 +96,15 @@ class TTSService(xbmc.Monitor):
 		util.LOG('DB SCAN UPDATED: {0} - Notifying...'.format(database))
 		self.queueNotice(u'{0} database scan finished.'.format(database))
 		
-#	def onNotification(self, sender, method, data):
+	def onNotification(self, sender, method, data):
+		if not sender == 'service.xbmc.tts': return
+		self.processCommand(method.split('.',1)[-1],data) #Remove the "Other." prefix
 #		util.LOG('NOTIFY: {0} :: {1} :: {2}'.format(sender,method,data))
 #		#xbmc :: VideoLibrary.OnUpdate :: {"item":{"id":1418,"type":"episode"}}		
 		
-	def queueNotice(self,text):
+	def queueNotice(self,text,interrupt=False):
 		assert isinstance(text,unicode), "Not Unicode"
-		self.noticeQueue.put(text)
+		self.noticeQueue.put((text,interrupt))
 
 	def clearNoticeQueue(self):
 		try:
@@ -103,8 +117,8 @@ class TTSService(xbmc.Monitor):
 	def checkNoticeQueue(self):
 		if self.noticeQueue.empty(): return False
 		while not self.noticeQueue.empty():
-			text = self.noticeQueue.get()
-			self.sayText(text)
+			text, interrupt = self.noticeQueue.get()
+			self.sayText(text,interrupt)
 			self.noticeQueue.task_done()
 		return True
 		
@@ -291,10 +305,10 @@ class TTSService(xbmc.Monitor):
 				self.windowReader._reset(self.winID)
 				return
 		self.windowReader = readerClass(self.winID,self)
-		
+
 	def window(self):
 		return xbmcgui.Window(self.winID)
-		
+
 	def checkWindow(self,newN):
 		winID = xbmcgui.getCurrentWindowId()
 		dialogID = xbmcgui.getCurrentWindowDialogId()
@@ -303,13 +317,19 @@ class TTSService(xbmc.Monitor):
 		self.winID = winID
 		self.updateWindowReader()
 		if util.DEBUG: util.LOG('Window ID: {0} Handler: {1}'.format(winID,self.windowReader.ID))
+		
 		name = self.windowReader.getName()
+		if name:
+			self.sayText(u'Window: {0}'.format(name),interrupt=not newN)
+			self.insertPause()
+		else:
+			self.sayText(u' ',interrupt=not newN)
+			
 		heading = self.windowReader.getHeading()
-		self.sayText(u'Window: {0}'.format(name),interrupt=not newN)
-		self.insertPause()
 		if heading:
 			self.sayText(heading)
 			self.insertPause()
+			
 		texts = self.windowReader.getWindowTexts()
 		if texts:
 			self.insertPause()
@@ -317,7 +337,7 @@ class TTSService(xbmc.Monitor):
 				self.sayText(t)
 				self.insertPause()
 		return True
-		
+
 	def checkControl(self,newW):
 		if not self.winID: return newW
 		controlID = self.window().getFocusId()
@@ -327,7 +347,7 @@ class TTSService(xbmc.Monitor):
 		self.controlID = controlID
 		if not controlID: return newW
 		return True
-		
+
 	def checkControlDescription(self,newW):
 		post = self.getControlPostfix()
 		description = self.windowReader.getControlDescription(self.controlID) or ''

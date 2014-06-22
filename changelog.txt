@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.75
+Current version: 0.0.76
 -----------------------
 
 Authors: ruuk, pvagner
@@ -18,6 +18,13 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.76 **
+
+Will now speak version updates for addons even if they were updated while the TTS addon was disabled or not yet started
+Added 'Keymap' category to settings and moved keymap options there
+Added 'Install Default Keymap', 'Install Custom Keymap', 'Edit Custom Keymap', 'Reset Custom Keymap To Defaults' and 'Remove Installed Keymap' to Keymap category
+XBMC no longer needs to be restarted on keymap install/update
 
 ** 0.0.75 **
 
