@@ -21,7 +21,8 @@ EXTERNAL TODO:
 
 ** 0.0.77 **
 
-Update comtypes to the latest dev version - fixes issues with Win 7/8
+Update comtypes to the latest dev version
+SAPI: Clear generated files on startup: possibly fixes issues with Win 7/8
 
 ** 0.0.76 **
 
