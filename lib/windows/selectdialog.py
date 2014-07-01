@@ -7,7 +7,7 @@ class SelectDialogReader(WindowReaderBase):
 
 	def getHeading(self):
 		if CURRENT_SKIN == 'confluence': return None #Broken for Confluence
-		return WindowReaderBase.getHeading()
+		return WindowReaderBase.getHeading(self)
 
 	def getControlText(self,controlID):
 		text = xbmc.getInfoLabel('System.CurrentControl').decode('utf-8')
