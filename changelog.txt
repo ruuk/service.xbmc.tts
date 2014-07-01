@@ -19,6 +19,12 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.78 **
+
+Added fix for select dialogs causing looping errors in skins other than Confluence
+Added fix for COMError issues when stopping speech in SAPI
+Added more informative SAPI COMError logging
+
 ** 0.0.77 **
 
 Update comtypes to the latest dev version
