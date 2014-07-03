@@ -19,6 +19,11 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.79 **
+
+SAPI: Add ability to retry initialization on errors
+SAPI: Improve error recovery
+
 ** 0.0.78 **
 
 Added fix for select dialogs causing looping errors in skins other than Confluence
