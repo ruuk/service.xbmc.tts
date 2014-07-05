@@ -12,9 +12,13 @@ def ERROR(txt,hide_tb=False,notify=False):
 	if hide_tb:
 		LOG('ERROR: {0} - {1}'.format(txt,short))
 		return short
+	print "_________________________________________________________________________________"
 	LOG('ERROR: ' + txt)
 	import traceback
-	traceback.print_exc()
+	tb = traceback.format_exc()
+	for l in tb.splitlines(): print '    ' + l
+	print "_________________________________________________________________________________"
+	print "`"
 	if notify: showNotification('ERROR: {0}'.format(short))
 	return short
 

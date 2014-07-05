@@ -21,8 +21,11 @@ EXTERNAL TODO:
 
 ** 0.0.79 **
 
+Better log error formatting
 SAPI: Add ability to retry initialization on errors
 SAPI: Improve error recovery
+SAPI: More improved logging
+Add ability to automatically reset the addon on SAPI failure
 
 ** 0.0.78 **
 

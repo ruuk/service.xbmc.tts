@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import xbmc, xbmcaddon
+import sys, xbmc, xbmcaddon
 
 def getXBMCVersion():
 	import json
@@ -21,12 +21,36 @@ def disableAddon():
 	#if res and 'error' in res: #If we have an error, it's already disabled
 	#print res
 	
+def addonIsEnabled():
+	import json
+	resp = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 1, "method": "Addons.GetAddonDetails", "params": {"addonid":"service.xbmc.tts","properties": ["name","version","enabled"]}}')
+	data = json.loads(resp)
+	if not 'result' in data: return False
+	if not 'addon' in data['result']: return False
+	if not 'enabled' in data['result']['addon']: return False
+	return data['result']['addon']['enabled']
+
 def toggleEnabled():
 	try:
+		if not addonIsEnabled(): raise Exception('Addon Disabled')
 		xbmcaddon.Addon('service.xbmc.tts')
 		xbmc.executebuiltin('XBMC.RunScript(service.xbmc.tts,key.SHUTDOWN)')
 	except:
 		enableAddon()
 		
+def reset():
+	if not addonIsEnabled(): return
+	disableAddon()
+	ct=0
+	while addonIsEnabled() and ct < 11:
+		xbmc.sleep(500)
+		ct+=1
+	enableAddon()
+	
 if __name__ == '__main__':
-	toggleEnabled()
+	arg = None
+	if len(sys.argv) > 1: arg = sys.argv[1]
+	if arg == 'RESET':
+		reset()	
+	else:
+		toggleEnabled()

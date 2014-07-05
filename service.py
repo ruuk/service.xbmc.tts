@@ -18,6 +18,14 @@ else:
 util.initCommands()
 addoninfo.initAddonsData()
 
+RESET = False
+def resetAddon():
+	global RESET
+	if RESET: return
+	RESET = True
+	util.LOG('Resetting addon...')
+	xbmc.executebuiltin('XBMC.RunScript(special://home/addons/service.xbmc.tts/enabler.py,RESET)')
+
 class TTSClosedException(Exception): pass
 
 class TTSService(xbmc.Monitor):
@@ -52,7 +60,7 @@ class TTSService(xbmc.Monitor):
 		self.checkBackend()
 		self.reloadSettings()
 		self.updateInterval()
-		#Deprecated in Gotham - now using NotifyAll
+		#Deprecated for the addon starting with Gotham - now using NotifyAll (Still used for SHUTDOWN until I figure out the issue when using NotifyAll with that)
 		command = util.getCommand()
 		if not command: return
 		self.processCommand(command)
@@ -146,6 +154,7 @@ class TTSService(xbmc.Monitor):
 		util.LOG('Backend: %s' % provider)
 		
 	def fallbackTTS(self,reason=None):
+		if reason == 'RESET': return resetAddon()
 		backend = backends.getBackendFallback()
 		util.LOG('Backend falling back to: {0}'.format(backend.provider))
 		self.initTTS(backend)
