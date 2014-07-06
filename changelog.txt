@@ -19,6 +19,11 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.80 **
+
+Added Settings:Options:Disable Interface Reader (Defualt=False)
+Now provides a module for other addons to use
+
 ** 0.0.79 **
 
 Better log error formatting

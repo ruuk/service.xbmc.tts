@@ -30,6 +30,7 @@ class TTSClosedException(Exception): pass
 
 class TTSService(xbmc.Monitor):
 	def __init__(self):
+		self.readerOn = True
 		self.stop = False
 		self.disable = False
 		self.noticeQueue = Queue.Queue()
@@ -56,7 +57,10 @@ class TTSService(xbmc.Monitor):
 		return self._tts
 
 	def onSettingsChanged(self):
-		self.tts._update()
+		try:
+			self.tts._update()
+		except TTSClosedException:
+			return			
 		self.checkBackend()
 		self.reloadSettings()
 		self.updateInterval()
@@ -90,6 +94,7 @@ class TTSService(xbmc.Monitor):
 				self.queueNotice(text,args.get('interrupt'))
 
 	def reloadSettings(self):
+		self.readerOn = not util.getSetting('reader_off',False)
 		util.DEBUG = util.getSetting('debug_logging',True)
 		self.speakListCount = util.getSetting('speak_list_count',True)
 		self.autoItemExtra = False
@@ -174,22 +179,47 @@ class TTSService(xbmc.Monitor):
 		self.checkNewVersion()
 		try:
 			while (not xbmc.abortRequested) and (not self.stop):
-				xbmc.sleep(self.interval)
-				try:
-					self.checkForText()
-				except RuntimeError:
-					util.ERROR('start()',hide_tb=True)
-				except SystemExit:
-					if util.DEBUG:
-						util.ERROR('SystemExit: Quitting')
-					else:
-						util.LOG('SystemExit: Quitting')
-					break
-				except TTSClosedException:
-					util.LOG('TTSCLOSED')
-				except: #Because we don't want to kill speech on an error
-					util.ERROR('start()',notify=True)
-					self.initState() #To help keep errors from repeating on the loop
+				#Interface reader mode
+				while self.readerOn and (not xbmc.abortRequested) and (not self.stop):
+					xbmc.sleep(self.interval)
+					try:
+						self.checkForText()
+					except RuntimeError:
+						util.ERROR('start()',hide_tb=True)
+					except SystemExit:
+						if util.DEBUG:
+							util.ERROR('SystemExit: Quitting')
+						else:
+							util.LOG('SystemExit: Quitting')
+						break
+					except TTSClosedException:
+						util.LOG('TTSCLOSED')
+					except: #Because we don't want to kill speech on an error
+						util.ERROR('start()',notify=True)
+						self.initState() #To help keep errors from repeating on the loop
+						
+				#Idle mode
+				while (not self.readerOn) and (not xbmc.abortRequested) and (not self.stop):
+					try:
+						text, interrupt = self.noticeQueue.get_nowait()
+						self.sayText(text,interrupt)
+						self.noticeQueue.task_done()
+					except Queue.Empty:
+						pass
+					except RuntimeError:
+						util.ERROR('start()',hide_tb=True)
+					except SystemExit:
+						if util.DEBUG:
+							util.ERROR('SystemExit: Quitting')
+						else:
+							util.LOG('SystemExit: Quitting')
+						break
+					except TTSClosedException:
+						util.LOG('TTSCLOSED')
+					except: #Because we don't want to kill speech on an error
+						util.ERROR('start()',notify=True)
+						self.initState() #To help keep errors from repeating on the loop
+					if self.noticeQueue.empty(): xbmc.sleep(500)
 		finally:
 			self._tts._close()
 			self.end()
@@ -248,7 +278,8 @@ class TTSService(xbmc.Monitor):
 			monitored = self.playerStatus.getMonitoredText(self.tts.isSpeaking())
 		if self.noticeDialog.visible():
 			monitored = self.noticeDialog.getMonitoredText(self.tts.isSpeaking())
-		if not monitored: monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
+		if not monitored:
+			monitored = self.windowReader.getMonitoredText(self.tts.isSpeaking())
 		if monitored:
 			if isinstance(monitored,basestring):
 				self.sayText(monitored,interrupt=True)
@@ -325,7 +356,8 @@ class TTSService(xbmc.Monitor):
 		if winID == self.winID: return newN
 		self.winID = winID
 		self.updateWindowReader()
-		if util.DEBUG: util.LOG('Window ID: {0} Handler: {1}'.format(winID,self.windowReader.ID))
+		if util.DEBUG:
+			util.LOG('Window ID: {0} Handler: {1}'.format(winID,self.windowReader.ID))
 		
 		name = self.windowReader.getName()
 		if name:
