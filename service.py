@@ -91,7 +91,7 @@ class TTSService(xbmc.Monitor):
 			if not args: return
 			text = args.get('text')
 			if text:
-				self.queueNotice(text,args.get('interrupt'))
+				self.queueNotice(util.safeDecode(text),args.get('interrupt'))
 
 	def reloadSettings(self):
 		self.readerOn = not util.getSetting('reader_off',False)
@@ -219,7 +219,8 @@ class TTSService(xbmc.Monitor):
 					except: #Because we don't want to kill speech on an error
 						util.ERROR('start()',notify=True)
 						self.initState() #To help keep errors from repeating on the loop
-					if self.noticeQueue.empty(): xbmc.sleep(500)
+					for x in range(5): #Check the queue every 100ms, check state every 500ms
+						if self.noticeQueue.empty(): xbmc.sleep(100)
 		finally:
 			self._tts._close()
 			self.end()
@@ -309,12 +310,12 @@ class TTSService(xbmc.Monitor):
 	def sayItemExtra(self,interrupt=True):
 		texts = self.windowReader.getItemExtraTexts(self.controlID)
 		self.sayTexts(texts,interrupt=interrupt)
-			
+
 	def sayText(self,text,interrupt=False):
 		assert isinstance(text,unicode), "Not Unicode"
 		if self.tts.dead: return self.fallbackTTS(self.tts.deadReason)
 		self.tts.say(self.cleanText(text),interrupt)
-		
+
 	def sayTexts(self,texts,interrupt=True):
 		if not texts: return
 		assert all(isinstance(t,unicode) for t in texts), "Not Unicode"
@@ -323,7 +324,7 @@ class TTSService(xbmc.Monitor):
 
 	def insertPause(self,ms=500):
 		self.tts.insertPause(ms=ms)
-		
+
 	def volumeUp(self):
 		msg = self.tts.volumeUp()
 		if not msg: return

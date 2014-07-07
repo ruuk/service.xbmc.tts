@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, sys, re, xbmc, time, binascii, xbmcaddon
+from module.TextToSpeech import sayText as notifySayText, safeDecode #analysis:ignore
 
 ADDON_ID = 'service.xbmc.tts'
 
@@ -266,11 +267,6 @@ def getCommand():
 	return commandData.split(':',1)[-1]
 #End deprecated
 ################################################################
-
-def notifySayText(text,interrupt=False):
-	command ='XBMC.NotifyAll(service.xbmc.tts,SAY,"{{\\"text\\":\\"{0}\\",\\"interrupt\\":{1}}}")'.format(text,repr(interrupt).lower())
-	#print command
-	xbmc.executebuiltin(command)
 
 def init():
 	pd = profileDirectory()

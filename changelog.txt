@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.77
+Current version: 0.0.81
 -----------------------
 
 Authors: ruuk, pvagner
@@ -19,9 +19,13 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.81 **
+
+Module: sayText() now requires unicode and is safe for all unicode characters
+
 ** 0.0.80 **
 
-Added Settings:Options:Disable Interface Reader (Defualt=False)
+Added 'Disable Interface Reader' to Settings:Options (Default=False)
 Now provides a module for other addons to use
 
 ** 0.0.79 **
