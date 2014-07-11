@@ -8,7 +8,7 @@ util.LOG('Platform: {0}'.format(sys.platform))
 
 from lib import backends
 from lib import windows
-from lib.windows import playerstatus, notice
+from lib.windows import playerstatus, notice, backgroundprogress
 
 if backends.audio.PLAYSFX_HAS_USECACHED:
 	util.LOG('playSFX() has useCached')
@@ -40,6 +40,7 @@ class TTSService(xbmc.Monitor):
 		util.stopSounds() #To kill sounds we may have started before an update
 		util.playSound('on')
 		self.playerStatus = playerstatus.PlayerStatus(10115).init()
+		self.bgProgress = backgroundprogress.BackgroundProgress(10151).init()
 		self.noticeDialog = notice.NoticeDialog(10107).init()
 		self.initTTS()
 		util.LOG('SERVICE STARTED :: Interval: %sms' % self.tts.interval)
@@ -275,8 +276,11 @@ class TTSService(xbmc.Monitor):
 		
 	def checkMonitored(self):
 		monitored = None
+		
 		if self.playerStatus.visible():
 			monitored = self.playerStatus.getMonitoredText(self.tts.isSpeaking())
+		if self.bgProgress.visible():
+			monitored = self.bgProgress.getMonitoredText(self.tts.isSpeaking())
 		if self.noticeDialog.visible():
 			monitored = self.noticeDialog.getMonitoredText(self.tts.isSpeaking())
 		if not monitored:

@@ -1,13 +1,14 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.81
+Current version: 0.0.82
 -----------------------
 
 Authors: ruuk, pvagner
 
 TODO:
 -----
+ Format seek position to prevent engines (some) from speaking it as a clock time (ie blah past midnight)
  Android backend
  Speech for more window types that isn't automatically handled
  Pageination for large texts?
@@ -18,6 +19,12 @@ EXTERNAL TODO:
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.82 **
+
+Added 'Speak Background Progress Updates' to Settings:Options (Default: False)
+Added 'Minimum Progress Update Interval (Seconds)' as subsetting to 'Speak Background Progress Updates' (Default: 5)
+Added 'Speak When Media Playing' as subsetting to 'Speak Background Progress Updates' (Default: False)
 
 ** 0.0.81 **
 

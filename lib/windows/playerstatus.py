@@ -4,7 +4,7 @@ from lib import util
 import xbmc
 
 class PlayerStatus(WindowHandlerBase):
-	ID = 'fullscreenvideo'
+	ID = 'playerstatus'
 	
 	def init(self):
 		self.mode = None

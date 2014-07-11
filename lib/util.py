@@ -7,6 +7,8 @@ ADDON_ID = 'service.xbmc.tts'
 T = xbmcaddon.Addon(ADDON_ID).getLocalizedString
 XT = xbmc.getLocalizedString
 
+LOG_PATH = os.path.join(xbmc.translatePath('special://logpath').decode('utf-8'),'xbmc.log')
+
 def ERROR(txt,hide_tb=False,notify=False):
 	if isinstance (txt,str): txt = txt.decode("utf-8")
 	short = str(sys.exc_info()[1])
@@ -44,6 +46,14 @@ def profileDirectory():
 
 def backendsDirectory():
 	return os.path.join(xbmc.translatePath(info('path')).decode('utf-8'),'lib','backends')
+
+def tailXBMCLog(num_lines=10):
+	with open(LOG_PATH, "r") as f:
+		f.seek (0, 2)
+		fsize = f.tell()
+		f.seek (max (fsize-1024, 0), 0)
+		lines = f.readlines()
+	return lines[-num_lines:]
 
 def getTmpfs():
 	if sys.platform.startswith('win'): return None
