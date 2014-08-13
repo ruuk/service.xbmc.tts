@@ -1,7 +1,7 @@
 Changelog for service.xbmc.tts
 ==============================
 
-Current version: 0.0.82
+Current version: 0.0.83
 -----------------------
 
 Authors: ruuk, pvagner
@@ -13,12 +13,17 @@ TODO:
  Speech for more window types that isn't automatically handled
  Pageination for large texts?
  Subtitle speech? Maybe only possible with something like pysrt and a subtitle file. https://pypi.python.org/pypi/pysrt
+ GwMicro Window Eyes backend?
 
 EXTERNAL TODO:
 --------------
  Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.83 **
+
+Fix for errors on platforms with Python 2.6
 
 ** 0.0.82 **
 
