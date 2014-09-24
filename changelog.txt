@@ -14,6 +14,8 @@ TODO:
  Pageination for large texts?
  Subtitle speech? Maybe only possible with something like pysrt and a subtitle file. https://pypi.python.org/pypi/pysrt
  GwMicro Window Eyes backend?
+ Dolphin API backend?
+ OSX VoiceOver via AppleScript?
 
 EXTERNAL TODO:
 --------------
