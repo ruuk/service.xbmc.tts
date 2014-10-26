@@ -179,7 +179,7 @@ class WindowParser:
 			if not clist: return None
 			fl = xpath.findnode("focusedlayout",clist)
 			if not fl: return None
-			lt = xpath.find(".//control[attribute::type='label']",fl) + xpath.find(".//control[attribute::type='textbox']",fl)
+			lt = xpath.find("//control[attribute::type='label' or attribute::type='fadelabel' or attribute::type='textbox']",fl)
 			texts = []
 			for l in lt:
 				if not self.controlIsVisibleGlobally(l): continue
@@ -190,7 +190,7 @@ class WindowParser:
 			self.currentControl = None
 			
 	def getWindowTexts(self):
-		lt = xpath.find("//control[attribute::type='label']",self.xml) + xpath.find("//control[attribute::type='textbox']",self.xml)
+		lt = xpath.find("//control[attribute::type='label' or attribute::type='fadelabel' or attribute::type='textbox']",self.xml)
 		texts = []
 		for l in lt:
 			if not self.controlIsVisible(l): continue

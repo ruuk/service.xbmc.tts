@@ -20,6 +20,13 @@ class PVRWindowReader(WindowReaderBase):
 						'$INFO[ListItem.Plot]'
 	)
 	
+	nowNextInfo = (	u'Channel',
+						'$INFO[ListItem.ChannelNumber]',
+						'$INFO[ListItem.ChannelName]',
+						'$INFO[ListItem.StartTime]',
+						'$INFO[ListItem.Plot]'
+	)
+	
 	def init(self):
 		self.mode = False
 		
@@ -53,8 +60,10 @@ class PVRWindowReader(WindowReaderBase):
 	def getItemExtraTexts(self,controlID):
 		text = None
 		if self.controlIsOnView(controlID):
-			if controlID == 10: #Timeline
+			if controlID == 10: #EPG: Timeline
 				text = guitables.convertTexts(self.winID,self.timelineInfo)
 			elif controlID == 11 or controlID == 12: #Channel (TV or Radio)
 				text = guitables.convertTexts(self.winID,self.channelInfo)
+			elif controlID == 16: #EPG: Now/Next
+				text = guitables.convertTexts(self.winID,self.nowNextInfo)
 		return text

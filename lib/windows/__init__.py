@@ -13,6 +13,7 @@ from weather import WeatherReader
 from playerstatus import PlayerStatusReader
 from settings import SettingsReader
 from selectdialog import SelectDialogReader
+from yesnodialog import YesNoDialogReader
 
 READERS = (
 	KeymapKeyInputReader,
@@ -28,6 +29,7 @@ READERS = (
 	WeatherReader,
 	PlayerStatusReader,
 	SettingsReader,
+	YesNoDialogReader,
 	SelectDialogReader
 )
 
@@ -44,6 +46,7 @@ READERS_WINID_MAP = {
 				10021: SettingsReader, #livetvsettings
 				10034: SettingsReader, #profilesettings
 				14000: SettingsReader, #pvrclientspecificsettings
+				10100: YesNoDialogReader, #yesnodialog
 				10101: ProgressDialogReader,
 				10103: VirtualKeyboardReader,
 				10106: ContextMenuReader,
@@ -60,6 +63,7 @@ READERS_WINID_MAP = {
 				10601: PVRWindowReader,
 				10602: PVRGuideInfoReader,
 				12000: SelectDialogReader,
+				12002: YesNoDialogReader,
 				12005: PlayerStatusReader, #fullscreenvideo
 				12006: PlayerStatusReader, #visualization
 				12600: WeatherReader,

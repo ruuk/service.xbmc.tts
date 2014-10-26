@@ -105,9 +105,7 @@ winNames = {		10000: 10000, #Home
 				14000: u'PVR Client Specific Settings'
 }
 
-winTexts = {	10100:('2','3','4','9'), #Yes/No Dialog - 1,2,3=Older Skins 9=Newer Skins
-				12002:('2','3','4','9') #OK Dialog - 1,2,3=Older Skins 9=Newer Skins
-}
+winTexts = {}
 
 winExtraTexts = {	10000:(555,'$INFO[System.Time]',8,'$INFO[Weather.Temperature]','$INFO[Weather.Conditions]'), #Home
 					10146:(	21863, #Addon Info Dialog
