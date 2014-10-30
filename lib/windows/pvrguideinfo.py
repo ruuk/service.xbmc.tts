@@ -2,6 +2,6 @@
 from base import WindowReaderBase
 
 class PVRGuideInfoReader(WindowReaderBase):
-	ID = 'pvrguideinfo'
+    ID = 'pvrguideinfo'
 
-	def getWindowTexts(self): return self.getWindowExtraTexts()
+    def getWindowTexts(self): return self.getWindowExtraTexts()
