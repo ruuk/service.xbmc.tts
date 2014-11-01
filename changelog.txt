@@ -20,6 +20,10 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.85 **
+
+Localize strings
+
 ** 0.0.84 **
 
 Fix for Yes/No dialogs not reading buttons and other issues
