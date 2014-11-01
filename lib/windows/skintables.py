@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import xbmc
-
+from lib import util
 quartz = {    10000:
-            {    301:{'name':20342,'prefix':u'section'}, #Movies
-                302:{'name':20343,'prefix':u'section'}, #TV Shows
-                303:{'name':2,'prefix':u'section'}, #Music
-                304:{'name':1,'prefix':u'section'}, #Pictures
-                305:{'name':24001,'prefix':u'section'}, #Addons
-                306:{'name':'X B M C','prefix':u'section'},
-                312:{'name':20387,'prefix':u'area'}, #Recently added tv shows
-                313:{'name':359,'prefix':u'area'}, #Recently added albums
+            {    301:{'name':20342,'prefix':util.T(32175)}, #Movies
+                302:{'name':20343,'prefix':util.T(32175)}, #TV Shows
+                303:{'name':2,'prefix':util.T(32175)}, #Music
+                304:{'name':1,'prefix':util.T(32175)}, #Pictures
+                305:{'name':24001,'prefix':util.T(32175)}, #Addons
+                306:{'name':'X B M C','prefix':util.T(32175)},
+                312:{'name':20387,'prefix':util.T(32176)}, #Recently added tv shows
+                313:{'name':359,'prefix':util.T(32176)}, #Recently added albums
             }
 
 }

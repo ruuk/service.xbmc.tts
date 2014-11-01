@@ -3,6 +3,7 @@ import xbmc
 import guitables
 import windowparser
 import skintables
+from lib import util
 
 CURRENT_SKIN = skintables.CURRENT_SKIN
 
@@ -100,4 +101,4 @@ class NullReader(WindowReaderBase):
     
 class KeymapKeyInputReader(NullReader):
     ID = 'keymapkeyinput'
-    def getWindowTexts(self): return [u'Press the key you want to assign now.']
+    def getWindowTexts(self): return [util.T(32124)]

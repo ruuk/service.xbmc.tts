@@ -1,6 +1,7 @@
 import sys, re, xbmc, xbmcgui, time, Queue
 import json
 from lib import util, addoninfo
+T = util.T
 
 __version__ = util.xbmcaddon.Addon().getAddonInfo('version')
 util.LOG(__version__)
@@ -104,11 +105,11 @@ class TTSService(xbmc.Monitor):
 
     def onDatabaseScanStarted(self,database):
         util.LOG('DB SCAN STARTED: {0} - Notifying...'.format(database))
-        self.queueNotice(u'{0} database scan started.'.format(database))
+        self.queueNotice(u'{0}: {1}'.format(database,T(32100)))
         
     def onDatabaseUpdated(self,database):
         util.LOG('DB SCAN UPDATED: {0} - Notifying...'.format(database))
-        self.queueNotice(u'{0} database scan finished.'.format(database))
+        self.queueNotice(u'{0}: {1}'.format(database,T(32101)))
         
     def onNotification(self, sender, method, data):
         if not sender == 'service.xbmc.tts': return
@@ -164,15 +165,15 @@ class TTSService(xbmc.Monitor):
         backend = backends.getBackendFallback()
         util.LOG('Backend falling back to: {0}'.format(backend.provider))
         self.initTTS(backend)
-        self.sayText(u'Notice... Speech engine falling back to {0}'.format(backend.displayName),interrupt=True)
-        if reason: self.sayText(u'Reason: {0}'.format(reason),interrupt=False)
+        self.sayText(T(32102).format(backend.displayName),interrupt=True)
+        if reason: self.sayText(u'{0}: {1}'.format(T(32103),reason),interrupt=False)
     
     def checkNewVersion(self):
         from distutils.version import StrictVersion
         lastVersion = util.getSetting('version','0.0.0')
         if StrictVersion(lastVersion) < StrictVersion(__version__):
             util.setSetting('version',__version__)
-            self.queueNotice(u'New T T S Version... {0}'.format(__version__))
+            self.queueNotice(u'{0}... {1}'.format(T(32104),__version__))
             return True
         return False
         
@@ -366,7 +367,7 @@ class TTSService(xbmc.Monitor):
         
         name = self.windowReader.getName()
         if name:
-            self.sayText(u'Window: {0}'.format(name),interrupt=not newN)
+            self.sayText(u'{0}: {1}'.format(T(32105),name),interrupt=not newN)
             self.insertPause()
         else:
             self.sayText(u' ',interrupt=not newN)
@@ -419,7 +420,7 @@ class TTSService(xbmc.Monitor):
     def getControlPostfix(self):
         if not self.speakListCount: return u''
         numItems = xbmc.getInfoLabel('Container({0}).NumItems'.format(self.controlID)).decode('utf-8')
-        if numItems: return u'... {0} item{1}'.format(numItems,numItems != '1' and 's' or '')
+        if numItems: return u'... {0} {1}'.format(numItems,numItems != '1' and T(32107) or T(32106))
         return u''
         
     def newSecondaryText(self, text):
@@ -430,7 +431,7 @@ class TTSService(xbmc.Monitor):
         
     def formatSeasonEp(self,seasEp):
         if not seasEp: return u''
-        return seasEp.replace(u'S',u'season ').replace(u'E',u'episode ')
+        return seasEp.replace(u'S',u'{0} '.format(T(32108))).replace(u'E',u'{0} '.format(T(32109)))
 
     _formatTagRE = re.compile(r'\[/?(?:CR|B|I|UPPERCASE|LOWERCASE)\](?i)')
     _colorTagRE = re.compile(r'\[/?COLOR[^\]\[]*?\](?i)')
@@ -441,7 +442,7 @@ class TTSService(xbmc.Monitor):
         text = self._okTagRE.sub(r'\1O K\2', text) #Some speech engines say OK as Oklahoma
         text = text.strip('-[]') #getLabel() on lists wrapped in [] and some speech engines have problems with text starting with -
         text = text.replace('XBMC','X B M C')
-        if text == '..': text = u'Parent Directory'
+        if text == '..': text = T(32110)
         return text
 
     def cleanText(self,text):

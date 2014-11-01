@@ -2,6 +2,7 @@
 from base import WindowReaderBase, WindowHandlerBase
 from lib import util
 import xbmc
+T = util.T
 
 class PlayerStatus(WindowHandlerBase):
     ID = 'playerstatus'
@@ -51,7 +52,7 @@ class PlayerStatus(WindowHandlerBase):
                 return self.seek(isSpeaking)
         elif xbmc.getCondVisibility('Player.Forwarding'):
             if self.updateMode('fastforward'):
-                return u'Fast Forward'
+                return T(32170)
             else:
                 if not isSpeaking:
                     if        xbmc.getCondVisibility('Player.Forwarding2x') and self.updateProgress('2x'): return u'2 X'
@@ -61,7 +62,7 @@ class PlayerStatus(WindowHandlerBase):
                     elif    xbmc.getCondVisibility('Player.Forwarding32x') and self.updateProgress('32x'): return u'32 X'
         elif xbmc.getCondVisibility('Player.Rewinding'):
             if self.updateMode('rewind'):
-                return u'Rewind'
+                return T(32169)
             else:
                 if not isSpeaking:
                     if        xbmc.getCondVisibility('Player.Rewinding2x') and self.updateProgress('2x'): return u'2 X'

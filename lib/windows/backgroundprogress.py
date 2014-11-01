@@ -4,7 +4,7 @@ import time
 import xbmc, xbmcgui
 from lib import util
 from base import WindowReaderBase, WindowHandlerBase
-
+T = util.T
         
 class ProgressNotice(xbmcgui.Window):
     def __init__(self,winID):
@@ -35,13 +35,13 @@ class ProgressNotice(xbmcgui.Window):
         for t in reversed(tail):
             l = t.lower()
             if 'thread epgupdater start' in l:
-                self.title = u'Importing P.V.R. E.P.G.'
+                self.title = T(32120)
                 return
             elif 'thread pvrguiinfo start' in l:
-                self.title = u'Loading P.V.R. E.P.G.'
+                self.title = T(32121)
                 return
             
-        if self.progress: self.title = u'Background Progress Started'
+        if self.progress: self.title = T(32122)
 
     def visible(self):
         return xbmc.getCondVisibility('Window.IsVisible({0})'.format(self.winID))
@@ -86,7 +86,7 @@ class ProgressNotice(xbmcgui.Window):
         if self.seen:
             if self.finished:
                 self.valid = False
-                return u'Background Progress Done'
+                return T(32123)
             else:
                 return self.getProgress()
         else:

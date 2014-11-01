@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from base import WindowReaderBase
 import xbmc
+from lib import util
 
 class SettingsReader(WindowReaderBase):
     ID = 'settings'
@@ -19,6 +20,6 @@ class SettingsReader(WindowReaderBase):
         if not text: return (u'',u'')
         sub = u''
         if text.endswith(')'): #Skip this most of the time
-                text = text.replace('( )','{0} no'.format(self.service.tts.pauseInsert)).replace('(*)','{0} yes'.format(self.service.tts.pauseInsert)) #For boolean settings
-        if text.startswith('-'): sub = u'Sub-setting: '
+                text = text.replace('( )','{0} {1}'.format(self.service.tts.pauseInsert,util.T(32174))).replace('(*)','{0} {1}'.format(self.service.tts.pauseInsert,util.T(32173))) #For boolean settings
+        if text.startswith('-'): sub = u'{0}: '.format(util.T(32172))
         return (u'{0}{1}'.format(sub,text.decode('utf-8')),text)

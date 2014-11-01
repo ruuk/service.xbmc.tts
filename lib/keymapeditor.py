@@ -3,6 +3,7 @@ import os
 from threading import Timer
 import xbmc, xbmcgui, xbmcaddon
 import util
+T = util.T
 
 ACTIONS = (
             ('REPEAT','f1'),
@@ -63,16 +64,16 @@ def saveCustomKeymapDefs(defs):
     
 def installDefaultKeymap():
     buildKeymap(defaults=True)
-    xbmcgui.Dialog().ok('Installed','Default keymap installed successfully!')
+    xbmcgui.Dialog().ok(T(32111),T(32113))
 
 def installCustomKeymap():
     buildKeymap()
-    xbmcgui.Dialog().ok('Updated','Custom keymap installed or updated successfully!')
+    xbmcgui.Dialog().ok(T(32112),T(32114))
 
 def resetKeymap():
     saveCustomKeymapDefs({})
     buildKeymap()
-    xbmcgui.Dialog().ok('Updated','Custom keymap reset to defaults.')
+    xbmcgui.Dialog().ok(T(32112),T(32115))
     
 def removeKeymap():
     targetPath = _keymapTarget()
@@ -80,7 +81,7 @@ def removeKeymap():
     if os.path.exists(targetPath):
         xbmcvfs.delete(targetPath)
     xbmc.executebuiltin("action(reloadkeymaps)")
-    xbmcgui.Dialog().ok('Removed','Keymap removed.')
+    xbmcgui.Dialog().ok(T(32116),T(32117))
 
 def saveKeymapXML(xml):
     import xbmcvfs
@@ -133,7 +134,7 @@ def editKeymap():
 def editKey(key_id,defs):
     key = KeyListener.record_key()
     if not key: return
-    util.notifySayText('Key set',interrupt=True)
+    util.notifySayText(u'Key set',interrupt=True)
     defs[key_id] = key
     saveCustomKeymapDefs(defs)
 
@@ -145,8 +146,8 @@ class KeyListener(xbmcgui.WindowXMLDialog):
                     return super(KeyListener, cls).__new__(cls, "DialogKaiToast.xml", "")
 
     def __init__(self):
-        self.msg1 = 'Press the key you want to assign now.'
-        self.msg2 = 'Timeout in %.0f seconds...' % self.TIMEOUT
+        self.msg1 = T(32118)
+        self.msg2 = '{0}...'.format(T(32119).format('%.0f' % self.TIMEOUT))
         self.key = None
 
     def onInit(self):

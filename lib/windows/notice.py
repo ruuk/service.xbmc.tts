@@ -2,8 +2,9 @@
 
 # -*- coding: utf-8 -*-
 from base import WindowHandlerBase
-from lib import addoninfo
+from lib import addoninfo, util
 import xbmcgui
+T = util.T
 
 class NoticeDialog(WindowHandlerBase):
     ID = 'notice'
@@ -41,7 +42,7 @@ class NoticeDialog(WindowHandlerBase):
         if not self.notices: return None
         ret = []
         for n in self.notices:
-            ret.append(u'Notice: {0}... {1}'.format(n[0],n[1]))
+            ret.append(u'{0}: {1}... {2}'.format(T(32168),n[0],n[1]))
         self.init()
         #print ret
         return ret
@@ -51,9 +52,9 @@ class NoticeDialog(WindowHandlerBase):
         if not addoninfo.checkForNewVersions(): return None
         details = addoninfo.getUpdatedAddons()
         if not details: return None
-        ret = [u'Addons updated... ']
+        ret = [u'{0}... '.format(32166)]
         for d in details:
-            item = u'{0} version {1}'.format(d['name'],d['version'])
+            item = u'{0} {1} {2}'.format(d['name'],T(32167),d['version'])
             if not item in ret:
                 ret.append(item)
         #print ret

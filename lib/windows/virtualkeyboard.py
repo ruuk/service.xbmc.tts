@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import xbmc, re, difflib, time
 from base import WindowReaderBase
-
+from lib import util
 class VirtualKeyboardReader(WindowReaderBase):
     ID = 'virtualkeyboard'
     ip_re = re.compile('^[\d ]{3}\.[\d ]{3}\.[\d ]{3}.[\d ]{3}$')
@@ -32,7 +32,7 @@ class VirtualKeyboardReader(WindowReaderBase):
             out = ''
             d = difflib.Differ()
             if not text:
-                out = u'No text'
+                out = util.T(32178)
             elif self.isIP(text):
                 if self.isIP(text) and self.isIP(self.keyboardText): #IP Address
                     oldip = self.keyboardText.replace(' ','').split('.')
@@ -44,11 +44,11 @@ class VirtualKeyboardReader(WindowReaderBase):
             elif len(text) > len(self.keyboardText):
                 for c in d.compare(self.keyboardText,text):
                     if c.startswith('+'):
-                        out += u' ' + (c.strip(' +') or 'space')
+                        out += u' ' + (c.strip(' +') or util.T(32177))
             else:
                 for c in d.compare(self.keyboardText,text):
-                    if c.startswith('-'): out += u' ' + (c.strip(' -') or 'space')
-                if out: out = out.strip() + ' deleted'
+                    if c.startswith('-'): out += u' ' + (c.strip(' -') or util.T(32177))
+                if out: out = out.strip() + ' {0}'.format(util.T(32179))
             self.keyboardText = text
             if out:
                 return out.strip()

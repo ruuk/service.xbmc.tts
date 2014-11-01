@@ -211,12 +211,12 @@ def selectBackend():
     import backends
     import xbmcgui
     choices = ['auto']
-    display = ['Auto']
+    display = [T(32184)]
     available = backends.getAvailableBackends()
     for b in available:
         choices.append(b.provider)
         display.append(b.displayName)
-    idx = xbmcgui.Dialog().select('Choose Backend',display)
+    idx = xbmcgui.Dialog().select(T(32181),display)
     if idx < 0: return
     setSetting('backend',choices[idx])
     
@@ -226,12 +226,12 @@ def selectPlayer(provider):
     import backends
     players = backends.getPlayers(provider)
     if not players:
-        xbmcgui.Dialog().ok('Not Available','No players to select.')
+        xbmcgui.Dialog().ok(T(32182),T(32183))
         return
-    players.insert(0,('','Auto'))
+    players.insert(0,('',T(32184)))
     disp = []
     for p in players: disp.append(p[1])
-    idx = xbmcgui.Dialog().select('Choose Player',disp)
+    idx = xbmcgui.Dialog().select(T(32185),disp)
     if idx < 0: return
     player = players[idx][0]
     LOG('Player for {0} set to: {1}'.format(provider,player))
@@ -243,14 +243,14 @@ def selectSetting(provider,setting,*args):
     import backends
     settingsList = backends.getSettingsList(provider,setting,*args)
     if not settingsList:
-        xbmcgui.Dialog().ok('Not Available','No options to select.')
+        xbmcgui.Dialog().ok(T(32182),T(32186))
         return
     ids = []
     displays = []
     for ID,display in settingsList:
         ids.append(ID)
         displays.append(display)
-    idx = xbmcgui.Dialog().select('Choose Option',displays)
+    idx = xbmcgui.Dialog().select(T(32187),displays)
     if idx < 0: return
     choice = ids[idx]
     LOG('Setting {0} for {1} set to: {2}'.format(setting,provider,choice))

@@ -2,10 +2,10 @@
 import xbmc
 import guitables
 from base import WindowReaderBase
-
+from lib import util
 class PVRWindowReader(WindowReaderBase):
     ID = 'pvr'
-    timelineInfo = (    u'Channel', #PVR
+    timelineInfo = (    util.T(32171), #PVR
                         '$INFO[ListItem.ChannelNumber]',
                         '$INFO[ListItem.ChannelName]',
                         '$INFO[ListItem.StartTime]',
@@ -20,7 +20,7 @@ class PVRWindowReader(WindowReaderBase):
                         '$INFO[ListItem.Plot]'
     )
     
-    nowNextInfo = (    u'Channel',
+    nowNextInfo = (    util.T(32171),
                         '$INFO[ListItem.ChannelNumber]',
                         '$INFO[ListItem.ChannelName]',
                         '$INFO[ListItem.StartTime]',
