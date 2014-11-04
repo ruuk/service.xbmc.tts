@@ -169,7 +169,13 @@ class TTSService(xbmc.Monitor):
         if reason: self.sayText(u'{0}: {1}'.format(T(32103),reason),interrupt=False)
     
     def checkNewVersion(self):
-        from distutils.version import StrictVersion
+        try:
+            #Fails on Helix beta 1 on OpenElec #1103
+            from distutils.version import StrictVersion
+        except ImportError:
+            def StrictVersion(v):
+                return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
+
         lastVersion = util.getSetting('version','0.0.0')
         if StrictVersion(lastVersion) < StrictVersion(__version__):
             util.setSetting('version',__version__)
