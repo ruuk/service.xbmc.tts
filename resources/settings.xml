@@ -102,11 +102,11 @@
 	<setting label="32038" type="bool" id="speak_background_progress_during_media" subsetting="true" default="false" enable="eq(-2,true)" />
   </category>
   <category label="32030">
-    <setting label="32039" type="action" action="RunScript(service.xbmc.tts,keymap.INSTALL_DEFAULT)"/>
-    <setting label="32040" type="action" action="RunScript(service.xbmc.tts,keymap.INSTALL_CUSTOM)"/>
-    <setting label="32041" type="action" action="RunScript(service.xbmc.tts,keymap.EDIT)"/>
-    <setting label="32042" type="action" action="RunScript(service.xbmc.tts,keymap.RESET)"/>
-    <setting label="32043" type="action" action="RunScript(service.xbmc.tts,keymap.REMOVE)"/>
+    <setting id="ACTION_KEYMAP_INSTALL_DEFAULT" label="32039" type="action" action="RunScript(service.xbmc.tts,keymap.INSTALL_DEFAULT)"/>
+    <setting id="ACTION_KEYMAP_INSTALL_CUSTOM" label="32040" type="action" action="RunScript(service.xbmc.tts,keymap.INSTALL_CUSTOM)"/>
+    <setting id="ACTION_KEYMAP_EDIT" label="32041" type="action" action="RunScript(service.xbmc.tts,keymap.EDIT)"/>
+    <setting id="ACTION_KEYMAP_RESET" label="32042" type="action" action="RunScript(service.xbmc.tts,keymap.RESET)"/>
+    <setting id="ACTION_KEYMAP_REMOVE" label="32043" type="action" action="RunScript(service.xbmc.tts,keymap.REMOVE)"/>
   </category>
   <category label="32031">
     <setting label="32044" type="bool" id="use_tmpfs" default="true" />
