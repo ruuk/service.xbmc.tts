@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
   <category label="32001">
-    <setting label="32002" type="action" id="backend" action="RunScript(service.xbmc.tts,backend_dialog)"/>
+    <setting label="32002" type="action" id="backend" action="XBMC.NotifyAll(service.xbmc.tts,SETTINGS.BACKEND_DIALOG)"/>
     <!-- IF EDITING, PLEASE NOTE: if you insert a setting for a backend, you need to increment the visible condition for each following backend setting -->
     <!-- Flite -->
     <setting visible="eq(-1,Flite)" id="voice.Flite" subsetting="true" label="32003" type="action" action="RunScript(service.xbmc.tts,settings_dialog,Flite,voice)" />

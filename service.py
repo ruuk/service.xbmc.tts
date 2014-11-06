@@ -94,6 +94,12 @@ class TTSService(xbmc.Monitor):
             text = args.get('text')
             if text:
                 self.queueNotice(util.safeDecode(text),args.get('interrupt'))
+        elif command == 'SETTINGS.BACKEND_DIALOG':
+            util.runInThread(util.selectBackend,name='SETTINGS.BACKEND_DIALOG')
+        elif command.startswith('keymap.'):
+            command = command[7:]
+            from lib import keymapeditor
+            util.runInThread(keymapeditor.processCommand,(command,),name='keymap.INSTALL_DEFAULT')
 
     def reloadSettings(self):
         self.readerOn = not util.getSetting('reader_off',False)

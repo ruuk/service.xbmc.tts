@@ -256,6 +256,11 @@ def selectSetting(provider,setting,*args):
     LOG('Setting {0} for {1} set to: {2}'.format(setting,provider,choice))
     setSetting('{0}.{1}'.format(setting,provider),choice)
 
+def runInThread(func,args=(),name='?'):
+     import threading
+     thread = threading.Thread(target=func,args=args,name='TTSThread: {0}'.format(name))
+     thread.start()
+     
 ################################################################        
 #Deprecated in Gotham - now using NotifyAll
 LAST_COMMAND_DATA = ''
