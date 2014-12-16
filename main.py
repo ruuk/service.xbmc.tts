@@ -16,10 +16,10 @@ if __name__ == '__main__':
     elif arg == 'settings_dialog':
         from lib import util
         util.selectSetting(*extra)
-    elif arg == 'player_dialog':
+    elif arg == 'player_dialog': #Deprecated in 0.0.86 - now using NotifyAll
         from lib import util
         util.selectPlayer(*extra)
-    elif arg == 'backend_dialog':
+    elif arg == 'backend_dialog': #Deprecated in 0.0.86 - now using NotifyAll
         from lib import util
         util.selectBackend()
     elif arg == 'settings': #No longer used, using XBMC.Addon.OpenSettings(service.xbmc.tts) in keymap instead

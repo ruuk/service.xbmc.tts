@@ -20,6 +20,13 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.86 **
+
+Fix for video info window buttons not reading properly on Helix
+Enhancements to video info reading
+Added speaking of currently playing item on pause
+Fix for some settings not working
+
 ** 0.0.85 **
 
 Localize strings
@@ -206,7 +213,7 @@ Added volume on SAPI
 Added support for playing MP3 based backends on windows internally
 Google backend now works on windows
 Added speechutil.com backend (Very slow but should work on all platforms)
-OSXSay backend now accesses speech library directly instead of via subprocess 
+OSXSay backend now accesses speech library directly instead of via subprocess
 Added voice selection to OSXSay backend
 Added language selection to Google backend
 Added player selection to Google backend
@@ -318,7 +325,7 @@ Fix for encoiding errors with non-ascii characters in HTTP speech wav server bac
 ** 0.0.37 **
 
 Added support for playSFX without caching (xbmc git: 5579740e9881717c65518b81a9a2b4d9526c3307)
--Enable in Settings::Advanced (temporary setting until relevant change is in an XBMC release) 
+-Enable in Settings::Advanced (temporary setting until relevant change is in an XBMC release)
 Added the ability to output wavs to a tmpfs (/run/shm or /dev/shm with fallback to /tmp)
 Added speaking for typing in the numeric and IP address inputs
 Added backend for eckythump's HTTP speech wav server
@@ -414,7 +421,7 @@ Some restructuring to the backend base classes and backends to make more sense a
 Change XBMCAudioTTSBackendBase to WaveFileTTSBackendBase and allow it to work with XBMC audio with stopSFX (if available) or external audio
 Re-implement pico2wav using WaveFileTTSBackendBase
 
-** 0.0.20 and before ** 
+** 0.0.20 and before **
 
 Fix for Flite hanging XBMC on shutdown F6 key now opens the addon settings when the keymap is installed The backend currentSpeed() now returns 0 if none is set
 Backend select dialog now handled manually Added displayName to backends - used for selection dialog Backend selection now saved with provider name Added currentSpeed() to TTSBackendBase, works like currentVoice() Added XBMCAudioTTSBackendBase backend base Added ESpeak_XA_TTSBackend which uses subprocess and XBMC audio and implements currentSpeed() Added a fix for OK speaking as Oklahoma Settings now only shows 'Voices' option for the currently displayed speech engine

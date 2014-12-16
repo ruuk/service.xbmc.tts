@@ -14,6 +14,7 @@ from playerstatus import PlayerStatusReader
 from settings import SettingsReader
 from selectdialog import SelectDialogReader
 from yesnodialog import YesNoDialogReader
+from videoinfodialog import VideoInfoDialogReader
 
 READERS = (
     KeymapKeyInputReader,
@@ -30,6 +31,7 @@ READERS = (
     PlayerStatusReader,
     SettingsReader,
     YesNoDialogReader,
+    VideoInfoDialogReader,
     SelectDialogReader
 )
 
@@ -56,6 +58,7 @@ READERS_WINID_MAP = {
                 10124: SettingsReader, #osdaudiosettings
                 10131: SettingsReader, #locksettings
                 10132: SettingsReader, #contentsettings
+                10135: VideoInfoDialogReader, #songinformation
                 10138: BusyDialogReader,
                 10140: SettingsReader, #addonsettings
                 10147: TextViewerReader,
@@ -64,6 +67,7 @@ READERS_WINID_MAP = {
                 10602: PVRGuideInfoReader,
                 12000: SelectDialogReader,
                 12002: YesNoDialogReader,
+                12003: VideoInfoDialogReader, #videoinfodialog
                 12005: PlayerStatusReader, #fullscreenvideo
                 12006: PlayerStatusReader, #visualization
                 12600: WeatherReader,
