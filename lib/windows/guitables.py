@@ -88,6 +88,16 @@ winNames = {    10000: 10000, #Home
                 10607: T(32159), #pvr guide search
                 10610: T(32160), #pvr OSD channels
                 10611: T(32161), #pvr OSD guide
+                10615: T(32188), #tvchannels
+                10616: T(32189), #tvrecordings
+                10617: T(32190), #tvguide
+                10618: T(32191), #tvtimers
+                10619: T(32192), #tvsearch
+                10620: T(32193), #radiochannels
+                10621: T(32194), #radiorecordings
+                10622: T(32195), #radioguide
+                10623: T(32196), #radiotimers
+                10624: T(32197), #radiosearch
                 11000: T(32162), #virtual keyboard
                 12000: 12000, #selectdialog
                 12001: 12001, #musicinformation
@@ -123,7 +133,7 @@ winListItemProperties = {        10040:('$INFO[ListItem.Property(Addon.Status)]'
 
 }
 
-    
+
 def getWindowAddonID(winID):
     path = xbmc.getInfoLabel('Window({0}).Property(xmlfile)'.format(winID)).decode('utf-8')
     addonID = path.split('/addons/',1)[-1].split('/',1)[0]
@@ -141,7 +151,7 @@ def getWindowName(winID):
     elif winID > 12999:
         return getWindowAddonName(winID)
     return name or xbmc.getInfoLabel('System.CurrentWindow').decode('utf-8') or T(32165) #T(unknown)
-    
+
 def convertTexts(winID,data_list):
     ret = []
     for sid in data_list:
@@ -154,14 +164,14 @@ def convertTexts(winID,data_list):
             sid = xbmc.getInfoLabel(info).decode('utf-8')
         if sid: ret.append(sid)
     return ret
-            
+
 def getWindowTexts(winID,table=winTexts):
     if not winID in table: return None
     return convertTexts(winID,table[winID]) or None
-    
+
 def getExtraTexts(winID):
     return getWindowTexts(winID,table=winExtraTexts)
-    
+
 def getItemExtraTexts(winID):
     return getWindowTexts(winID,table=itemExtraTexts)
 

@@ -56,6 +56,9 @@ class WindowReaderBase(WindowHandlerBase):
 
 class DefaultWindowReader(WindowReaderBase):
     ID = 'default'
+    def slideoutHasFocus(self):
+        return xbmc.getCondVisibility('ControlGroup(9000).HasFocus(0)')
+
     def getHeading(self):
         return xbmc.getInfoLabel('Control.GetLabel(1)').decode('utf-8') or u''
 
@@ -65,7 +68,15 @@ class DefaultWindowReader(WindowReaderBase):
     def getControlDescription(self,controlID):
         return skintables.getControlText(self.winID, controlID) or u''
 
+    def getSlideoutText(self,controlID):
+        text = xbmc.getInfoLabel('System.CurrentControl')
+        if not text: return (u'',u'')
+        return (text.decode('utf-8'),text)
+
     def getControlText(self,controlID):
+        if self.slideoutHasFocus():
+            return self.getSlideoutText(controlID)
+
         if not controlID: return (u'',u'')
         text = xbmc.getInfoLabel('ListItem.Title')
         if not text: text = xbmc.getInfoLabel('Container({0}).ListItem.Label'.format(controlID))

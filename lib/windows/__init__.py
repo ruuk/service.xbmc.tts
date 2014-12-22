@@ -9,6 +9,12 @@ from textviewer import TextViewerReader
 from busydialog import BusyDialogReader
 from contextmenu import ContextMenuReader
 from pvr import PVRWindowReader
+from pvr import PVRGuideWindowReader
+from pvr import PVRChannelsWindowReader
+from pvr import PVRRecordingsWindowReader
+from pvr import PVRTimersWindowReader
+from pvr import PVRSearchWindowReader
+from libraryviews import VideoLibraryWindowReader
 from weather import WeatherReader
 from playerstatus import PlayerStatusReader
 from settings import SettingsReader
@@ -27,6 +33,12 @@ READERS = (
     BusyDialogReader,
     ContextMenuReader,
     PVRWindowReader,
+    PVRGuideWindowReader,
+    PVRChannelsWindowReader,
+    PVRRecordingsWindowReader,
+    PVRTimersWindowReader,
+    PVRSearchWindowReader,
+    VideoLibraryWindowReader,
     WeatherReader,
     PlayerStatusReader,
     SettingsReader,
@@ -46,6 +58,7 @@ READERS_WINID_MAP = {
                 10018: SettingsReader, #servicesettings
                 10019: SettingsReader, #appearancesettings
                 10021: SettingsReader, #livetvsettings
+                10025: VideoLibraryWindowReader, #videolibrary
                 10034: SettingsReader, #profilesettings
                 14000: SettingsReader, #pvrclientspecificsettings
                 10100: YesNoDialogReader, #yesnodialog
@@ -63,8 +76,20 @@ READERS_WINID_MAP = {
                 10140: SettingsReader, #addonsettings
                 10147: TextViewerReader,
                 10150: SettingsReader, #peripheralsettings
-                10601: PVRWindowReader,
+                10501: VideoLibraryWindowReader, #musicsongs
+                10502: VideoLibraryWindowReader, #musiclibrary
+                10601: PVRWindowReader, #pvr - Pre-Helix
                 10602: PVRGuideInfoReader,
+                10615: PVRChannelsWindowReader, #tvchannels
+                10616: PVRRecordingsWindowReader, #tvrecordings
+                10617: PVRGuideWindowReader, #tvguide
+                10618: PVRTimersWindowReader, #tvtimers
+                10619: PVRSearchWindowReader, #tvsearch
+                10620: PVRChannelsWindowReader, #radiochannels
+                10621: PVRRecordingsWindowReader, #radiorecordings
+                10622: PVRGuideWindowReader, #radioguide
+                10623: PVRTimersWindowReader, #radiotimers
+                10624: PVRSearchWindowReader, #radiosearch
                 12000: SelectDialogReader,
                 12002: YesNoDialogReader,
                 12003: VideoInfoDialogReader, #videoinfodialog

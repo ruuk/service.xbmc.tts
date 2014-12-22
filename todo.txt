@@ -13,11 +13,4 @@ Traker1001:
 
 HELIX ISSUES:
 
-In Kodi RC3, when I go into the Info screen on a show or movie, It no longer reads the button selections. All it does is when I change a button selection, I.E. Play, Cast, refresh, etc... is reset the Extra info timer and read the title.
-
-Also, When I go into list of shows/movies List, it displays on screen for example 1x01. Pilot 1:00:00 or Horrible Bosses 2 (2014) 1:48:00 on the screen, But the only information out of that that it reads is the title, I.E. Pilot or Horrible Bosses 2, While not necessary, it would be nice. Is there any way to get it to read the whole line?
-
-I have noticed in Kodi Helix RC3 (Really any kodi release) under Live TV, that no matter what the view (EPG, Channel, Etc...) TTS won't read the channel selected. Reads show name selected, and extra item info kicks in and reads the description after brief delay, however won't read the channel.
-It did read this in Gotham.
-
 Would also be cool if it would read "Time to time" when moving around in the EPG, For example, Channel KCMO, Divorce court, 5pm to 5:30pm.

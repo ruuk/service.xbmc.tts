@@ -557,3 +557,52 @@ msgstr ""
 msgctxt "#32187"
 msgid "Choose Option"
 msgstr ""
+
+msgctxt "#32188"
+msgid "PVR TV Channels"
+msgstr ""
+
+msgctxt "#32189"
+msgid "PVR TV Recordings"
+msgstr ""
+
+msgctxt "#32190"
+msgid "PVR TV Guide"
+msgstr ""
+
+msgctxt "#32191"
+msgid "PVR TV Timers"
+msgstr ""
+
+msgctxt "#32192"
+msgid "PVR TV Search"
+msgstr ""
+
+msgctxt "#32193"
+msgid "PVR Radio Channels"
+msgstr ""
+
+msgctxt "#32194"
+msgid "PVR Radio Recordings"
+msgstr ""
+
+msgctxt "#32195"
+msgid "PVR Radio Guide"
+msgstr ""
+
+msgctxt "#32196"
+msgid "PVR Radio Timers"
+msgstr ""
+
+msgctxt "#32197"
+msgid "PVR Radio Search"
+msgstr ""
+
+msgctxt "#32198"
+msgid "watched"
+msgstr ""
+
+msgctxt "#32199"
+msgid "resumable"
+msgstr ""
+

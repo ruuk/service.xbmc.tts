@@ -6,20 +6,27 @@ Authors: ruuk, pvagner
 TODO:
 -----
  Format seek position to prevent engines (some) from speaking it as a clock time (ie blah past midnight)
- VoiceOver support for OSX
+ OSX VoiceOver via AppleScript
  Android backend
  Speech for more window types that isn't automatically handled
  Pageination for large texts?
  Subtitle speech? Maybe only possible with something like pysrt and a subtitle file. https://pypi.python.org/pypi/pysrt
  GwMicro Window Eyes backend?
  Dolphin API backend?
- OSX VoiceOver via AppleScript?
+
 
 EXTERNAL TODO:
 --------------
- Test Windows installer on Vista/7/8
  OSX installer?
  Android TTS app for android backend
+
+** 0.0.87b **
+
+Helix fixes for PVR
+Now handles all PVR views (Helix)
+Better item extra info of PVR items (Helix)
+Now reads item label instead of title in video/music views
+Now reads watched and resumable on videos
 
 ** 0.0.86 **
 
