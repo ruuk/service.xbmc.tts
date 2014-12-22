@@ -6,6 +6,7 @@ Authors: ruuk, pvagner
 TODO:
 -----
  Format seek position to prevent engines (some) from speaking it as a clock time (ie blah past midnight)
+ VoiceOver support for OSX
  Android backend
  Speech for more window types that isn't automatically handled
  Pageination for large texts?
