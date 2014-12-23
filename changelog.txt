@@ -20,6 +20,10 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.0.88b **
+
+Fix for versions with letter suffixes causing errors :)
+
 ** 0.0.87b **
 
 Helix fixes for PVR
@@ -27,6 +31,7 @@ Now handles all PVR views (Helix)
 Better item extra info of PVR items (Helix)
 Now reads item label instead of title in video/music views
 Now reads watched and resumable on videos
+Fix for left slideout menus not reading
 
 ** 0.0.86 **
 

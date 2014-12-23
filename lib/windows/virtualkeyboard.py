@@ -5,7 +5,7 @@ from lib import util
 class VirtualKeyboardReader(WindowReaderBase):
     ID = 'virtualkeyboard'
     ip_re = re.compile('^[\d ]{3}\.[\d ]{3}\.[\d ]{3}.[\d ]{3}$')
-        
+
     def init(self):
         self.editID = None
         if self.winID == 10103:
@@ -15,16 +15,16 @@ class VirtualKeyboardReader(WindowReaderBase):
         self.keyboardText = ''
         self.lastChange = time.time()
         self.lastRead = None
-            
+
     def getHeading(self): xbmc.getInfoLabel('Control.GetLabel(311)'.decode('utf-8'))
-    
+
     def isIP(self,text=None):
         text = text or self.getEditText()
         return self.winID == 10109 and '.' in text #Is numeric input with . in it, so must be IP
 
     def getEditText(self):
         return xbmc.getInfoLabel('Control.GetLabel({0})'.format(self.editID)).decode('utf-8')
-        
+
     def getMonitoredText(self,isSpeaking=False):
         text = self.getEditText()
         if text != self.keyboardText:

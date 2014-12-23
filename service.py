@@ -188,13 +188,25 @@ class TTSService(xbmc.Monitor):
     def checkNewVersion(self):
         try:
             #Fails on Helix beta 1 on OpenElec #1103
-            from distutils.version import StrictVersion
+            from distutils.version import LooseVersion
         except ImportError:
-            def StrictVersion(v):
-                return [int(x) for x in re.sub(r'(\.0+)*$','', v).split(".")]
+            def LooseVersion(v):
+                comp = [int(x) for x in re.split(r'a|b',v)[0].split(".")]
+                fourth = 2
+                fifth = 0
+                if 'b' in v:
+                    fourth = 1
+                    fifth = int(v.split('b')[-1] or 0)
+                elif 'a' in 'v':
+                    fourth = 0
+                    fifth = int(v.split('a')[-1] or 0)
+                comp.append(fourth)
+                comp.append(fifth)
+                return comp
+
 
         lastVersion = util.getSetting('version','0.0.0')
-        if StrictVersion(lastVersion) < StrictVersion(__version__):
+        if LooseVersion(lastVersion) < LooseVersion(__version__):
             util.setSetting('version',__version__)
             self.queueNotice(u'{0}... {1}'.format(T(32104),__version__))
             return True
