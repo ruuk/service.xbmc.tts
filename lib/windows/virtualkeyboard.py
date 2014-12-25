@@ -8,30 +8,44 @@ class VirtualKeyboardReader(WindowReaderBase):
 
     def init(self):
         self.editID = None
-        if self.winID == 10103:
-            self.editID = 310
-        elif self.winID == 10109:
+        if self.winID == 10103: #Keyboard
+            if xbmc.getCondVisibility('Control.IsVisible(310)'): #For Gotham
+                self.editID = 310
+            else:
+                self.editID = 312
+        elif self.winID == 10109: #Numeric?
             self.editID = 4
+        elif self.winID == 10607: #PVR Search
+            self.editID = 9
         self.keyboardText = ''
         self.lastChange = time.time()
         self.lastRead = None
 
-    def getHeading(self): xbmc.getInfoLabel('Control.GetLabel(311)'.decode('utf-8'))
+    def getHeading(self):
+        return xbmc.getInfoLabel('Control.GetLabel(311)').decode('utf-8')
 
     def isIP(self,text=None):
         text = text or self.getEditText()
         return self.winID == 10109 and '.' in text #Is numeric input with . in it, so must be IP
 
     def getEditText(self):
-        return xbmc.getInfoLabel('Control.GetLabel({0})'.format(self.editID)).decode('utf-8')
+        info = 'Control.GetLabel2({0})'.format(self.editID)
+        t = xbmc.getInfoLabel(info).decode('utf-8')
+        if t == info: return '' #To handle pre GetLabel2() addition
+        return t
 
     def getMonitoredText(self,isSpeaking=False):
         text = self.getEditText()
         if text != self.keyboardText:
+            if not self.keyboardText and len(text) > 1:
+                self.keyboardText = text
+                self.lastChange = time.time()
+                return None
             self.lastChange = time.time()
             out = ''
             d = difflib.Differ()
-            if not text:
+            if not text and self.keyboardText:
+                self.keyboardText = ''
                 out = util.T(32178)
             elif self.isIP(text):
                 if self.isIP(text) and self.isIP(self.keyboardText): #IP Address
@@ -61,3 +75,34 @@ class VirtualKeyboardReader(WindowReaderBase):
                     if self.isIP(text): return text.replace(' ','')
                     return text
         return None
+
+class PVRSGuideSearchDialogReader(VirtualKeyboardReader):
+    ID = 'pvrguidesearch'
+    editIDs = (9,14,15,16,17)
+
+    def init(self):
+        VirtualKeyboardReader.init(self)
+        self.editID = 9
+
+    def _resetEditInfo(self):
+        self.lastChange = time.time()
+        self.lastRead = None
+        self.keyboardText = ''
+
+    def getControlText(self,controlID):
+        ID = self.window().getFocusId()
+        if ID == 9:
+            text = xbmc.getLocalizedString(19133).decode('utf-8')
+        else:
+            text = xbmc.getInfoLabel('System.CurrentControl').decode('utf-8')
+        return (text,text)
+
+    def getMonitoredText(self,isSpeaking=False):
+        ID = self.window().getFocusId()
+        if not ID in self.editIDs:
+            self._resetEditInfo()
+            return None
+        if ID != self.editID:
+            self._resetEditInfo()
+        self.editID = ID
+        return VirtualKeyboardReader.getMonitoredText(self,isSpeaking=isSpeaking)

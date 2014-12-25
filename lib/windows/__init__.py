@@ -4,6 +4,7 @@ import xbmc
 from base import DefaultWindowReader, NullReader, KeymapKeyInputReader
 from progressdialog import ProgressDialogReader
 from virtualkeyboard import VirtualKeyboardReader
+from virtualkeyboard import PVRSGuideSearchDialogReader
 from pvrguideinfo import PVRGuideInfoReader
 from textviewer import TextViewerReader
 from busydialog import BusyDialogReader
@@ -28,6 +29,7 @@ READERS = (
     NullReader,
     ProgressDialogReader,
     VirtualKeyboardReader,
+    PVRSGuideSearchDialogReader,
     PVRGuideInfoReader,
     TextViewerReader,
     BusyDialogReader,
@@ -80,6 +82,7 @@ READERS_WINID_MAP = {
                 10502: VideoLibraryWindowReader, #musiclibrary
                 10601: PVRWindowReader, #pvr - Pre-Helix
                 10602: PVRGuideInfoReader,
+                10607: PVRSGuideSearchDialogReader,
                 10615: PVRChannelsWindowReader, #tvchannels
                 10616: PVRRecordingsWindowReader, #tvrecordings
                 10617: PVRGuideWindowReader, #tvguide

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import xbmc
+import xbmc, xbmcgui
 import guitables
 import windowparser
 import skintables
@@ -22,6 +22,9 @@ class WindowHandlerBase:
     def _reset(self,win_id):
         self.winID = win_id
         self.init()
+
+    def window(self):
+        return xbmcgui.Window(self.winID)
 
     def visible(self):
         return xbmc.getCondVisibility('Window.IsVisible({0})'.format(self.winID))
