@@ -20,6 +20,13 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.1.0b **
+
+Changed name to "Kodi Screen Reader"
+Removed NVDA library. To enable NVDA, install "NVDA Controller Client DLL" from the "Add-on libraries" category on my repository
+Added Recite backend (it is awful - added for completeness plus it was easy)
+Added handling for the PVR Guide Search dialog (Not very useful until a future Kodi version)
+
 ** 0.0.88b **
 
 Fix for versions with letter suffixes causing errors :)
