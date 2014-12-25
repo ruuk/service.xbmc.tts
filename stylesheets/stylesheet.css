@@ -129,7 +129,7 @@ aside#sidebar p.repo-owner a {
 }
 
 a.button {
-  width: 200px;
+  width: 184px;
   height: 58px;
   line-height: 1.2;
   font-size: 23px;
@@ -149,7 +149,7 @@ header a.button {
   background: transparent url(../images/github-button.png) 0 0 no-repeat;
 }
 aside a.button {
-  width: 200px;
+  width: 188px;
   padding-left: 64px;
   display: block;
   background: transparent url(../images/download-button.png) 0 0 no-repeat;
@@ -158,7 +158,7 @@ aside a.button {
 }
 
 aside a.installer {
-  width: 200px;
+  width: 188px;
   padding-left: 64px;
   display: block;
   background: transparent url(../images/installer-button.png) 0 0 no-repeat;
