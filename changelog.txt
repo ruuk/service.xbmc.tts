@@ -20,6 +20,12 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 0.1.1b **
+
+Improve reading of window extra texts, for example System Info now properly reads the Kodi build info
+Fix for slideout menu boolean settings not reading properly
+Fix for slideout menu not reading properly on all PVR windows
+
 ** 0.1.0b **
 
 Changed name to "Kodi Screen Reader"
