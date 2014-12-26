@@ -14,7 +14,7 @@ def currentWindowIsAddon():
     path = xbmc.getInfoLabel('Window.Property(xmlfile)')
     if not path: return None
     return os.path.exists(path)
-    
+
 def getXBMCSkinPath(fname):
     for res in ('720p','1080i'):
         skinpath = os.path.join(xbmc.translatePath('special://skin'),res)
@@ -35,7 +35,7 @@ def getXBMCSkinPath(fname):
     path = os.path.join(skinpath, fname.lower())
     if os.path.exists(path): return path
     return ''
-    
+
 tagRE = re.compile(r'\[/?(?:B|I|COLOR|UPPERCASE|LOWERCASE)[^\]]*\](?i)')
 varRE = re.compile(r'\$VAR\[([^\]]*)\]')
 localizeRE = re.compile(r'\$LOCALIZE\[([^\]]*)\]')
@@ -46,7 +46,7 @@ def getInfoLabel(info,container):
     if container:
         info = info.replace('ListItem.','Container({0}).ListItem.'.format(container))
     return xbmc.getInfoLabel(info).decode('utf-8')
-    
+
 def nodeParents(dom,node):
     parents = []
     parent = xpath.findnode('..',node)
@@ -54,13 +54,12 @@ def nodeParents(dom,node):
         parents.append(parent)
         parent = xpath.findnode('..',parent)
     return parents
-    
+
 def extractInfos(text,container):
     pos = 0
     while pos > -1:
         pos = text.find('$INFO[')
         if pos < 0: break
-        pos 
         lbracket = pos + 6
         i = lbracket
         depth = 1
@@ -88,7 +87,7 @@ def extractInfos(text,container):
                 middle = ''
         else:
             middle = getInfoLabel(middle,container)
-            
+
         if middle: middle += '... '
         text = text[:pos] + middle + text[i+1:]
     return text.strip(' .')
@@ -103,7 +102,7 @@ class WindowParser:
             self.processIncludes()
 #            import codecs
 #            with codecs.open(os.path.join(getXBMCSkinPath(''),'TESTCurrent.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
-        
+
     def processIncludes(self):
         self.includes = Includes()
         for i in xpath.find('//include',self.xml):
@@ -118,16 +117,16 @@ class WindowParser:
             #print 'INCLUDE FOUND: %s' % i.string
             new = matchingInclude.cloneNode(True)
             xpath.findnode('..',i).replaceChild(new,i)
-            
+
     def addonReplacer(self,m):
         return xbmc.getInfoLabel(m.group(0)).decode('utf-8')
-        
+
     def variableReplace(self,m):
         return self.includes.getVariable(m.group(1))
-        
+
     def localizeReplacer(self,m):
         return xbmc.getLocalizedString(int(m.group(1)))
-    
+
     def parseFormatting(self,text):
         text = varRE.sub(self.variableReplace,text)
         text = localizeRE.sub(self.localizeReplacer,text)
@@ -136,29 +135,29 @@ class WindowParser:
         text = tagRE.sub('',text).replace('[CR]','... ').strip(' .')
         #text = infoLableRE.sub(self.infoReplacer,text)
         return text
-    
+
     def getControl(self,controlID):
         return xpath.findnode("//control[attribute::id='{0}']".format(controlID),self.xml)
-        
+
     def getLabelText(self,label):
         l = xpath.findnode('label',label)
         text = None
-        if l and l.childNodes: text = l.childNodes[0].data
-        if text:
-            if text.isdigit(): text = '$LOCALIZE[{0}]'.format(text)
-        else:
-            i = xpath.findnode('info',label)
-            if i and i.childNodes:
-                text = i.childNodes[0].data
-                if text.isdigit():
-                    text = '$LOCALIZE[{0}]'.format(text)
-                else:
-                    text = '$INFO[{0}]'.format(text)
+        if label.attributes.get('id'):
+            #Try getting programatically set label first.
+            text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(label.attributes.get('id').value)).decode('utf-8')
         if not text or text == '-':
             text = None
-            if label.attributes.get('id'):
-                #Nothing set for label. Try getting programatically set label.
-                text = xbmc.getInfoLabel('Control.GetLabel({0})'.format(label.attributes.get('id').value)).decode('utf-8')
+            if l and l.childNodes: text = l.childNodes[0].data
+            if text:
+                if text.isdigit(): text = '$LOCALIZE[{0}]'.format(text)
+            else:
+                i = xpath.findnode('info',label)
+                if i and i.childNodes:
+                    text = i.childNodes[0].data
+                    if text.isdigit():
+                        text = '$LOCALIZE[{0}]'.format(text)
+                    else:
+                        text = '$INFO[{0}]'.format(text)
         if not text: return None
         return tagRE.sub('',text).replace('[CR]','... ').strip(' .')
 
@@ -171,7 +170,7 @@ class WindowParser:
                 texts.append(parsed)
                 check.append(t)
         return texts
-        
+
     def getListItemTexts(self,controlID):
         self.currentControl = controlID
         try:
@@ -188,7 +187,7 @@ class WindowParser:
             return self.processTextList(texts)
         finally:
             self.currentControl = None
-            
+
     def getWindowTexts(self):
         lt = xpath.find("//control[attribute::type='label' or attribute::type='fadelabel' or attribute::type='textbox']",self.xml)
         texts = []
@@ -202,7 +201,7 @@ class WindowParser:
                 text = self.getLabelText(l)
                 if text and not text in texts: texts.append(text)
         return self.processTextList(texts)
-        
+
     def controlGlobalPosition(self,control):
         x, y = self.controlPosition(control)
         for p in nodeParents(self.xml,control):
@@ -211,7 +210,7 @@ class WindowParser:
                 x+=px
                 y+=py
         return x, y
-        
+
     def controlPosition(self,control):
         posx = control.find('posx')
         x = posx and posx.string or '0'
@@ -222,12 +221,12 @@ class WindowParser:
         posy = control.find('posy')
         y = int(posy and posy.string or '0')
         return x,y
-            
+
     def controlIsVisibleGlobally(self,control):
         for p in nodeParents(self.xml,control):
             if not self.controlIsVisible(p): return False
         return self.controlIsVisible(control)
-        
+
     def controlIsVisible(self,control):
         visible = xpath.findnode('visible',control)
         if not visible: return True
@@ -239,7 +238,7 @@ class WindowParser:
             return False
         else:
             return True
-        
+
 class Includes:
     def __init__(self):
         path = getXBMCSkinPath('Includes.xml')
@@ -270,12 +269,12 @@ class Includes:
         self._includesFilesLoaded = True
 #        import codecs
 #        with codecs.open(os.path.join(getXBMCSkinPath(''),'Includes_Processed.xml'),'w','utf-8') as f: f.write(self.soup.prettify())
-        
+
     def getInclude(self,name):
         self.loadIncludesFiles()
         return self.includesMap.get(name)
         #return self.soup.find('includes').find('include',{'name':name})
-        
+
     def getVariable(self,name):
         var = xpath.findnode(".//variable[attribute::name='{0}']".format(name),xpath.findnode('includes',self.xml))
         if not var: return ''
@@ -289,7 +288,7 @@ class Includes:
                     #print repr(val.string)
                     return val.childNodes[0].data or ''
         return ''
-        
+
 def getWindowParser():
     path = currentWindowXMLFile()
     if not path: return
