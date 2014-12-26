@@ -36,6 +36,8 @@ class WindowHandlerBase:
     def close(self): pass
 
 class WindowReaderBase(WindowHandlerBase):
+    _slideoutGroupID = 9000
+
     def getName(self): return guitables.getWindowName(self.winID)
 
     def getHeading(self): return None
@@ -57,10 +59,22 @@ class WindowReaderBase(WindowHandlerBase):
         if not texts: texts = windowparser.getWindowParser().getWindowTexts()
         return texts or None
 
+    def slideoutHasFocus(self):
+        return xbmc.getCondVisibility('ControlGroup({0}).HasFocus(0)'.format(self._slideoutGroupID))
+
+    def getSettingControlText(self,controlID):
+        text = xbmc.getInfoLabel('System.CurrentControl')
+        if text.endswith(')'): #Skip this most of the time
+            text = text.replace('( )','{0} {1}'.format(self.service.tts.pauseInsert,util.T(32174))).replace('(*)','{0} {1}'.format(self.service.tts.pauseInsert,util.T(32173))) #For boolean settings
+        return text
+
+    def getSlideoutText(self,controlID):
+        text = self.getSettingControlText(controlID)
+        if not text: return (u'',u'')
+        return (text.decode('utf-8'),text)
+
 class DefaultWindowReader(WindowReaderBase):
     ID = 'default'
-    def slideoutHasFocus(self):
-        return xbmc.getCondVisibility('ControlGroup(9000).HasFocus(0)')
 
     def getHeading(self):
         return xbmc.getInfoLabel('Control.GetLabel(1)').decode('utf-8') or u''
@@ -70,11 +84,6 @@ class DefaultWindowReader(WindowReaderBase):
 
     def getControlDescription(self,controlID):
         return skintables.getControlText(self.winID, controlID) or u''
-
-    def getSlideoutText(self,controlID):
-        text = xbmc.getInfoLabel('System.CurrentControl')
-        if not text: return (u'',u'')
-        return (text.decode('utf-8'),text)
 
     def getControlText(self,controlID):
         if self.slideoutHasFocus():

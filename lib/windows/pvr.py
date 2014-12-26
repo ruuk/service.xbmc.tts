@@ -44,6 +44,7 @@ class PVRGuideWindowReader(PVRWindowReaderBase):
 
     def getControlText(self,controlID):
         if not controlID: return (u'',u'')
+        if self.slideoutHasFocus(): return self.getSlideoutText(controlID)
         text = xbmc.getInfoLabel('System.CurrentControl')
         if not text: return (u'',u'')
         compare = text + xbmc.getInfoLabel('ListItem.StartTime') + xbmc.getInfoLabel('ListItem.EndTime')
@@ -74,6 +75,7 @@ class PVRChannelsWindowReader(PVRWindowReaderBase):
 
     def getControlText(self,controlID):
         if not controlID: return (u'',u'')
+        if self.slideoutHasFocus(): return self.getSlideoutText(controlID)
         text = '{0}... {1}... {2}'.format(xbmc.getInfoLabel('ListItem.ChannelNumber'),xbmc.getInfoLabel('ListItem.Label'),xbmc.getInfoLabel('ListItem.Title'))
         if not text: return (u'',u'')
         compare = text + xbmc.getInfoLabel('ListItem.StartTime') + xbmc.getInfoLabel('ListItem.EndTime')
@@ -94,6 +96,7 @@ class PVRRecordingsWindowReader(PVRWindowReaderBase):
 
     def getControlText(self,controlID):
         if not controlID: return (u'',u'')
+        if self.slideoutHasFocus(): return self.getSlideoutText(controlID)
         text = xbmc.getInfoLabel('System.CurrentControl')
         if not text: return (u'',u'')
         return (text.decode('utf-8'),text)
@@ -115,6 +118,7 @@ class PVRTimersWindowReader(PVRWindowReaderBase):
 
     def getControlText(self,controlID):
         if not controlID: return (u'',u'')
+        if self.slideoutHasFocus(): return self.getSlideoutText(controlID)
         text = xbmc.getInfoLabel('System.CurrentControl')
         if not text: return (u'',u'')
         compare = text + xbmc.getInfoLabel('ListItem.StartTime') + xbmc.getInfoLabel('ListItem.EndTime')
@@ -136,6 +140,7 @@ class PVRSearchWindowReader(PVRWindowReaderBase):
 
     def getControlText(self,controlID):
         if not controlID: return (u'',u'')
+        if self.slideoutHasFocus(): return self.getSlideoutText(controlID)
         text = xbmc.getInfoLabel('System.CurrentControl')
         if not text: return (u'',u'')
         compare = text + xbmc.getInfoLabel('ListItem.Date')
