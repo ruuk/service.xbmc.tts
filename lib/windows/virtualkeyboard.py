@@ -95,6 +95,7 @@ class PVRSGuideSearchDialogReader(VirtualKeyboardReader):
             text = xbmc.getLocalizedString(19133).decode('utf-8')
         else:
             text = xbmc.getInfoLabel('System.CurrentControl').decode('utf-8')
+            text = text.replace('( )','{0} {1}'.format(self.service.tts.pauseInsert,util.T(32174))).replace('(*)','{0} {1}'.format(self.service.tts.pauseInsert,util.T(32173))) #For boolean settings
         return (text,text)
 
     def getMonitoredText(self,isSpeaking=False):
