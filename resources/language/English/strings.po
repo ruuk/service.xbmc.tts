@@ -606,3 +606,10 @@ msgctxt "#32199"
 msgid "resumable"
 msgstr ""
 
+msgctxt "#32200"
+msgid "selected"
+msgstr ""
+
+msgctxt "#32201"
+msgid "Subtitles dialog"
+msgstr ""

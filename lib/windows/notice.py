@@ -8,7 +8,7 @@ T = util.T
 
 class NoticeDialog(WindowHandlerBase):
     ID = 'notice'
-    
+
     def init(self):
         self.notices = []
         self._visible = True #Pretend notice was show so we check stuff on startup
@@ -16,7 +16,7 @@ class NoticeDialog(WindowHandlerBase):
         self.lastMessage = '' #402
         self.setWindow()
         return self
-        
+
     def visible(self):
         visible = WindowHandlerBase.visible(self)
         if visible:
@@ -26,7 +26,7 @@ class NoticeDialog(WindowHandlerBase):
             self._visible = False
             return True
         return False
-        
+
     def setWindow(self):
         self.win = xbmcgui.Window(10107)
 
@@ -46,13 +46,13 @@ class NoticeDialog(WindowHandlerBase):
         self.init()
         #print ret
         return ret
-    
+
     def getMonitoredText(self,isSpeaking=False): #getLabel() Doesn't work currently with FadeLabels
         if self._visible: return None
         if not addoninfo.checkForNewVersions(): return None
         details = addoninfo.getUpdatedAddons()
         if not details: return None
-        ret = [u'{0}... '.format(32166)]
+        ret = [u'{0}... '.format(T(32166))]
         for d in details:
             item = u'{0} {1} {2}'.format(d['name'],T(32167),d['version'])
             if not item in ret:
@@ -64,8 +64,8 @@ class NoticeDialog(WindowHandlerBase):
 #        message = self.win.getControl(402).getLabel()
 #        #print repr(message)
 #        self.addNotice(heading,message)
-#        if not isSpeaking: return self.takeNoticesForSpeech()    
+#        if not isSpeaking: return self.takeNoticesForSpeech()
 #        return None
-        
-        
+
+
 #class NoticeDialogReader(NoticeHandler,WindowReaderBase): pass

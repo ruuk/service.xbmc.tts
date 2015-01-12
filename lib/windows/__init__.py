@@ -22,7 +22,7 @@ from settings import SettingsReader
 from selectdialog import SelectDialogReader
 from yesnodialog import YesNoDialogReader
 from videoinfodialog import VideoInfoDialogReader
-
+from subtitlesdialog import SubtitlesDialogReader
 READERS = (
     KeymapKeyInputReader,
     DefaultWindowReader,
@@ -46,7 +46,8 @@ READERS = (
     SettingsReader,
     YesNoDialogReader,
     VideoInfoDialogReader,
-    SelectDialogReader
+    SelectDialogReader,
+    SubtitlesDialogReader
 )
 
 READERS_WINID_MAP = {
@@ -78,6 +79,7 @@ READERS_WINID_MAP = {
                 10140: SettingsReader, #addonsettings
                 10147: TextViewerReader,
                 10150: SettingsReader, #peripheralsettings
+                10153: SubtitlesDialogReader, #subtitlesdialog
                 10501: VideoLibraryWindowReader, #musicsongs
                 10502: VideoLibraryWindowReader, #musiclibrary
                 10601: PVRWindowReader, #pvr - Pre-Helix

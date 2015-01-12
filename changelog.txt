@@ -5,6 +5,7 @@ Authors: ruuk, pvagner
 
 TODO:
 -----
+ Use Container(id).CurrentItem for I* to detect list item changes
  Format seek position to prevent engines (some) from speaking it as a clock time (ie blah past midnight)
  OSX VoiceOver via AppleScript
  Android backend
@@ -19,6 +20,12 @@ EXTERNAL TODO:
 --------------
  OSX installer?
  Android TTS app for android backend
+
+** 0.1.2b **
+
+Fix for the addon speaking '32166' instead of 'Addons updated'
+Now speaks selected status for items in multi-select dialogs
+Add handling for subtitles dialog
 
 ** 0.1.1b **
 

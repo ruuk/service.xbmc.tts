@@ -75,6 +75,7 @@ winNames = {    10000: 10000, #Home
                 10150: T(32151), #peripheral settings
                 10151: 10101, #extended progress dialog - using string for progress dialog
                 10152: T(32152), #media filter
+                10153: T(32201), #subtitles dialog
                 10500: 20011, #musicplaylist
                 10501: 10501, #musicfiles
                 10502: 10502, #musiclibrary
