@@ -29,7 +29,7 @@ class VirtualKeyboardReader(WindowReaderBase):
         return self.winID == 10109 and '.' in text #Is numeric input with . in it, so must be IP
 
     def getEditText(self):
-        info = 'Control.GetLabel2({0})'.format(self.editID)
+        info = 'Control.GetLabel({0}).index(1)'.format(self.editID)
         t = xbmc.getInfoLabel(info).decode('utf-8')
         if t == info: return '' #To handle pre GetLabel2() addition
         return t
