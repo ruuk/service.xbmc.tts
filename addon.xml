@@ -5,6 +5,7 @@
        provider-name="Rick Phillips (ruuk), pvagner">
   <requires>
     <import addon="xbmc.python" version="2.14.0"/>
+    <import addon="script.module.oe.pi.extras" version="0.0.1" optional="true"/>
   </requires>
   <extension point="xbmc.service" library="main.py" start="login"></extension>
   <extension point="xbmc.python.module" library="lib/module" />
