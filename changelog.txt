@@ -26,6 +26,7 @@ EXTERNAL TODO:
 Fix for the addon speaking '32166' instead of 'Addons updated'
 Now speaks selected status for items in multi-select dialogs
 Add handling for subtitles dialog
+Now speaks keyboard dialog again in nightlies and future 15.0 release
 
 ** 0.1.1b **
 

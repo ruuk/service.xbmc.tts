@@ -30,9 +30,10 @@ class VirtualKeyboardReader(WindowReaderBase):
 
     def getEditText(self):
         info = 'Control.GetLabel({0}).index(1)'.format(self.editID)
-        t = xbmc.getInfoLabel(info).decode('utf-8')
-        if t == info: return '' #To handle pre GetLabel2() addition
-        return t
+        return xbmc.getInfoLabel(info).decode('utf-8')
+#        t = xbmc.getInfoLabel(info).decode('utf-8')
+#        if t == info: return '' #To handle pre GetLabel().index() addition
+#        return t
 
     def getMonitoredText(self,isSpeaking=False):
         text = self.getEditText()
