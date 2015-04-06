@@ -21,6 +21,10 @@ EXTERNAL TODO:
  OSX installer?
  Android TTS app for android backend
 
+** 1.0.0 **
+
+Official repository release
+
 ** 0.1.2b **
 
 Fix for the addon speaking '32166' instead of 'Addons updated'
