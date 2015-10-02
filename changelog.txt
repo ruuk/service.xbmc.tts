@@ -26,6 +26,7 @@ EXTERNAL TODO:
 ** 1.0.4 **
 
 Add German translation - thanks to donkamillo
+Fix keymapeditor speech
 
 ** 1.0.3 **
 
