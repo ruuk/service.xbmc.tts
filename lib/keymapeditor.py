@@ -19,6 +19,9 @@ ACTIONS = (
 
 )
 
+BASIC_ACTIONS = (
+    ('DISABLE', 'f12'),
+)
 
 def processCommand(command):
     if command == 'INSTALL_DEFAULT':
@@ -37,8 +40,8 @@ def _keymapTarget():
     return os.path.join(xbmc.translatePath('special://userdata').decode('utf-8'), 'keymaps', 'service.xbmc.tts.keyboard.xml')
 
 
-def _keymapSource():
-    return os.path.join(xbmc.translatePath(xbmcaddon.Addon(util.ADDON_ID).getAddonInfo('path')).decode('utf-8'), 'resources', 'keymap.base.xml')
+def _keymapSource(kind='base'):
+    return os.path.join(xbmc.translatePath(xbmcaddon.Addon(util.ADDON_ID).getAddonInfo('path')).decode('utf-8'), 'resources', 'keymap.{0}.xml'.format(kind))
 
 
 def _keyMapDefsPath():
@@ -77,6 +80,16 @@ def installDefaultKeymap(quiet=False):
     buildKeymap(defaults=True)
     if not quiet:
         xbmcgui.Dialog().ok(T(32111), T(32113))
+
+
+def installBasicKeymap():
+    xml = None
+    with open(_keymapSource('basic'), 'r') as f:
+        xml = f.read()
+    if not xml:
+        return
+
+    saveKeymapXML(xml)
 
 
 def installCustomKeymap():

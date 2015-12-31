@@ -1,0 +1,7 @@
+<keymap>
+  <global>
+    <keyboard>
+      <f12>XBMC.RunScript(special://home/addons/service.xbmc.tts/enabler.py)</f12>
+    </keyboard>
+  </global>
+</keymap>

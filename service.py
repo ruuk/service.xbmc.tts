@@ -497,8 +497,33 @@ class TTSService(xbmc.Monitor):
             return [self._cleanText(t) for t in text]
 
 
+def preInstalledFirstRun():
+    if not util.isPreInstalled():
+        return False
+
+    lastVersion = util.getSetting('version')
+    if lastVersion:
+        return False
+
+    # Set version to 0.0.0 so normal first run will execute on first enable
+    util.setSetting('version','0.0.0')
+
+    util.LOG('PRE-INSTALLED FIRST RUN')
+    util.LOG('Installing basic keymap')
+
+    # Install keymap with just F12 enabling included
+    from lib import keymapeditor
+    keymapeditor.installBasicKeymap()
+
+    util.LOG('Pre-installed - DISABLING')
+    import enabler
+    enabler.disableAddon()
+    return True
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'voice_dialog':
         backends.selectVoice()
     else:
-        TTSService().start()
+        if not preInstalledFirstRun():
+            TTSService().start()

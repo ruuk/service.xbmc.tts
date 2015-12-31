@@ -43,6 +43,15 @@ def configDirectory():
 def profileDirectory():
     return xbmc.translatePath(xbmcaddon.Addon(ADDON_ID).getAddonInfo('profile')).decode('utf-8')
 
+def addonPath():
+    addonPath = os.path.join(xbmc.translatePath('special://home').decode('utf-8'),'addons',ADDON_ID)
+    if not os.path.exists(addonPath):
+        addonPath = os.path.join(xbmc.translatePath('special://xbmc').decode('utf-8'),'addons',ADDON_ID)
+
+    assert os.path.exists(addonPath), 'Addon path resolution failure'
+
+    return addonPath
+
 def backendsDirectory():
     return os.path.join(xbmc.translatePath(info('path')).decode('utf-8'),'lib','backends')
 
@@ -61,8 +70,9 @@ def getTmpfs():
     return None
 
 def playSound(name,return_duration=False):
-    wavPath = os.path.join(xbmc.translatePath('special://home'),'addons','service.xbmc.tts','resources','wavs','{0}.wav'.format(name))
-    #wavPath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','wavs','{0}.wav'.format(name))
+    wavPath = os.path.join(addonPath(), 'resources','wavs','{0}.wav'.format(name))
+    # This doesn't work as this may be called when the addon is disabled
+    # wavPath = os.path.join(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('path')).decode('utf-8'),'resources','wavs','{0}.wav'.format(name))
     xbmc.playSFX(wavPath)
     if return_duration:
         wavPath = wavPath.decode('utf-8')
@@ -190,6 +200,11 @@ def raspberryPiDistro():
 
 def isOpenElec():
     return xbmc.getCondVisibility('System.HasAddon(os.openelec.tv)')
+
+def isPreInstalled():
+    kodiPath = xbmc.translatePath('special://xbmc').decode('utf-8')
+    preInstalledPath = os.path.join(kodiPath, 'addons', ADDON_ID)
+    return os.path.exists(preInstalledPath)
 
 def commandIsAvailable(command):
     for p in os.environ["PATH"].split(os.pathsep):
