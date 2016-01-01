@@ -521,9 +521,15 @@ def preInstalledFirstRun():
     return True
 
 
+def startService():
+    if preInstalledFirstRun():
+        return
+
+    TTSService().start()
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'voice_dialog':
         backends.selectVoice()
     else:
-        if not preInstalledFirstRun():
-            TTSService().start()
+        startService()

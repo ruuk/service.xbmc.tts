@@ -138,6 +138,9 @@ def buildKeymap(defaults=False):  # TODO: Build XML with ElementTree?
             xml = xml.replace('<{0}>'.format(action), '<key id="{0}">'.format(key)).replace('</{0}>'.format(action), '</key>')
         else:
             xml = xml.replace('<{0}>'.format(action), '<{0}>'.format(default)).replace('</{0}>'.format(action), '</{0}>'.format(default.split(' ', 1)[0]))
+
+    xml = xml.format(SPECIAL=util.isPreInstalled() and 'xbmc' or 'home')
+
     saveKeymapXML(xml)
 
 

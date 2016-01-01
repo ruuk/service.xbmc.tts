@@ -28,6 +28,7 @@ EXTERNAL TODO:
 Add Dutch translation - thanks to leonardder
 Automatically disable if pre-installed
 Fix issues playing informational sounds when addon is pre-installed
+Add ability do enable/disable addon when it's pre-installed
 
 ** 1.0.5 **
 
