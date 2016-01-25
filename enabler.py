@@ -2,6 +2,7 @@
 import os, sys, xbmc, xbmcaddon
 
 DISABLE_PATH = os.path.join(xbmc.translatePath('special://profile').decode('utf-8'), 'addon_data', 'service.xbmc.tts', 'DISABLED')
+ENABLE_PATH = os.path.join(xbmc.translatePath('special://profile').decode('utf-8'), 'addon_data', 'service.xbmc.tts', 'ENABLED')
 
 def getXBMCVersion():
     import json
@@ -18,6 +19,8 @@ def enableAddon():
     if os.path.exists(DISABLE_PATH):
         os.remove(DISABLE_PATH)
 
+    markPreOrPost(enable=True)
+
     if isPostInstalled():
         if addonIsEnabled():
             xbmc.executebuiltin('RunScript(service.xbmc.tts)')
@@ -28,8 +31,10 @@ def enableAddon():
 
 
 def disableAddon():
-    with open(DISABLE_PATH, 'w'):
-        pass
+    if os.path.exists(ENABLE_PATH):
+        os.remove(ENABLE_PATH)
+
+    markPreOrPost(disable=True)
 
     if isPostInstalled():
         version = getXBMCVersion()
@@ -38,6 +43,15 @@ def disableAddon():
         #if res and 'error' in res: #If we have an error, it's already disabled
         #print res
 
+
+def markPreOrPost(enable=False, disable=False):
+    if os.path.exists(ENABLE_PATH) or enable:
+        with open(ENABLE_PATH, 'w') as f:
+            f.write(isPostInstalled() and 'POST' or 'PRE')
+
+    if os.path.exists(DISABLE_PATH) or disable:
+        with open(DISABLE_PATH, 'w') as f:
+            f.write(isPostInstalled() and 'POST' or 'PRE')
 
 def addonIsEnabled():
     if os.path.exists(DISABLE_PATH):
@@ -75,10 +89,12 @@ def reset():
         ct+=1
     enableAddon()
 
+
 def isPostInstalled():
     homePath = xbmc.translatePath('special://home').decode('utf-8')
     postInstalledPath = os.path.join(homePath, 'addons', 'service.xbmc.tts')
     return os.path.exists(postInstalledPath)
+
 
 if __name__ == '__main__':
     arg = None

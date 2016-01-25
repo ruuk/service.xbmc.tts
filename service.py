@@ -498,11 +498,24 @@ class TTSService(xbmc.Monitor):
 
 
 def preInstalledFirstRun():
-    if not util.isPreInstalled():
+    if not util.isPreInstalled(): #Do as little as possible if there is no pre-install
+        if util.wasPreInstalled():
+            util.LOG('PRE INSTALL: REMOVED')
+            # Set version to 0.0.0 so normal first run will execute and fix the keymap
+            util.setSetting('version','0.0.0')
+            import enabler
+            enabler.markPreOrPost() # Update the install status
         return False
 
+    import enabler
+
     lastVersion = util.getSetting('version')
-    if lastVersion:
+
+    if not enabler.isPostInstalled() and util.wasPostInstalled():
+        util.LOG('POST INSTALL: UN-INSTALLED OR REMOVED')
+        # Add-on was removed. Assume un-installed and treat this as a pre-installed first run to disable the addon
+    elif lastVersion:
+        enabler.markPreOrPost() # Update the install status
         return False
 
     # Set version to 0.0.0 so normal first run will execute on first enable
@@ -516,7 +529,7 @@ def preInstalledFirstRun():
     keymapeditor.installBasicKeymap()
 
     util.LOG('Pre-installed - DISABLING')
-    import enabler
+
     enabler.disableAddon()
     return True
 

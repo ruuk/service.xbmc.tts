@@ -25,6 +25,11 @@ EXTERNAL TODO:
 
 ** 1.0.6 **
 
+Now puts the addon in first run state if a user installed version is removed when the addon is pre-installed
+Now updates the keymap if the pre-installed version is removed
+
+** 1.0.6b1 **
+
 Add Dutch translation - thanks to leonardder
 Automatically disable if pre-installed
 Fix issues playing informational sounds when addon is pre-installed

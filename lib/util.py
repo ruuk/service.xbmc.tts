@@ -8,6 +8,9 @@ XT = xbmc.getLocalizedString
 
 LOG_PATH = os.path.join(xbmc.translatePath('special://logpath').decode('utf-8'),'xbmc.log')
 
+DISABLE_PATH = os.path.join(xbmc.translatePath('special://profile').decode('utf-8'), 'addon_data', ADDON_ID, 'DISABLED')
+ENABLE_PATH = os.path.join(xbmc.translatePath('special://profile').decode('utf-8'), 'addon_data', ADDON_ID, 'ENABLED')
+
 def ERROR(txt,hide_tb=False,notify=False):
     if isinstance (txt,str): txt = txt.decode("utf-8")
     short = str(sys.exc_info()[1])
@@ -205,6 +208,26 @@ def isPreInstalled():
     kodiPath = xbmc.translatePath('special://xbmc').decode('utf-8')
     preInstalledPath = os.path.join(kodiPath, 'addons', ADDON_ID)
     return os.path.exists(preInstalledPath)
+
+def wasPostInstalled():
+    if os.path.exists(DISABLE_PATH):
+        with open(DISABLE_PATH, 'r') as f:
+            return f.read() == 'POST'
+    elif os.path.exists(ENABLE_PATH):
+        with open(ENABLE_PATH, 'r') as f:
+            return f.read() == 'POST'
+
+    return False
+
+def wasPreInstalled():
+    if os.path.exists(DISABLE_PATH):
+        with open(DISABLE_PATH, 'r') as f:
+            return f.read() == 'PRE'
+    elif os.path.exists(ENABLE_PATH):
+        with open(ENABLE_PATH, 'r') as f:
+            return f.read() == 'PRE'
+
+    return False
 
 def commandIsAvailable(command):
     for p in os.environ["PATH"].split(os.pathsep):
