@@ -114,7 +114,7 @@ class TTSService(xbmc.Monitor):
 
     def reloadSettings(self):
         self.readerOn = not util.getSetting('reader_off',False)
-        util.DEBUG = util.getSetting('debug_logging',True)
+        util.reload()
         self.speakListCount = util.getSetting('speak_list_count',True)
         self.autoItemExtra = False
         if util.getSetting('auto_item_extra',False):
@@ -283,7 +283,7 @@ class TTSService(xbmc.Monitor):
             import threading
             util.LOG('Remaining Threads:')
             for t in threading.enumerate():
-                util.LOG('  {0}'.format(t.name))
+                util.DEBUG_LOG('  {0}'.format(t.name))
 
     def shutdown(self):
         self.stop = True
@@ -364,12 +364,14 @@ class TTSService(xbmc.Monitor):
     def sayText(self,text,interrupt=False):
         assert isinstance(text,unicode), "Not Unicode"
         if self.tts.dead: return self.fallbackTTS(self.tts.deadReason)
+        util.VERBOSE_LOG(repr(text))
         self.tts.say(self.cleanText(text),interrupt)
 
     def sayTexts(self,texts,interrupt=True):
         if not texts: return
         assert all(isinstance(t,unicode) for t in texts), "Not Unicode"
         if self.tts.dead: return self.fallbackTTS(self.tts.deadReason)
+        util.VERBOSE_LOG(repr(texts))
         self.tts.sayList(self.cleanText(texts),interrupt=interrupt)
 
     def insertPause(self,ms=500):
@@ -408,7 +410,7 @@ class TTSService(xbmc.Monitor):
         self.winID = winID
         self.updateWindowReader()
         if util.DEBUG:
-            util.LOG('Window ID: {0} Handler: {1} File: {2}'.format(winID,self.windowReader.ID,xbmc.getInfoLabel('Window.Property(xmlfile)')))
+            util.DEBUG_LOG('Window ID: {0} Handler: {1} File: {2}'.format(winID,self.windowReader.ID,xbmc.getInfoLabel('Window.Property(xmlfile)')))
 
         name = self.windowReader.getName()
         if name:
@@ -435,7 +437,7 @@ class TTSService(xbmc.Monitor):
         controlID = self.window().getFocusId()
         if controlID == self.controlID: return newW
         if util.DEBUG:
-            util.LOG('Control: %s' % controlID)
+            util.DEBUG_LOG('Control: %s' % controlID)
         self.controlID = controlID
         if not controlID: return newW
         return True

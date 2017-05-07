@@ -112,6 +112,7 @@
     <setting label="32044" type="bool" id="use_tmpfs" default="true" />
     <setting label="32045" type="bool" id="disable_broken_backends" default="true" />
     <setting label="32046" type="bool" id="debug_logging" default="false" />
+    <setting label="32049" type="bool" id="verbose_logging" default="false" subsetting="true" enable="eq(-1,true)"/>
     <setting label="32047" type="bool" id="override_poll_interval" default="false" />
     <setting label="32048" type="slider" id="poll_interval" subsetting="true" option="int" default="100" range="50,1000" enable="eq(-1,true)" />
   </category>
