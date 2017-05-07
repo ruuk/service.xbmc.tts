@@ -443,7 +443,7 @@ class TTSService(xbmc.Monitor):
         return True
 
     def checkControlDescription(self,newW):
-        post = self.getControlPostfix()
+        post = self.windowReader.getControlPostfix(self.controlID)
         description = self.windowReader.getControlDescription(self.controlID) or ''
         if description or post:
             self.sayText(description + post,interrupt=not newW)
@@ -463,12 +463,6 @@ class TTSService(xbmc.Monitor):
         self.sayText(text,interrupt=not newD)
         if self.autoItemExtra:
             self.waitingToReadItemExtra = time.time()
-
-    def getControlPostfix(self):
-        if not self.speakListCount: return u''
-        numItems = xbmc.getInfoLabel('Container({0}).NumItems'.format(self.controlID)).decode('utf-8')
-        if numItems: return u'... {0} {1}'.format(numItems,numItems != '1' and T(32107) or T(32106))
-        return u''
 
     def newSecondaryText(self, text):
         self.secondaryText = text
