@@ -4,3 +4,4 @@
 *.pyc
 *.pyo
 *~
+lib/backends
