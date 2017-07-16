@@ -43,8 +43,10 @@
 
     <!-- OSX Say -->
     <setting visible="eq(-28,OSXSay)" id="voice.OSXSay" subsetting="true" label="32003" type="action" action='XBMC.NotifyAll(service.xbmc.tts,SETTINGS.SETTING_DIALOG,"[\"OSXSay\",\"voice\"]")' />
+    <!-- Reverted to old OSXSay hander (for now) which doesn't have these
     <setting visible="eq(-29,OSXSay)" id="speed.OSXSay" label="32011" type="slider" subsetting="true" option="int" default="200" range="80,450" />
     <setting visible="eq(-30,OSXSay)" id="volume.OSXSay" label="32014" type="slider" subsetting="true" option="percent" default="100" range="0,100" />
+    -->
 
     <!-- Festival -->
     <setting visible="eq(-31,Festival)" id="voice.Festival" subsetting="true" label="32003" type="action" action='XBMC.NotifyAll(service.xbmc.tts,SETTINGS.SETTING_DIALOG,"[\"Festival\",\"voice\"]")' />
